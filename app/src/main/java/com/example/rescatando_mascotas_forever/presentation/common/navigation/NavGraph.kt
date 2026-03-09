@@ -6,6 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
+import com.example.rescatando_mascotas_forever.presentation.nosotros.NosotrosScreen
 
 @Composable
 fun AppNavigation() {
@@ -13,14 +16,22 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "login" // O "home" si ya tienes sesión
+        startDestination = "home" // Cambiado a home para facilitar tus pruebas
     ) {
         composable("login") {
             LoginScreen()
         }
         composable("home") {
-            HomeScreen()
+            HomeScreen(navController = navController)
         }
-        // Agrega aquí el resto de tus rutas (mascotas, tienda, etc.)
+        composable("adopciones") {
+            AdopcionListScreen(navController = navController)
+        }
+        composable("ultimos_rescates") {
+            RescateScreen(navController = navController)
+        }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
+        }
     }
 }
