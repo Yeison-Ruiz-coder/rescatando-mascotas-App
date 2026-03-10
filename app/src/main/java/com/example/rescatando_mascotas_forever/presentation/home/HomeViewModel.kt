@@ -40,6 +40,7 @@ class HomeViewModel : ViewModel() {
                     edadAprox = 2,
                     genero = "Hembra",
                     estado = "En adopcion",
+                    ubicacion = "Quito, Ecuador", // Agregado
                     descripcion = "Es muy juguetona y cariñosa.",
                     fotoPrincipal = "https://images.dog.ceo/breeds/retriever-golden/n02099601_3004.jpg",
                     aptoConNinos = true,
@@ -53,6 +54,7 @@ class HomeViewModel : ViewModel() {
                     edadAprox = 1,
                     genero = "Macho",
                     estado = "En adopcion",
+                    ubicacion = "Guayaquil, Ecuador", // Agregado
                     descripcion = "Gatito rescatado, muy tranquilo.",
                     fotoPrincipal = "https://images.ctfassets.net/denf86kkcx7r/4IPlg4Qazd4sFRuCUHIJ1T/f6c71da7eec727babcd554d843a528b8/gatocomuneuropeo-97",
                     aptoConNinos = true,
@@ -66,6 +68,7 @@ class HomeViewModel : ViewModel() {
                     edadAprox = 4,
                     genero = "Macho",
                     estado = "Adoptado",
+                    ubicacion = "Cuenca, Ecuador", // Agregado
                     descripcion = "Ya encontró un hogar feliz.",
                     fotoPrincipal = "https://images.ctfassets.net/denf86kkcx7r/HJO06XFEAWjMW42CkMPQz/c3cb44ef5b0815101349affd2353033e/Beagle.webp?fm=webp&w=913",
                     aptoConNinos = true,
@@ -79,6 +82,7 @@ class HomeViewModel : ViewModel() {
                     edadAprox = 3,
                     genero = "Hembra",
                     estado = "En adopcion",
+                    ubicacion = "Ambato, Ecuador", // Agregado
                     descripcion = "Busca una familia activa.",
                     fotoPrincipal = "https://images.dog.ceo/breeds/labrador/n02099712_3503.jpg",
                     aptoConNinos = false,

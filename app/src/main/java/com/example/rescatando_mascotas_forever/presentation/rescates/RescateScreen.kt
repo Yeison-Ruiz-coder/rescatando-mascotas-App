@@ -1,5 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.rescates
 
+import android.R
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,6 +28,9 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.GradientHeader
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,26 +43,20 @@ fun RescateScreen(navController: NavHostController) {
         RescateData(
             "15 de Enero del 2026",
             "Parque Caldas, centro",
-            "En tratamiento veterinario",
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuR3F5T8IPNjBh5NIJ0bQ6bKTcA5IHlHvo8A&s" // Reemplazar con URL real
+            "En tratamiento",
+            "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop"
         ),
         RescateData(
             "3 de Febrero del 2026",
             "Maria Occidente",
-            "Disponible en adopción",
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIz8HrCAk_EfSVeqVm_aYCbSXoTqsI-NgyvQ&s" // Reemplazar con URL real
+            "Disponible",
+            "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"
         ),
         RescateData(
             "4 de Abril del 2026",
             "Centro, calle 5",
-            "En recuperación",
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhGJq_ATRDJ9WChNF3IWHOdmRYIErpo7Qy7Q&s"
-        ),
-        RescateData(
-            "7 de Abril del 2026",
-            "Santo Domingo",
-            "En observación",
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-ChyweReTJG4gyDapygRCm-aI8ap3O0vmbA&s"
+            "Recuperación",
+            "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop"
         )
     )
 
@@ -71,148 +70,151 @@ fun RescateScreen(navController: NavHostController) {
                 MainTopBar(drawerState = drawerState, scope = scope)
             },
             bottomBar = {
-                NavigationBar(containerColor = Color(0xFF5E49BF)) {
-                    NavigationBarItem(selected = false, onClick = { navController.navigate("home") }, icon = { Icon(Icons.Default.Home, null, tint = Color.White.copy(0.6f)) }, label = { Text("Inicio", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { navController.navigate("adopciones") }, icon = { Icon(Icons.Default.Search, null, tint = Color.White.copy(0.6f)) }, label = { Text("Buscar", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Default.Warning, null, tint = Color.White.copy(0.6f)) }, label = { Text("Reportar", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Default.Person, null, tint = Color.White.copy(0.6f)) }, label = { Text("Perfil", color = Color.White.copy(0.6f)) })
-                }
+                AppBottomBar(navController)
             }
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF6EEE9))
+                    .background(Color.White)
             ) {
-                // 1. Header "Ultimos rescates" con imagen (Ajustado a 180.dp)
+                // 1. Header Moderno
+                item {
+                    GradientHeader("Últimos Rescates")
+                }
+
+                // 2. Banner Hero
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(62.dp) // Reducido de 240.dp
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(Color(0xFF7B5EE1), Color(0xFF4C35A3))
-                                )
-                            ),
-                        contentAlignment = Alignment.TopCenter
+                            .height(160.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Spacer(modifier = Modifier.height(15.dp))
-                            Text("Ultimos rescates", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Light)
-                            Spacer(modifier = Modifier.height(15.dp))
-                            Image(
-                                painter = rememberAsyncImagePainter("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz-Mh-4f_z-Mh-4f_z-Mh-4f_z-Mh-4f_z-Mh&s"), 
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(100.dp), // Reducido de 140.dp
-                                contentScale = ContentScale.Crop
+                        Image(
+                            painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1444212477490-ca407925329e?q=80&w=2000&auto=format&fit=crop"), 
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.4f))
+                        )
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Haciendo la diferencia",
+                                color = Color.White,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Cada vida rescatada cuenta una historia.",
+                                color = Color.White.copy(0.8f),
+                                fontSize = 14.sp
                             )
                         }
                     }
                 }
 
-                // 2. Título "Ultimas mascotas rescatadas"
+                // 3. Título de sección
                 item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Ultimas mascotas rescatadas", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Cada rescate es una oportunidad de cambiara una vida.\nCorazones,lineas,amparados",
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 16.sp
-                        )
+                    PaddingValues(24.dp).let {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            Text(
+                                "Mascotas recientemente amparadas",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF2E1A7A)
+                            )
+                            Text(
+                                "Conoce a los valientes que hoy tienen una oportunidad.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        }
                     }
                 }
 
-                // 3. Lista de Tarjetas de Rescate
+                // 4. Lista de Tarjetas Modernas
                 items(rescatesPrueba) { rescate ->
-                    RescateCard(rescate)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    ModernRescateCard(rescate)
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                // 4. Frase motivacional (Morada)
+                // 5. Frase destacada (Estilo Nosotros)
                 item {
                     Box(
                         modifier = Modifier
-                            .padding(16.dp)
+                            .padding(24.dp)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFF7B5EE1))
-                            .padding(24.dp),
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(brush = AppMainGradient)
+                            .padding(32.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Star, null, tint = Color.White, modifier = Modifier.size(32.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                "\"La segunda oportunidad\nde un corazon valiente\"",
+                                "\"La segunda oportunidad de un corazón valiente\"",
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                "Amando encontre una familia para este adorable cachorro.\nLa experiencia dever como se creaba un vínculo entre\nhumano y animal es simplemente invaluable. Ahora estan\nJuntos y felices.",
+                                "Gracias a tu apoyo, transformamos el dolor en alegría. Cada rescate es un puente hacia un nuevo hogar.",
                                 color = Color.White.copy(0.9f),
-                                fontSize = 11.sp,
+                                fontSize = 13.sp,
                                 textAlign = TextAlign.Center,
-                                lineHeight = 14.sp
+                                lineHeight = 20.sp
                             )
                         }
                     }
                 }
 
-                // 5. Sección final "Tu puedes cambiar su historia"
+                // 6. Sección de Acción
                 item {
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Surface(
-                            modifier = Modifier.size(120.dp),
-                            shape = CircleShape,
-                            border = BorderStroke(4.dp, Color(0xFFF48FB1).copy(0.5f))
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1wnYVVl7EoE0VGyczFdbb7D02izZbKq9xTA&s"),
-                                contentDescription = null,
-                                modifier = Modifier.padding(4.dp).clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Tu puedes cambiar su historia", fontSize = 18.sp, fontWeight = FontWeight.Bold , color = Color.Black)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
-                            "Cada rescate es una oportunidad para cambiar una vida\nCompasion,empatia,solidaridad",
-                            fontSize = 12.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
+                            "Tú puedes ser parte del cambio",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E1A7A)
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Button(
-                            onClick = { },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB388FF)),
-                            shape = RoundedCornerShape(12.dp)
+                            onClick = { navController.navigate("formulario_rescate") },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            Text("Formulario de rescate", color = Color.White)
+                            Icon(Icons.Default.Edit, null , tint = Color.White, modifier = Modifier.size(24.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Reportar un Rescate", fontWeight = FontWeight.Bold , color = Color.White)
                         }
+                        
                         Spacer(modifier = Modifier.height(12.dp))
-                        Button(
-                            onClick = { },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
-                            shape = RoundedCornerShape(12.dp)
+                        
+                        OutlinedButton(
+                            onClick = { navController.navigate("registro_rescatista") },
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(2.dp, Color(0xFF2E1A7A))
                         ) {
-                            Text("Registra como rescatista", color = Color.White)
+                            Text("Unirse como Rescatista", color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -222,35 +224,53 @@ fun RescateScreen(navController: NavHostController) {
 }
 
 @Composable
-fun RescateCard(rescate: RescateData) {
+fun ModernRescateCard(rescate: RescateData) {
     Card(
-        modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp)
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
+        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column {
-            Image(
-                painter = rememberAsyncImagePainter(rescate.imageUrl),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-            Column(modifier = Modifier.padding(16.dp)) {
-                RescateInfoRow("Fecha de encuentro :", rescate.fecha)
-                RescateInfoRow("Lugar de rescate :", rescate.lugar)
-                RescateInfoRow("Estado :", rescate.estado)
-                
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                    Button(
-                        onClick = { },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
-                        modifier = Modifier.height(30.dp),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-                        shape = RoundedCornerShape(15.dp)
+            Box {
+                Image(
+                    painter = rememberAsyncImagePainter(rescate.imageUrl),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().height(220.dp),
+                    contentScale = ContentScale.Crop
+                )
+                // Badge de estado
+                Surface(
+                    modifier = Modifier.padding(16.dp).align(Alignment.TopStart),
+                    shape = RoundedCornerShape(12.dp),
+                    color = Color.White.copy(alpha = 0.9f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Ver mas ..", fontSize = 10.sp, color = Color.White)
+                        Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF4CAF50)))
+                        Spacer(Modifier.width(8.dp))
+                        Text(rescate.estado, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                     }
+                }
+            }
+            
+            Column(modifier = Modifier.padding(20.dp)) {
+                RescateDetailRow(Icons.Default.DateRange, rescate.fecha)
+                Spacer(Modifier.height(8.dp))
+                RescateDetailRow(Icons.Default.LocationOn, rescate.lugar)
+                
+                Spacer(Modifier.height(16.dp))
+                
+                TextButton(
+                    onClick = { },
+                    modifier = Modifier.align(Alignment.End),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("Ver historia completa →", color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -258,10 +278,11 @@ fun RescateCard(rescate: RescateData) {
 }
 
 @Composable
-fun RescateInfoRow(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-        Text(value, fontSize = 11.sp, color = Color.Gray)
+fun RescateDetailRow(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = Color.Gray, modifier = Modifier.size(18.dp))
+        Spacer(Modifier.width(8.dp))
+        Text(text, fontSize = 14.sp, color = Color.DarkGray)
     }
 }
 

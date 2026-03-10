@@ -21,6 +21,9 @@ data class Mascota(
     @SerializedName("estado")
     val estado: String, // "Adoptado", "En adopcion", etc.
 
+    @SerializedName("ubicacion")
+    val ubicacion: String,
+
     @SerializedName("descripcion")
     val descripcion: String?,
 

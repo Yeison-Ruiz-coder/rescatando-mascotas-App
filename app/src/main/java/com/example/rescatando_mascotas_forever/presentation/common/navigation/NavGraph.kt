@@ -9,6 +9,13 @@ import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
 import com.example.rescatando_mascotas_forever.presentation.nosotros.NosotrosScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRescatistaScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.FormularioRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.FormularioAdopcionScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
+import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
 
 @Composable
 fun AppNavigation() {
@@ -32,6 +39,27 @@ fun AppNavigation() {
         }
         composable("nosotros") {
             NosotrosScreen(navController = navController)
+        }
+        composable("registro_rescatista") {
+            RegistroRescatistaScreen(navController = navController)
+        }
+        composable("formulario_rescate") {
+            FormularioRescateScreen(navController = navController)
+        }
+        composable("formulario_adopcion") {
+            FormularioAdopcionScreen(navController = navController)
+        }
+        composable("eventos") {
+            EventoScreen(navController = navController)
+        }
+        composable("rescatista_contactos") {
+            RescatistaContactosScreen(navController = navController)
+        }
+        composable("encuesta_rescate") {
+            EncuestaRescateScreen(navController = navController)
+        }
+        composable("proceso_adopcion") {
+            ProcesoAdopcionScreen(navController = navController)
         }
     }
 }

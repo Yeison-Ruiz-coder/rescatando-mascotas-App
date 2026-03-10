@@ -1,5 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.nosotros
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +26,9 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.GradientHeader
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,126 +47,187 @@ fun NosotrosScreen(navController: NavHostController) {
                 MainTopBar(drawerState = drawerState, scope = scope)
             },
             bottomBar = {
-                NavigationBar(containerColor = Color(0xFF5E49BF)) {
-                    NavigationBarItem(selected = false, onClick = { navController.navigate("home") }, icon = { Icon(Icons.Default.Home, null, tint = Color.White.copy(0.6f)) }, label = { Text("Inicio", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { navController.navigate("adopciones") }, icon = { Icon(Icons.Default.Search, null, tint = Color.White.copy(0.6f)) }, label = { Text("Buscar", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Default.Warning, null, tint = Color.White.copy(0.6f)) }, label = { Text("Reportar", color = Color.White.copy(0.6f)) })
-                    NavigationBarItem(selected = false, onClick = { }, icon = { Icon(Icons.Default.Person, null, tint = Color.White.copy(0.6f)) }, label = { Text("Perfil", color = Color.White.copy(0.6f)) })
-                }
+                AppBottomBar(navController)
             }
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF6EEE9))
+                    .background(Color.White)
             ) {
-                // 1. Header Morado: Mision y Vision
+                // 1. Encabezado con degradado (unificado con el resto de la app)
+                item {
+                    GradientHeader("Nosotros")
+                }
+
+                // 2. Imagen de "Hero" - Inspira confianza y modernidad
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(140.dp)
-                            .background(
-                                brush = Brush.verticalGradient(
-                                    colors = listOf(Color(0xFF7B5EE1), Color(0xFF4C35A3))
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
+                            .height(200.dp)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Mision y Vision", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Light)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Una segunda oportunidad comienza aquí ", color = Color.White.copy(0.9f), fontSize = 14.sp)
-                        }
+                        Image(
+                            painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2000&auto=format&fit=crop"),
+                            contentDescription = "Perro y humano",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.4f))
+                        )
+                        Text(
+                            "Sanando historias,\nuniendo corazones.",
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(24.dp),
+                            textAlign = TextAlign.Center,
+                            lineHeight = 32.sp
+                        )
                     }
                 }
 
-                // 2. Seccion Mision y Vision (Fondo Azul Oscuro)
+                // 3. Sección "Quiénes somos"
                 item {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF2E1A7A))
-                            .padding(24.dp)
-                    ) {
-                        // Misión
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text("Misión", color = Color.White.copy(0.7f), fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    "Rescatar, proteger y rehabilitar animales en situación de abandono o maltrato, brindándoles atención integral y la oportunidad de encontrar un hogar responsable y amoroso. A través de nuestra plataforma web, conectamos corazones solidarios con mascotas que necesitan una segunda oportunidad.",
-                                    color = Color.White,
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp
-                                )
-                            }
-                            Image(
-                                painter = rememberAsyncImagePainter("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlyHXTTuVFKjbW1gTpMYrgW3qMFU2k0rRmcQ&s"),
-                                contentDescription = null,
-                                modifier = Modifier.size(100.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(40.dp))
-
-                        // Visión
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painter = rememberAsyncImagePainter("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9WYlhI9Y4C9T--pu6QiA6U5hthQXjzBiHUoHmW-RYcw&s"),
-                                contentDescription = null,
-                                modifier = Modifier.size(100.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text("Visión", color = Color.White.copy(0.7f), fontSize = 22.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.fillMaxWidth())
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    "Ser la página web de referencia en el rescate y adopción de mascotas, fomentando una cultura de respeto, empatía y responsabilidad hacia los animales. Aspiramos a construir una comunidad digital activa y comprometida, donde cada mascota tenga la oportunidad de vivir con dignidad y amor..",
-                                    color = Color.White,
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp,
-                                    textAlign = TextAlign.End
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // 3. Seccion Sobre Nosotros (Fondo Rosa)
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF8BBD0).copy(0.6f))
-                            .padding(24.dp),
+                            .padding(top = 32.dp, start = 24.dp, end = 24.dp, bottom = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("Sobre Nosotros", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = Color(0xFF2E1A7A))
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            "En nuestra página creemos que cada vida importa. Nacimos del deseo de cambiar la realidad de miles de animales que sufren abandono, maltrato o indiferencia. Somos un equipo de amantes de los animales que, con esfuerzo, cariño y compromiso, rescatamos, cuidamos y buscamos hogares responsables para quienes más lo necesitan.\nMás que una plataforma, somos un puente entre corazones: el de una mascota que espera ser amada y el de una persona dispuesta a dar amor. Aquí no solo promovemos la adopción, también educamos, sensibilizamos y construimos una comunidad que cree en el respeto, la empatía y la acción.\nCada rescate es una historia de esperanza. Y cada adopción, una nueva oportunidad de vida. Gracias por ser parte de este movimiento que transforma el mundo, una patita a la vez.",
-                            fontSize = 13.sp,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center,
-                            lineHeight = 19.sp
-                        )
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
+                        Surface(
+                            color = Color(0xFF2E1A7A).copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(20.dp)
                         ) {
-                            Icon(Icons.Default.Info, null, modifier = Modifier.size(40.dp), tint = Color.Black.copy(0.6f))
-                            Spacer(modifier = Modifier.width(20.dp))
-                            Icon(Icons.Default.Face, null, modifier = Modifier.size(40.dp), tint = Color.Black.copy(0.6f))
+                            Text(
+                                "NUESTRA HISTORIA",
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                                color = Color(0xFF2E1A7A),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            "En Rescatando Mascotas Forever creemos que cada vida importa. Nacimos del deseo de cambiar la realidad de miles de animales que sufren abandono o maltrato. Somos un equipo comprometido con el rescate y la búsqueda de hogares responsables.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center,
+                            lineHeight = 26.sp,
+                            color = Color.DarkGray
+                        )
+                    }
+                }
+
+                // 4. Misión y Visión como Tarjetas Modernas (Estilo limpio)
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                    ) {
+                        ModernInfoCard(
+                            title = "Misión",
+                            text = "Rescatar y rehabilitar animales en situación de abandono, brindándoles atención integral y conectándolos con hogares amorosos a través de nuestra plataforma digital.",
+                            icon = Icons.Default.Favorite
+                        )
                         Spacer(modifier = Modifier.height(20.dp))
+                        ModernInfoCard(
+                            title = "Visión",
+                            text = "Ser la plataforma líder en adopción responsable, fomentando una cultura de respeto y empatía hacia los animales en toda nuestra comunidad.",
+                            icon = Icons.Default.Star
+                        )
+                    }
+                }
+
+                // 5. Valores (Iconos limpios con círculos)
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Nuestros Valores",
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 48.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        ValueItem(Icons.Default.CheckCircle, "Respeto")
+                        ValueItem(Icons.Default.Face, "Empatía")
+                        ValueItem(Icons.Default.Info, "Compromiso")
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ModernInfoCard(title: String, text: String, icon: ImageVector) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFBFBFE)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+    ) {
+        Row(
+            modifier = Modifier.padding(24.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(brush = AppMainGradient),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+            }
+            Spacer(modifier = Modifier.width(20.dp))
+            Column {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 18.sp,
+                    color = Color(0xFF2E1A7A)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = text,
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    lineHeight = 22.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ValueItem(icon: ImageVector, label: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            modifier = Modifier.size(56.dp),
+            shape = CircleShape,
+            color = Color(0xFFF6EEE9)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, tint = Color(0xFF2E1A7A), modifier = Modifier.size(28.dp))
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
     }
 }
