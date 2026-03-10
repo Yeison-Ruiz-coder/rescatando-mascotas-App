@@ -16,6 +16,7 @@ import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
 import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
+import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen
 
 @Composable
 fun AppNavigation() {
@@ -23,8 +24,11 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "home" // Cambiado a home para facilitar tus pruebas
+        startDestination = "splash" // Ahora empieza con el Splash (telón)
     ) {
+        composable("splash") {
+            SplashScreen(navController = navController)
+        }
         composable("login") {
             LoginScreen()
         }
