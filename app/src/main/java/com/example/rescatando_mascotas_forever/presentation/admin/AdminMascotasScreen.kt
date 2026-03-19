@@ -1,8 +1,8 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,11 +38,10 @@ data class MascotaAdmin(
 fun AdminMascotasScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
+
     var showDialog by remember { mutableStateOf(false) }
     var mascotaEditando by remember { mutableStateOf<MascotaAdmin?>(null) }
 
-    // Lista de prueba
     val mascotas = remember {
         mutableStateListOf(
             MascotaAdmin(1, "Firulais", "Perro", "2 años", "Disponible", "https://images.unsplash.com/photo-1543466835-00a7907e9de1"),
@@ -66,9 +65,9 @@ fun AdminMascotasScreen(navController: NavHostController) {
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { 
+                    onClick = {
                         mascotaEditando = null
-                        showDialog = true 
+                        showDialog = true
                     },
                     containerColor = Color(0xFF673AB7),
                     contentColor = Color.White
@@ -83,7 +82,6 @@ fun AdminMascotasScreen(navController: NavHostController) {
                     .padding(padding)
                     .background(Color(0xFFF8F9FA))
             ) {
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -96,7 +94,6 @@ fun AdminMascotasScreen(navController: NavHostController) {
                     }
                 }
 
-                // Listado
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -105,9 +102,9 @@ fun AdminMascotasScreen(navController: NavHostController) {
                     items(mascotas) { mascota ->
                         MascotaAdminCard(
                             mascota = mascota,
-                            onEdit = { 
+                            onEdit = {
                                 mascotaEditando = mascota
-                                showDialog = true 
+                                showDialog = true
                             },
                             onDelete = { mascotas.remove(mascota) }
                         )
@@ -118,7 +115,7 @@ fun AdminMascotasScreen(navController: NavHostController) {
     }
 
     if (showDialog) {
-        MascotaDialog(
+        MascotaDialogStepByStep(
             mascota = mascotaEditando,
             onDismiss = { showDialog = false },
             onConfirm = { nuevaMascota ->
@@ -132,6 +129,125 @@ fun AdminMascotasScreen(navController: NavHostController) {
             }
         )
     }
+}
+
+@Composable
+fun MascotaDialogStepByStep(mascota: MascotaAdmin?, onDismiss: () -> Unit, onConfirm: (MascotaAdmin) -> Unit) {
+    var currentStep by remember { mutableIntStateOf(1) }
+
+    var nombre by remember { mutableStateOf(mascota?.nombre ?: "") }
+    var especie by remember { mutableStateOf(mascota?.especie ?: "Perro") }
+    var edad by remember { mutableStateOf(mascota?.edad ?: "") }
+    var estado by remember { mutableStateOf(mascota?.estado ?: "Disponible") }
+    var url by remember { mutableStateOf(mascota?.imagenUrl ?: "https://") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(
+                    if (mascota == null) "Nueva Mascota" else "Editar Mascota",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "Paso $currentStep de 2",
+                    fontSize = 12.sp,
+                    color = Color(0xFF333333),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LinearProgressIndicator(
+                    progress = { currentStep.toFloat() / 2f },
+                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                    color = Color(0xFF673AB7),
+                    trackColor = Color(0xFFEEEEEE)
+                )
+
+                val textFieldColors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Color(0xFF673AB7),
+                    unfocusedLabelColor = Color(0xFF333333),
+                    focusedBorderColor = Color(0xFF673AB7),
+                    unfocusedBorderColor = Color.Gray
+                )
+
+                if (currentStep == 1) {
+                    OutlinedTextField(
+                        value = nombre,
+                        onValueChange = { nombre = it },
+                        label = { Text("Nombre", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = especie,
+                        onValueChange = { especie = it },
+                        label = { Text("Especie", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = edad,
+                        onValueChange = { edad = it },
+                        label = { Text("Edad", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = estado,
+                        onValueChange = { estado = it },
+                        label = { Text("Estado", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = url,
+                        onValueChange = { url = it },
+                        label = { Text("URL Imagen", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (currentStep == 1) {
+                    Button(
+                        onClick = { currentStep = 2 },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7), contentColor = Color.White)
+                    ) {
+                        Text("SIGUIENTE", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Button(
+                        onClick = { onConfirm(MascotaAdmin(mascota?.id ?: 0, nombre, especie, edad, estado, url)) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
+                    ) {
+                        Text("GUARDAR", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            Row {
+                if (currentStep == 2) {
+                    TextButton(onClick = { currentStep = 1 }) {
+                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -154,21 +270,21 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
-            
+
             Spacer(Modifier.width(16.dp))
-            
+
             Column(Modifier.weight(1f)) {
-                Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("${mascota.especie} • ${mascota.edad}", color = Color.Gray, fontSize = 13.sp)
-                
+                Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
+                Text("${mascota.especie} • ${mascota.edad}", color = Color(0xFF333333), fontSize = 13.sp)
+
                 Spacer(Modifier.height(4.dp))
-                
+
                 val statusColor = when(mascota.estado) {
-                    "Disponible" -> Color(0xFF4CAF50)
-                    "En Proceso" -> Color(0xFFFF9800)
-                    else -> Color(0xFF2196F3)
+                    "Disponible" -> Color(0xFF2E7D32)
+                    "En Proceso" -> Color(0xFFEF6C00)
+                    else -> Color(0xFF1565C0)
                 }
-                
+
                 Surface(
                     color = statusColor.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
@@ -182,7 +298,7 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
                     )
                 }
             }
-            
+
             Row {
                 IconButton(onClick = onEdit) {
                     Icon(Icons.Default.Edit, "Editar", tint = Color(0xFF673AB7))
@@ -193,40 +309,4 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
             }
         }
     }
-}
-
-@Composable
-fun MascotaDialog(mascota: MascotaAdmin?, onDismiss: () -> Unit, onConfirm: (MascotaAdmin) -> Unit) {
-    var nombre by remember { mutableStateOf(mascota?.nombre ?: "") }
-    var especie by remember { mutableStateOf(mascota?.especie ?: "Perro") }
-    var edad by remember { mutableStateOf(mascota?.edad ?: "") }
-    var estado by remember { mutableStateOf(mascota?.estado ?: "Disponible") }
-    var url by remember { mutableStateOf(mascota?.imagenUrl ?: "https://") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (mascota == null) "Nueva Mascota" else "Editar Mascota") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre") })
-                OutlinedTextField(value = especie, onValueChange = { especie = it }, label = { Text("Especie") })
-                OutlinedTextField(value = edad, onValueChange = { edad = it }, label = { Text("Edad") })
-                OutlinedTextField(value = estado, onValueChange = { estado = it }, label = { Text("Estado") })
-                OutlinedTextField(value = url, onValueChange = { url = it }, label = { Text("URL Imagen") })
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { 
-                    onConfirm(MascotaAdmin(mascota?.id ?: 0, nombre, especie, edad, estado, url))
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
-            ) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
-    )
 }

@@ -30,29 +30,32 @@ import com.example.rescatando_mascotas_forever.presentation.common.components.*
 fun AdminFormularioAdopcionScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: ""
     val isAdminMode = currentRoute.startsWith("admin_")
 
     // --- ESTADOS DEL FORMULARIO ---
+    var currentStep by remember { mutableIntStateOf(1) }
+    val totalSteps = 5
+
     var nombre by remember { mutableStateOf("") }
     var dni by remember { mutableStateOf("") }
     var edad by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var ocupacion by remember { mutableStateOf("") }
-    
+
     var tipoVivienda by remember { mutableStateOf("Casa") }
     var tienePatio by remember { mutableStateOf(false) }
     var tieneProtecciones by remember { mutableStateOf(false) }
-    
+
     var integrantes by remember { mutableStateOf("") }
     var hayNinos by remember { mutableStateOf(false) }
     var estanDeAcuerdo by remember { mutableStateOf(true) }
-    
+
     var tieneOtrasMascotas by remember { mutableStateOf(false) }
     var experienciaPrevia by remember { mutableStateOf("") }
-    
+
     var tiempoDiario by remember { mutableStateOf("") }
     var presupuestoVeterinario by remember { mutableStateOf(true) }
 
@@ -94,111 +97,167 @@ fun AdminFormularioAdopcionScreen(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                Icons.Default.Pets, 
-                                contentDescription = null, 
+                                Icons.Default.Pets,
+                                contentDescription = null,
                                 tint = Color(0xFF673AB7),
                                 modifier = Modifier.size(44.dp)
                             )
                             Text(
-                                "FORMULARIO COMPLETO DE ADOPCIÓN",
-                                color = Color(0xFF333333),
+                                "PASO $currentStep DE $totalSteps",
+                                color = Color(0xFF673AB7),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                            Text(
+                                "FORMULARIO DE ADOPCIÓN",
+                                color = Color.Black,
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 18.sp,
                                 modifier = Modifier.padding(vertical = 12.dp)
                             )
 
-                            // 1. DATOS DEL SOLICITANTE
-                            AdopcionSectionHeader(Icons.Default.Person, "Datos del Solicitante")
-                            AdopcionFormField("Nombre completo", nombre) { nombre = it }
-                            Row(Modifier.fillMaxWidth()) {
-                                AdopcionFormField("DNI / Cédula", dni, Modifier.weight(1f)) { dni = it }
-                                Spacer(Modifier.width(8.dp))
-                                AdopcionFormField("Edad", edad, Modifier.weight(0.5f)) { edad = it }
-                            }
-                            AdopcionFormField("Ocupación / Profesión", ocupacion) { ocupacion = it }
-                            AdopcionFormField("Teléfono de contacto", telefono) { telefono = it }
+                            LinearProgressIndicator(
+                                progress = { currentStep.toFloat() / totalSteps.toFloat() },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 24.dp)
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp)),
+                                color = Color(0xFF673AB7),
+                                trackColor = Color(0xFFEEEEEE),
+                            )
 
-                            HorizontalDivider(Modifier.padding(vertical = 20.dp), color = Color(0xFFEEEEEE))
+                            when (currentStep) {
+                                1 -> {
+                                    // 1. DATOS DEL SOLICITANTE
+                                    AdopcionSectionHeader(Icons.Default.Person, "Datos del Solicitante")
+                                    AdopcionFormField("Nombre completo", nombre) { nombre = it }
+                                    Row(Modifier.fillMaxWidth()) {
+                                        AdopcionFormField("DNI / Cédula", dni, Modifier.weight(1f)) { dni = it }
+                                        Spacer(Modifier.width(8.dp))
+                                        AdopcionFormField("Edad", edad, Modifier.weight(0.5f)) { edad = it }
+                                    }
+                                    AdopcionFormField("Ocupación / Profesión", ocupacion) { ocupacion = it }
+                                    AdopcionFormField("Teléfono de contacto", telefono) { telefono = it }
+                                }
+                                2 -> {
+                                    // 2. ENTORNO Y VIVIENDA
+                                    AdopcionSectionHeader(Icons.Default.Home, "Entorno y Vivienda")
+                                    Text("¿En qué tipo de vivienda habitará la mascota?", color = Color(0xFF333333), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, modifier = Modifier.fillMaxWidth())
+                                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        FilterChip(selected = tipoVivienda == "Casa", onClick = { tipoVivienda = "Casa" }, label = { Text("Casa", color = if(tipoVivienda == "Casa") Color.White else Color.Black) })
+                                        FilterChip(selected = tipoVivienda == "Apartamento", onClick = { tipoVivienda = "Apartamento" }, label = { Text("Apto", color = if(tipoVivienda == "Apartamento") Color.White else Color.Black) })
+                                        FilterChip(selected = tipoVivienda == "Finca", onClick = { tipoVivienda = "Finca" }, label = { Text("Finca", color = if(tipoVivienda == "Finca") Color.White else Color.Black) })
+                                    }
 
-                            // 2. ENTORNO Y VIVIENDA
-                            AdopcionSectionHeader(Icons.Default.Home, "Entorno y Vivienda")
-                            Text("¿En qué tipo de vivienda habitará la mascota?", color = Color.Gray, fontSize = 12.sp, modifier = Modifier.fillMaxWidth())
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilterChip(selected = tipoVivienda == "Casa", onClick = { tipoVivienda = "Casa" }, label = { Text("Casa") })
-                                FilterChip(selected = tipoVivienda == "Apartamento", onClick = { tipoVivienda = "Apartamento" }, label = { Text("Apto") })
-                                FilterChip(selected = tipoVivienda == "Finca", onClick = { tipoVivienda = "Finca" }, label = { Text("Finca") })
-                            }
-                            
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Checkbox(checked = tienePatio, onCheckedChange = { tienePatio = it })
-                                Text("Cuenta con patio o balcón seguro", fontSize = 13.sp)
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Checkbox(checked = tieneProtecciones, onCheckedChange = { tieneProtecciones = it })
-                                Text("Tiene protecciones (mallas/muros)", fontSize = 13.sp)
-                            }
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Checkbox(checked = tienePatio, onCheckedChange = { tienePatio = it })
+                                        Text("Cuenta con patio o balcón seguro", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Checkbox(checked = tieneProtecciones, onCheckedChange = { tieneProtecciones = it })
+                                        Text("Tiene protecciones (mallas/muros)", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                }
+                                3 -> {
+                                    // 3. NÚCLEO FAMILIAR
+                                    AdopcionSectionHeader(Icons.Default.FamilyRestroom, "Núcleo Familiar")
+                                    AdopcionFormField("¿Cuántas personas viven en casa?", integrantes) { integrantes = it }
 
-                            HorizontalDivider(Modifier.padding(vertical = 20.dp), color = Color(0xFFEEEEEE))
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Switch(checked = hayNinos, onCheckedChange = { hayNinos = it })
+                                        Spacer(Modifier.width(12.dp))
+                                        Text("¿Viven niños en el hogar?", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Switch(checked = estanDeAcuerdo, onCheckedChange = { estanDeAcuerdo = it })
+                                        Spacer(Modifier.width(12.dp))
+                                        Text("¿Todos están de acuerdo con adoptar?", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                }
+                                4 -> {
+                                    // 4. EXPERIENCIA Y MASCOTAS
+                                    AdopcionSectionHeader(Icons.Default.History, "Experiencia y Mascotas")
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Checkbox(checked = tieneOtrasMascotas, onCheckedChange = { tieneOtrasMascotas = it })
+                                        Text("¿Tiene otras mascotas actualmente?", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                    AdopcionFormField("Cuéntanos tu experiencia previa con animales:", experienciaPrevia, Modifier.height(120.dp), singleLine = false) { experienciaPrevia = it }
+                                }
+                                5 -> {
+                                    // 5. COMPROMISO
+                                    AdopcionSectionHeader(Icons.Default.FavoriteBorder, "Compromiso de Vida")
+                                    AdopcionFormField("¿Cuánto tiempo diario dedicará a la mascota?", tiempoDiario) { tiempoDiario = it }
 
-                            // 3. NÚCLEO FAMILIAR
-                            AdopcionSectionHeader(Icons.Default.FamilyRestroom, "Núcleo Familiar")
-                            AdopcionFormField("¿Cuántas personas viven en casa?", integrantes) { integrantes = it }
-                            
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Switch(checked = hayNinos, onCheckedChange = { hayNinos = it })
-                                Spacer(Modifier.width(12.dp))
-                                Text("¿Viven niños en el hogar?", fontSize = 13.sp)
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Switch(checked = estanDeAcuerdo, onCheckedChange = { estanDeAcuerdo = it })
-                                Spacer(Modifier.width(12.dp))
-                                Text("¿Todos están de acuerdo con adoptar?", fontSize = 13.sp)
-                            }
-
-                            HorizontalDivider(Modifier.padding(vertical = 20.dp), color = Color(0xFFEEEEEE))
-
-                            // 4. EXPERIENCIA Y MASCOTAS
-                            AdopcionSectionHeader(Icons.Default.History, "Experiencia y Mascotas")
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Checkbox(checked = tieneOtrasMascotas, onCheckedChange = { tieneOtrasMascotas = it })
-                                Text("¿Tiene otras mascotas actualmente?", fontSize = 13.sp)
-                            }
-                            AdopcionFormField("Cuéntanos tu experiencia previa con animales:", experienciaPrevia, Modifier.height(80.dp), singleLine = false) { experienciaPrevia = it }
-
-                            HorizontalDivider(Modifier.padding(vertical = 20.dp), color = Color(0xFFEEEEEE))
-
-                            // 5. COMPROMISO
-                            AdopcionSectionHeader(Icons.Default.FavoriteBorder, "Compromiso de Vida")
-                            AdopcionFormField("¿Cuánto tiempo diario dedicará a la mascota?", tiempoDiario) { tiempoDiario = it }
-                            
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                                Checkbox(checked = presupuestoVeterinario, onCheckedChange = { presupuestoVeterinario = it })
-                                Text("Cuenta con solvencia para gastos veterinarios", fontSize = 13.sp)
+                                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                                        Checkbox(checked = presupuestoVeterinario, onCheckedChange = { presupuestoVeterinario = it })
+                                        Text("Cuenta con solvencia para gastos veterinarios", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                    }
+                                }
                             }
 
                             Spacer(Modifier.height(30.dp))
 
-                            // BOTONES DE ACCIÓN
-                            Button(
-                                onClick = { /* Lógica de guardado */ },
-                                modifier = Modifier.fillMaxWidth().height(54.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                            // BOTONES DE NAVEGACIÓN Y ACCIÓN
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(Icons.Default.Save, null)
-                                Spacer(Modifier.width(8.dp))
-                                Text("REGISTRAR SOLICITUD", fontWeight = FontWeight.Bold)
+                                if (currentStep > 1) {
+                                    OutlinedButton(
+                                        onClick = { currentStep-- },
+                                        modifier = Modifier.weight(1f).height(50.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        border = BorderStroke(1.dp, Color(0xFF673AB7))
+                                    ) {
+                                        Icon(Icons.Default.ArrowBack, null, tint = Color(0xFF673AB7))
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                                    }
+                                }
+
+                                if (currentStep < totalSteps) {
+                                    Button(
+                                        onClick = { currentStep++ },
+                                        modifier = Modifier.weight(1f).height(50.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF673AB7),
+                                            contentColor = Color.White
+                                        )
+                                    ) {
+                                        Text("SIGUIENTE", fontWeight = FontWeight.Bold, color = Color.White)
+                                        Spacer(Modifier.width(4.dp))
+                                        Icon(Icons.Default.ArrowForward, null, tint = Color.White)
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { /* Lógica de guardado */ },
+                                        modifier = Modifier.weight(1f).height(50.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF4CAF50),
+                                            contentColor = Color.White
+                                        )
+                                    ) {
+                                        Icon(Icons.Default.Save, null, tint = Color.White)
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("ENVIAR", fontWeight = FontWeight.Bold, color = Color.White)
+                                    }
+                                }
                             }
-                            
-                            Spacer(Modifier.height(12.dp))
-                            
-                            OutlinedButton(
-                                onClick = { navController.popBackStack() },
-                                modifier = Modifier.fillMaxWidth().height(50.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                border = BorderStroke(1.dp, Color(0xFF673AB7))
-                            ) {
-                                Text("CANCELAR", color = Color(0xFF673AB7))
+
+                            if (currentStep == totalSteps) {
+                                Spacer(Modifier.height(12.dp))
+                                OutlinedButton(
+                                    onClick = { navController.popBackStack() },
+                                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    border = BorderStroke(1.dp, Color.Red)
+                                ) {
+                                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -232,21 +291,21 @@ fun AdopcionSectionHeader(icon: ImageVector, title: String) {
 @Composable
 fun AdopcionFormField(label: String, value: String, modifier: Modifier = Modifier, singleLine: Boolean = true, onValueChange: (String) -> Unit) {
     Column(modifier = modifier.padding(bottom = 12.dp)) {
-        Text(label, color = Color.Gray, fontSize = 11.sp, modifier = Modifier.padding(bottom = 4.dp, start = 4.dp))
+        Text(label, color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp, start = 4.dp))
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = TextStyle(color = Color.Black, fontSize = 14.sp),
+            textStyle = TextStyle(color = Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Medium),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = if (singleLine) 45.dp else 80.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFFF1F3F4))
-                .border(1.dp, Color(0xFFDADCE0).copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
+                .border(1.dp, Color(0xFFDADCE0).copy(alpha = 0.8f), RoundedCornerShape(12.dp)),
             singleLine = singleLine,
             decorationBox = { innerTextField ->
                 Box(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                    if (value.isEmpty()) Text("Escriba aquí...", color = Color.LightGray, fontSize = 14.sp)
+                    if (value.isEmpty()) Text("Escriba aquí...", color = Color(0xFF666666), fontSize = 14.sp)
                     innerTextField()
                 }
             }

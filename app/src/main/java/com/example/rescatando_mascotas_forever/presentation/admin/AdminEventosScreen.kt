@@ -36,7 +36,7 @@ data class EventoAdmin(
 fun AdminEventosScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
+
     var showDialog by remember { mutableStateOf(false) }
     var eventoEditando by remember { mutableStateOf<EventoAdmin?>(null) }
 
@@ -63,9 +63,9 @@ fun AdminEventosScreen(navController: NavHostController) {
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { 
+                    onClick = {
                         eventoEditando = null
-                        showDialog = true 
+                        showDialog = true
                     },
                     containerColor = Color(0xFF673AB7),
                     contentColor = Color.White
@@ -100,9 +100,9 @@ fun AdminEventosScreen(navController: NavHostController) {
                     items(eventos) { evento ->
                         EventoAdminCard(
                             evento = evento,
-                            onEdit = { 
+                            onEdit = {
                                 eventoEditando = evento
-                                showDialog = true 
+                                showDialog = true
                             },
                             onDelete = { eventos.remove(evento) }
                         )
@@ -113,7 +113,7 @@ fun AdminEventosScreen(navController: NavHostController) {
     }
 
     if (showDialog) {
-        EventoDialog(
+        EventoDialogStepByStep(
             evento = eventoEditando,
             onDismiss = { showDialog = false },
             onConfirm = { nuevoEvento ->
@@ -127,6 +127,125 @@ fun AdminEventosScreen(navController: NavHostController) {
             }
         )
     }
+}
+
+@Composable
+fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfirm: (EventoAdmin) -> Unit) {
+    var currentStep by remember { mutableIntStateOf(1) }
+
+    var titulo by remember { mutableStateOf(evento?.titulo ?: "") }
+    var fecha by remember { mutableStateOf(evento?.fecha ?: "") }
+    var ubicacion by remember { mutableStateOf(evento?.ubicacion ?: "") }
+    var etiqueta by remember { mutableStateOf(evento?.etiqueta ?: "NORMAL") }
+    var url by remember { mutableStateOf(evento?.imagenUrl ?: "https://") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(
+                    if (evento == null) "Nuevo Evento" else "Editar Evento",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "Paso $currentStep de 2",
+                    fontSize = 12.sp,
+                    color = Color(0xFF333333),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LinearProgressIndicator(
+                    progress = { currentStep.toFloat() / 2f },
+                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                    color = Color(0xFF673AB7),
+                    trackColor = Color(0xFFEEEEEE)
+                )
+
+                val textFieldColors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Color(0xFF673AB7),
+                    unfocusedLabelColor = Color(0xFF333333),
+                    focusedBorderColor = Color(0xFF673AB7),
+                    unfocusedBorderColor = Color.Gray
+                )
+
+                if (currentStep == 1) {
+                    OutlinedTextField(
+                        value = titulo,
+                        onValueChange = { titulo = it },
+                        label = { Text("Título del Evento", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = fecha,
+                        onValueChange = { fecha = it },
+                        label = { Text("Fecha", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = ubicacion,
+                        onValueChange = { ubicacion = it },
+                        label = { Text("Ubicación", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = etiqueta,
+                        onValueChange = { etiqueta = it },
+                        label = { Text("Etiqueta", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                    OutlinedTextField(
+                        value = url,
+                        onValueChange = { url = it },
+                        label = { Text("URL Imagen", fontWeight = FontWeight.Bold) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = textFieldColors
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (currentStep == 1) {
+                    Button(
+                        onClick = { currentStep = 2 },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7), contentColor = Color.White)
+                    ) {
+                        Text("SIGUIENTE", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                } else {
+                    Button(
+                        onClick = { onConfirm(EventoAdmin(evento?.id ?: 0, titulo, fecha, ubicacion, etiqueta, url)) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
+                    ) {
+                        Text("GUARDAR", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            Row {
+                if (currentStep == 2) {
+                    TextButton(onClick = { currentStep = 1 }) {
+                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -149,15 +268,15 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
-            
+
             Spacer(Modifier.width(16.dp))
-            
+
             Column(Modifier.weight(1f)) {
-                Text(evento.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1)
-                Text("${evento.fecha} • ${evento.ubicacion}", color = Color.Gray, fontSize = 12.sp, maxLines = 1)
-                
+                Text(evento.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = Color.Black)
+                Text("${evento.fecha} • ${evento.ubicacion}", color = Color(0xFF333333), fontSize = 12.sp, maxLines = 1)
+
                 Spacer(Modifier.height(4.dp))
-                
+
                 Surface(
                     color = Color(0xFF673AB7).copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
@@ -171,7 +290,7 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
                     )
                 }
             }
-            
+
             Row {
                 IconButton(onClick = onEdit) {
                     Icon(Icons.Default.Edit, "Editar", tint = Color(0xFF673AB7))
@@ -182,40 +301,4 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
             }
         }
     }
-}
-
-@Composable
-fun EventoDialog(evento: EventoAdmin?, onDismiss: () -> Unit, onConfirm: (EventoAdmin) -> Unit) {
-    var titulo by remember { mutableStateOf(evento?.titulo ?: "") }
-    var fecha by remember { mutableStateOf(evento?.fecha ?: "") }
-    var ubicacion by remember { mutableStateOf(evento?.ubicacion ?: "") }
-    var etiqueta by remember { mutableStateOf(evento?.etiqueta ?: "NORMAL") }
-    var url by remember { mutableStateOf(evento?.imagenUrl ?: "https://") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (evento == null) "Nuevo Evento" else "Editar Evento") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") })
-                OutlinedTextField(value = fecha, onValueChange = { fecha = it }, label = { Text("Fecha") })
-                OutlinedTextField(value = ubicacion, onValueChange = { ubicacion = it }, label = { Text("Ubicación") })
-                OutlinedTextField(value = etiqueta, onValueChange = { etiqueta = it }, label = { Text("Etiqueta") })
-                OutlinedTextField(value = url, onValueChange = { url = it }, label = { Text("URL Imagen") })
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { 
-                    onConfirm(EventoAdmin(evento?.id ?: 0, titulo, fecha, ubicacion, etiqueta, url))
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
-            ) {
-                Text("Guardar")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
-    )
 }
