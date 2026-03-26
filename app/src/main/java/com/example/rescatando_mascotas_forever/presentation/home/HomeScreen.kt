@@ -69,29 +69,35 @@ fun HomeScreen(
             ) {
                 // Bienvenida Personalizada
                 item { 
-                    HomeHeader() 
+                    HomeHeader(navController) 
                 }
 
                 // Banner Promocional / Informativo
                 item {
-                    PromoBanner()
+                    PromoBanner(navController)
                 }
 
                 // SECCIÓN: PROCESO DE ADOPCIÓN
                 item {
-                    SectionHeader("Estado de tu proceso", "Ver detalles")
+                    SectionHeader("Estado de tu proceso", "Ver detalles") {
+                        navController.navigate("proceso_adopcion")
+                    }
                     AdoptionProcessHomeCard(navController)
                 }
 
                 // Sección de Categorías
                 item {
-                    SectionHeader("Categorías", "Ver todas")
-                    CategoryList()
+                    SectionHeader("Categorías", "Ver todas") {
+                        navController.navigate("adopciones")
+                    }
+                    CategoryList(navController)
                 }
 
                 // Mascotas en Adopción (Cerca de ti)
                 item {
-                    SectionHeader("Cerca de ti", "Ver más")
+                    SectionHeader("Cerca de ti", "Ver más") {
+                        navController.navigate("adopciones")
+                    }
                     if (isLoading) {
                         Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator(color = Color(0xFF673AB7))
@@ -103,7 +109,7 @@ fun HomeScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         ) {
                             items(mascotas) { mascota ->
-                                ModernMascotaCard(mascota)
+                                ModernMascotaCard(mascota, navController)
                             }
                         }
                     }
@@ -111,25 +117,33 @@ fun HomeScreen(
 
                 // SECCIÓN: ÚLTIMOS RESCATES
                 item {
-                    SectionHeader("Últimos rescates", "Ver mapa")
+                    SectionHeader("Últimos rescates", "Ver mapa") {
+                        navController.navigate("ultimos_rescates")
+                    }
                     RecentRescuesRow(navController)
                 }
 
-                // SECCIÓN: REPORTE RÁPIDO (La tarjeta roja)
+                // SECCIÓN: REPORTE RÁPIDO
                 item {
-                    SectionHeader("Reportar emergencia", "Ayuda")
+                    SectionHeader("Reportar emergencia", "Ayuda") {
+                        navController.navigate("formulario_rescate")
+                    }
                     QuickRescateCard(navController)
                 }
 
                 // SECCIÓN: EVENTOS
                 item {
-                    SectionHeader("Próximos eventos", "Calendario")
+                    SectionHeader("Próximos eventos", "Calendario") {
+                        navController.navigate("eventos")
+                    }
                     HomeEventsList(navController)
                 }
 
-                // SECCIÓN: NOSOTROS (Ahora al final)
+                // SECCIÓN: NOSOTROS
                 item {
-                    SectionHeader("Nuestra fundación", "Saber más")
+                    SectionHeader("Nuestra fundación", "Saber más") {
+                        navController.navigate("nosotros")
+                    }
                     AboutUsHomeCard(navController)
                 }
 
@@ -140,7 +154,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeHeader() {
+fun HomeHeader(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,7 +179,9 @@ fun HomeHeader() {
                 )
             }
             Surface(
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable { navController.navigate("perfil") },
                 shape = CircleShape,
                 color = Color(0xFFD1C4E9)
             ) {
@@ -176,58 +192,60 @@ fun HomeHeader() {
 }
 
 @Composable
-fun PromoBanner() {
+fun PromoBanner(navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .height(150.dp),
+            .height(160.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(Color(0xFF9C27B0), Color(0xFF3F51B5))
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?q=80&w=1000&auto=format&fit=crop"),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(Color.Black.copy(alpha = 0.7f), Color.Transparent)
+                        )
                     )
-                )
-        ) {
+            )
             Row(
-                modifier = Modifier.fillMaxSize().padding(20.dp),
+                modifier = Modifier.fillMaxSize().padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         "Adopta un amigo,\ncambia una vida",
                         color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        lineHeight = 26.sp
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     Button(
-                        onClick = { },
+                        onClick = { navController.navigate("nosotros") },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(12.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier.height(36.dp)
                     ) {
                         Text("Saber más", color = Color(0xFF673AB7), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-                Icon(
-                    Icons.Default.Favorite, 
-                    null, 
-                    modifier = Modifier.size(80.dp), 
-                    tint = Color.White.copy(alpha = 0.3f)
-                )
             }
         }
     }
 }
 
 @Composable
-fun SectionHeader(title: String, action: String) {
+fun SectionHeader(title: String, action: String, onActionClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -235,47 +253,59 @@ fun SectionHeader(title: String, action: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Título ahora en color negro puro
         Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-        Text(action, fontSize = 13.sp, color = Color(0xFF673AB7), fontWeight = FontWeight.Medium)
+        Text(
+            text = action, 
+            fontSize = 13.sp, 
+            color = Color(0xFF673AB7), 
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.clickable { onActionClick() }
+        )
     }
 }
 
 @Composable
-fun CategoryList() {
-    val cats = listOf(
-        Pair("Perros", Icons.Default.CheckCircle),
-        Pair("Gatos", Icons.Default.Face),
-        Pair("Otros", Icons.Default.Star),
-        Pair("Suministros", Icons.Default.ShoppingCart)
+fun CategoryList(navController: NavHostController) {
+    val items = listOf(
+        Triple("Perros", Icons.Default.Pets, Color(0xFFE8F5E9)),
+        Triple("Gatos", Icons.Default.CrueltyFree, Color(0xFFFFF3E0)),
+        Triple("Otros", Icons.Default.GridView, Color(0xFFE3F2FD)),
+        Triple("Tienda", Icons.Default.Storefront, Color(0xFFF3E5F5))
     )
+    
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        items(cats) { cat ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        items(items) { item ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.clickable { 
+                    if (item.first == "Tienda") navController.navigate("donaciones")
+                    else navController.navigate("adopciones")
+                }
+            ) {
                 Surface(
-                    modifier = Modifier.size(65.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    shadowElevation = 2.dp
+                    modifier = Modifier.size(70.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    color = item.third
                 ) {
-                    Icon(cat.second, null, modifier = Modifier.padding(18.dp), tint = Color(0xFF673AB7))
+                    Icon(item.second, null, modifier = Modifier.padding(20.dp), tint = Color(0xFF2E1A7A))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(cat.first, fontSize = 12.sp, color = Color.DarkGray, fontWeight = FontWeight.Medium)
+                Text(item.first, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
             }
         }
     }
 }
 
 @Composable
-fun ModernMascotaCard(mascota: Mascota) {
+fun ModernMascotaCard(mascota: Mascota, navController: NavHostController) {
     Card(
         modifier = Modifier
             .width(180.dp)
-            .shadow(4.dp, RoundedCornerShape(20.dp)),
+            .shadow(4.dp, RoundedCornerShape(20.dp))
+            .clickable { navController.navigate("adopciones") },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
@@ -284,9 +314,7 @@ fun ModernMascotaCard(mascota: Mascota) {
                 Image(
                     painter = rememberAsyncImagePainter(mascota.fotoPrincipal),
                     contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
+                    modifier = Modifier.fillMaxWidth().height(150.dp),
                     contentScale = ContentScale.Crop
                 )
                 Surface(
@@ -294,23 +322,12 @@ fun ModernMascotaCard(mascota: Mascota) {
                     shape = RoundedCornerShape(8.dp),
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
-                    Text(
-                        "${mascota.genero} • ${mascota.edadAprox} años",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        color = Color.White,
-                        fontSize = 10.sp
-                    )
+                    Text("${mascota.genero} • ${mascota.edadAprox} años", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, fontSize = 10.sp)
                 }
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        mascota.nombre, 
-                        fontWeight = FontWeight.Bold, 
-                        fontSize = 16.sp, 
-                        color = Color(0xFF2E1A7A),
-                        modifier = Modifier.weight(1f)
-                    )
+                    Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF2E1A7A), modifier = Modifier.weight(1f))
                     Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(14.dp))
                 }
                 Text(mascota.ubicacion, fontSize = 11.sp, color = Color.Gray)
@@ -329,15 +346,8 @@ fun QuickRescateCard(navController: NavHostController) {
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                modifier = Modifier.size(50.dp),
-                shape = CircleShape,
-                color = Color.Red
-            ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Surface(modifier = Modifier.size(50.dp), shape = CircleShape, color = Color.Red) {
                 Icon(Icons.Default.Warning, null, modifier = Modifier.padding(12.dp), tint = Color.White)
             }
             Spacer(modifier = Modifier.width(16.dp))
@@ -361,12 +371,7 @@ fun HomeEventsList(navController: NavHostController) {
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(
-                modifier = Modifier
-                    .background(Color(0xFFEDE7F6), RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(modifier = Modifier.background(Color(0xFFEDE7F6), RoundedCornerShape(12.dp)).padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("15", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF673AB7))
                 Text("MAR", fontSize = 10.sp, color = Color(0xFF673AB7))
             }
@@ -389,10 +394,7 @@ fun AdoptionProcessHomeCard(navController: NavHostController) {
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE1F5FE))
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.List, null, tint = Color(0xFF0288D1), modifier = Modifier.size(32.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
@@ -428,13 +430,7 @@ fun RecentRescuesRow(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth().height(90.dp),
                         contentScale = ContentScale.Crop
                     )
-                    Text(
-                        rescue.second,
-                        modifier = Modifier.padding(8.dp),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
+                    Text(rescue.second, modifier = Modifier.padding(8.dp), fontSize = 11.sp, fontWeight = FontWeight.Medium, color = Color.Black)
                 }
             }
         }
@@ -451,17 +447,10 @@ fun AboutUsHomeCard(navController: NavHostController) {
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5))
     ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("Conócenos", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF4A148C))
-                Text(
-                    "Sanando su historia y uniendo familias desde 2020.",
-                    fontSize = 12.sp,
-                    color = Color(0xFF4A148C)
-                )
+                Text("Sanando su historia y uniendo familias desde 2020.", fontSize = 12.sp, color = Color(0xFF4A148C))
             }
             Icon(Icons.Default.Info, null, modifier = Modifier.size(40.dp), tint = Color(0xFF9C27B0))
         }
