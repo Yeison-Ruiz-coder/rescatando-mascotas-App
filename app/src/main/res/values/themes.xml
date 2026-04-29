@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.Rescatandomascotasforever" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Usamos Theme.AppCompat para compatibilidad con AppCompatActivity y AppCompatDelegate -->
+    <style name="Theme.Rescatandomascotasforever" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Puedes añadir colores aquí si los necesitas, pero para Compose lo principal es el parent -->
+    </style>
 </resources>

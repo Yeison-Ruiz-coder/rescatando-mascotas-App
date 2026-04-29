@@ -18,10 +18,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
@@ -125,29 +127,29 @@ fun ProfileMenuSection(navController: NavHostController) {
     ) {
         ProfileMenuItem(
             icon = Icons.Default.Favorite,
-            title = "Mis adopciones",
-            subtitle = "Seguimiento de tus solicitudes",
+            title = stringResource(R.string.profile_my_adoptions),
+            subtitle = stringResource(R.string.profile_adoptions_desc),
             onClick = { navController.navigate("proceso_adopcion") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
             icon = Icons.Default.Warning,
-            title = "Mis rescates",
-            subtitle = "Historial de reportes realizados",
+            title = stringResource(R.string.profile_my_rescues),
+            subtitle = stringResource(R.string.profile_rescues_desc),
             onClick = { navController.navigate("ultimos_rescates") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
             icon = Icons.Default.Settings,
-            title = "Configuración",
-            subtitle = "Privacidad y ajustes de la cuenta",
+            title = stringResource(R.string.profile_settings),
+            subtitle = stringResource(R.string.profile_settings_desc),
             onClick = { navController.navigate("configuracion") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
             icon = Icons.Default.Info,
-            title = "Ayuda y Soporte",
-            subtitle = "Contáctanos si tienes dudas",
+            title = stringResource(R.string.profile_support),
+            subtitle = stringResource(R.string.profile_support_desc),
             onClick = { }
         )
     }
@@ -202,6 +204,6 @@ fun LogoutButton(navController: NavHostController) {
     ) {
         Icon(Icons.AutoMirrored.Filled.ExitToApp, null, tint = Color.White)
         Spacer(modifier = Modifier.width(12.dp))
-        Text("Cerrar Sesión", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+        Text(stringResource(R.string.profile_logout), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
     }
 }

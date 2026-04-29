@@ -1,8 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.rescates
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,8 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,7 +61,6 @@ fun FormularioRescateScreen(navController: NavHostController) {
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
                     
-                    // Contenedor principal con diseño morado degradado
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -83,15 +79,13 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 .padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Imagen circular de mascota (Placeholder)
                             Box(
                                 modifier = Modifier
                                     .size(150.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFFFD54F)), // Fondo amarillo como la imagen
+                                    .background(Color(0xFFFFD54F)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                // Aquí podrías poner una imagen real
                                 Icon(
                                     Icons.Default.Face,
                                     contentDescription = null,
@@ -102,7 +96,6 @@ fun FormularioRescateScreen(navController: NavHostController) {
 
                             Spacer(modifier = Modifier.height(20.dp))
 
-                            // Botón Subir Foto
                             Button(
                                 onClick = { },
                                 shape = RoundedCornerShape(12.dp),
@@ -112,36 +105,33 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.AddCircle, null, tint = Color.White)
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Subir Nueva Foto", fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text(stringResource(R.string.rescue_form_upload_photo), fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                             }
 
                             Spacer(modifier = Modifier.height(24.dp))
 
-                            // Campos del Formulario
-                            ReportaField("Nombre de la mascota", nombreMascota) { nombreMascota = it }
-                            ReportaField("Especie (Perro, Gato, Etc.)", especie) { especie = it }
-                            ReportaField("Raza", raza) { raza = it }
+                            ReportaField(stringResource(R.string.rescue_form_pet_name), nombreMascota) { nombreMascota = it }
+                            ReportaField(stringResource(R.string.rescue_form_species), especie) { especie = it }
+                            ReportaField(stringResource(R.string.rescue_form_breed), raza) { raza = it }
 
-                            // Selector de Género
                             Column(modifier = Modifier.fillMaxWidth()) {
-                                Text("Genero", fontSize = 14.sp, color = Color.DarkGray)
+                                Text(stringResource(R.string.rescue_form_gender), fontSize = 14.sp, color = Color.DarkGray)
                                 Row(
                                     modifier = Modifier.padding(vertical = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    GeneroOption("M", genero == "M") { genero = "M" }
+                                    GeneroOption(stringResource(R.string.rescue_form_gender_m), genero == "M") { genero = "M" }
                                     Spacer(modifier = Modifier.width(20.dp))
-                                    GeneroOption("H", genero == "H") { genero = "H" }
+                                    GeneroOption(stringResource(R.string.rescue_form_gender_h), genero == "H") { genero = "H" }
                                 }
                             }
 
-                            ReportaField("Estado de salud", estadoSalud) { estadoSalud = it }
-                            ReportaField("Refugio asignado", refugioAsignado) { refugioAsignado = it }
+                            ReportaField(stringResource(R.string.rescue_form_health_status), estadoSalud) { estadoSalud = it }
+                            ReportaField(stringResource(R.string.rescue_form_assigned_shelter), refugioAsignado) { refugioAsignado = it }
 
                             Spacer(modifier = Modifier.height(30.dp))
 
-                            // Botón Guardar
                             Button(
                                 onClick = { },
                                 shape = RoundedCornerShape(25.dp),
@@ -152,13 +142,12 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Done, null, tint = Color.White)
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Guardar cambios", fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text(stringResource(R.string.rescue_form_btn_save), fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                             }
 
                             Spacer(modifier = Modifier.height(12.dp))
 
-                            // Botón Cancelar
                             Button(
                                 onClick = { navController.popBackStack() },
                                 shape = RoundedCornerShape(25.dp),
@@ -169,7 +158,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(Icons.Default.Close, null, tint = Color.White)
                                     Spacer(Modifier.width(8.dp))
-                                    Text("Cancelar", fontWeight = FontWeight.Bold, color = Color.White)
+                                    Text(stringResource(R.string.rescue_form_btn_cancel), fontWeight = FontWeight.Bold, color = Color.White)
                                 }
                             }
                         }

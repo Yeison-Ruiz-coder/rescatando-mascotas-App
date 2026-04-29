@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2:8000/api/"
+    private const val BASE_URL = "https://rescatando-mascotas-backend-final-production.up.railway.app/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -34,5 +34,9 @@ object RetrofitClient {
     // Instancias de API
     val mascotaApi: MascotaApi by lazy {
         createService(MascotaApi::class.java)
+    }
+
+    val authApi: AuthApi by lazy {
+        createService(AuthApi::class.java)
     }
 }

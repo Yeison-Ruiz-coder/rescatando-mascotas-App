@@ -10,16 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,13 +54,13 @@ fun FormularioAdopcionScreen(navController: NavHostController) {
                     item {
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            "Solicitud de Adopción",
+                            stringResource(R.string.adop_form_title),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF673AB7)
                         )
                         Text(
-                            "Completa los datos para iniciar el proceso",
+                            stringResource(R.string.adop_form_subtitle),
                             fontSize = 14.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 4.dp)
@@ -76,15 +76,15 @@ fun FormularioAdopcionScreen(navController: NavHostController) {
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Column(modifier = Modifier.padding(24.dp)) {
-                                ModernTextField(value = nombreCompleto, onValueChange = { nombreCompleto = it }, label = "Nombre Completo", icon = Icons.Default.Person)
-                                ModernTextField(value = edad, onValueChange = { edad = it }, label = "Edad", icon = Icons.Default.DateRange)
-                                ModernTextField(value = direccion, onValueChange = { direccion = it }, label = "Dirección de residencia", icon = Icons.Default.Home)
-                                ModernTextField(value = telefono, onValueChange = { telefono = it }, label = "Teléfono de contacto", icon = Icons.Default.Phone)
+                                ModernTextField(value = nombreCompleto, onValueChange = { nombreCompleto = it }, label = stringResource(R.string.adop_form_label_name), icon = Icons.Default.Person)
+                                ModernTextField(value = edad, onValueChange = { edad = it }, label = stringResource(R.string.adop_form_label_age), icon = Icons.Default.DateRange)
+                                ModernTextField(value = direccion, onValueChange = { direccion = it }, label = stringResource(R.string.adop_form_label_address), icon = Icons.Default.Home)
+                                ModernTextField(value = telefono, onValueChange = { telefono = it }, label = stringResource(R.string.adop_form_label_phone), icon = Icons.Default.Phone)
                                 
                                 OutlinedTextField(
                                     value = motivo,
                                     onValueChange = { motivo = it },
-                                    label = { Text("¿Por qué deseas adoptar?") },
+                                    label = { Text(stringResource(R.string.adop_form_label_motive)) },
                                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                                     shape = RoundedCornerShape(12.dp),
                                     minLines = 3
@@ -95,7 +95,7 @@ fun FormularioAdopcionScreen(navController: NavHostController) {
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                                 ) {
                                     Checkbox(checked = tieneOtrasMascotas, onCheckedChange = { tieneOtrasMascotas = it })
-                                    Text("¿Tienes otras mascotas actualmente?", fontSize = 14.sp)
+                                    Text(stringResource(R.string.adop_form_label_others), fontSize = 14.sp)
                                 }
 
                                 Spacer(modifier = Modifier.height(24.dp))
@@ -106,7 +106,7 @@ fun FormularioAdopcionScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
                                 ) {
-                                    Text("ENVIAR SOLICITUD", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text(stringResource(R.string.adop_form_btn_send), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                 }
                             }
                         }

@@ -8,6 +8,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminDrawerContent
 
@@ -80,7 +85,7 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                     .background(Color(0xFFF8F9FA)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                item { GradientHeader("Encuesta de Rescate") }
+                item { GradientHeader(stringResource(R.string.rescue_survey_title)) }
 
                 item {
                     Card(
@@ -96,20 +101,20 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                Icons.Default.Assignment,
+                                Icons.AutoMirrored.Filled.Assignment,
                                 contentDescription = null,
                                 tint = Color(0xFF673AB7),
                                 modifier = Modifier.size(44.dp)
                             )
                             Text(
-                                "PASO $currentStep DE $totalSteps",
+                                stringResource(R.string.rescue_survey_step, currentStep, totalSteps),
                                 color = Color(0xFF673AB7),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                             Text(
-                                "REPORTE DE RESCATE",
+                                stringResource(R.string.rescue_survey_header),
                                 color = Color.Black,
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 18.sp,
@@ -130,39 +135,39 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                             when (currentStep) {
                                 1 -> {
                                     // 1. INFORMACIÓN DE LA MASCOTA
-                                    RescateSectionHeader(Icons.Default.Pets, "Información de la Mascota")
+                                    RescateSectionHeader(Icons.Default.Pets, stringResource(R.string.rescue_survey_sec_pet))
                                     Row(Modifier.fillMaxWidth()) {
-                                        RescateFormField("Nombre", nombreMascota, Modifier.weight(1f)) { nombreMascota = it }
+                                        RescateFormField(stringResource(R.string.rescue_form_pet_name), nombreMascota, Modifier.weight(1f)) { nombreMascota = it }
                                         Spacer(Modifier.width(8.dp))
-                                        RescateFormField("Especie", especie, Modifier.weight(1f)) { especie = it }
+                                        RescateFormField(stringResource(R.string.rescue_form_species), especie, Modifier.weight(1f)) { especie = it }
                                     }
                                     Row(Modifier.fillMaxWidth()) {
-                                        RescateFormField("Edad aprox.", edad, Modifier.weight(1f)) { edad = it }
+                                        RescateFormField(stringResource(R.string.rescue_survey_label_age), edad, Modifier.weight(1f)) { edad = it }
                                         Spacer(Modifier.width(8.dp))
-                                        RescateFormField("Sexo", sexo, Modifier.weight(1f)) { sexo = it }
+                                        RescateFormField(stringResource(R.string.rescue_survey_label_sex), sexo, Modifier.weight(1f)) { sexo = it }
                                     }
-                                    RescateFormField("Estado de salud inicial", estadoSalud) { estadoSalud = it }
+                                    RescateFormField(stringResource(R.string.rescue_survey_label_health), estadoSalud) { estadoSalud = it }
 
                                     Spacer(Modifier.height(8.dp))
                                     Row(Modifier.fillMaxWidth()) {
-                                        RescateFormField("Rescatista", nombreRescatista, Modifier.weight(1f)) { nombreRescatista = it }
+                                        RescateFormField(stringResource(R.string.rescue_survey_label_rescuer), nombreRescatista, Modifier.weight(1f)) { nombreRescatista = it }
                                         Spacer(Modifier.width(8.dp))
-                                        RescateFormField("Fecha", fecha, Modifier.width(110.dp)) { fecha = it }
+                                        RescateFormField(stringResource(R.string.rescue_survey_label_date), fecha, Modifier.width(110.dp)) { fecha = it }
                                     }
                                 }
                                 2 -> {
                                     // 2. DETALLES DEL RESCATE
-                                    RescateSectionHeader(Icons.Default.LocationOn, "Detalles del Hallazgo")
-                                    RescateFormField("Dirección / Ubicación exacta", ubicacion) { ubicacion = it }
+                                    RescateSectionHeader(Icons.Default.LocationOn, stringResource(R.string.rescue_survey_sec_details))
+                                    RescateFormField(stringResource(R.string.rescue_survey_label_loc), ubicacion) { ubicacion = it }
                                     Spacer(Modifier.height(8.dp))
-                                    Text("Describe las condiciones en que se encontró:", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 4.dp))
+                                    Text(stringResource(R.string.rescue_survey_desc_cond), color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 4.dp))
                                     RescateTextFieldCustom(condicionesEncontrado, Modifier.height(140.dp), singleLine = false) { condicionesEncontrado = it }
                                 }
                                 3 -> {
                                     // 3. DATOS DEL REPORTANTE
-                                    RescateSectionHeader(Icons.Default.ContactPhone, "Información del Reportante")
-                                    RescateFormField("Nombre de quien reportó", nombreReportante) { nombreReportante = it }
-                                    RescateFormField("Teléfono de contacto", numeroContacto) { numeroContacto = it }
+                                    RescateSectionHeader(Icons.Default.ContactPhone, stringResource(R.string.rescue_survey_sec_reporter))
+                                    RescateFormField(stringResource(R.string.rescue_survey_label_reporter_name), nombreReportante) { nombreReportante = it }
+                                    RescateFormField(stringResource(R.string.rescue_survey_label_reporter_phone), numeroContacto) { numeroContacto = it }
 
                                     Spacer(Modifier.height(20.dp))
                                     Surface(
@@ -173,7 +178,7 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                                         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                                             Icon(Icons.Default.Info, null, tint = Color(0xFF2E7D32))
                                             Spacer(Modifier.width(12.dp))
-                                            Text("Verifique que todos los datos sean correctos antes de enviar el reporte final.", fontSize = 12.sp, color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium)
+                                            Text(stringResource(R.string.rescue_survey_info_verify), fontSize = 12.sp, color = Color(0xFF1B5E20), fontWeight = FontWeight.Medium)
                                         }
                                     }
                                 }
@@ -193,9 +198,9 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                                         shape = RoundedCornerShape(16.dp),
                                         border = BorderStroke(1.dp, Color(0xFF673AB7))
                                     ) {
-                                        Icon(Icons.Default.ArrowBack, null, tint = Color(0xFF673AB7))
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color(0xFF673AB7))
                                         Spacer(Modifier.width(4.dp))
-                                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                                        Text(stringResource(R.string.btn_previous), color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
                                     }
                                 }
 
@@ -209,9 +214,9 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                                             contentColor = Color.White
                                         )
                                     ) {
-                                        Text("SIGUIENTE", fontWeight = FontWeight.Bold, color = Color.White)
+                                        Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, color = Color.White)
                                         Spacer(Modifier.width(4.dp))
-                                        Icon(Icons.Default.ArrowForward, null, tint = Color.White)
+                                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, tint = Color.White)
                                     }
                                 } else {
                                     Button(
@@ -225,7 +230,7 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                                     ) {
                                         Icon(Icons.Default.Save, null, tint = Color.White)
                                         Spacer(Modifier.width(4.dp))
-                                        Text("FINALIZAR", fontWeight = FontWeight.Bold, color = Color.White)
+                                        Text(stringResource(R.string.btn_finish), fontWeight = FontWeight.Bold, color = Color.White)
                                     }
                                 }
                             }
@@ -238,7 +243,7 @@ fun EncuestaRescateScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     border = BorderStroke(1.dp, Color.Red)
                                 ) {
-                                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.btn_cancel_upper), color = Color.Red, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -285,7 +290,7 @@ fun RescateTextFieldCustom(value: String, modifier: Modifier = Modifier, singleL
         singleLine = singleLine,
         decorationBox = { innerTextField ->
             Box(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                if (value.isEmpty()) Text("Escriba aquí...", color = Color(0xFF666666), fontSize = 14.sp)
+                if (value.isEmpty()) Text(stringResource(R.string.hint_type_here), color = Color(0xFF666666), fontSize = 14.sp)
                 innerTextField()
             }
         }
