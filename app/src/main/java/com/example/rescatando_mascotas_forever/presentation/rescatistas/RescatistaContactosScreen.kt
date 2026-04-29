@@ -18,13 +18,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Rescatista
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
@@ -36,17 +37,20 @@ fun RescatistaContactosScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val statusAvail = stringResource(R.string.rescuer_status_avail)
+    val statusBusy = stringResource(R.string.rescuer_status_busy)
+
     val rescatistasPrueba = listOf(
         Rescatista(
             id = 1,
             nombre = "Carlos A. Muñoz",
             fotoUrl = "https://randomuser.me/api/portraits/men/1.jpg",
-            disponibilidad = "Tiempo completo",
+            disponibilidad = stringResource(R.string.mock_rescuer_avail_1),
             municipio = "Popayán",
-            barrio = "El Modelo",
-            especialidad = "Rescate y atención...",
+            barrio = stringResource(R.string.mock_location_4),
+            especialidad = stringResource(R.string.mock_rescuer_spec_1),
             organizacion = "Paramédicos GER",
-            estado = "Disponible",
+            estado = statusAvail,
             whatsapp = "123456789",
             telefono = "987654321"
         ),
@@ -54,12 +58,12 @@ fun RescatistaContactosScreen(navController: NavHostController) {
             id = 2,
             nombre = "Diana P. Torres",
             fotoUrl = "https://randomuser.me/api/portraits/women/2.jpg",
-            disponibilidad = "Fines de semana",
+            disponibilidad = stringResource(R.string.mock_rescuer_avail_2),
             municipio = "Popayán",
             barrio = "La Esmeralda",
-            especialidad = "Rescate urbano de f...",
+            especialidad = stringResource(R.string.mock_rescuer_spec_2),
             organizacion = "Fundación Naciona...",
-            estado = "Disponible",
+            estado = statusAvail,
             whatsapp = "123456789",
             telefono = "987654321"
         ),
@@ -67,12 +71,12 @@ fun RescatistaContactosScreen(navController: NavHostController) {
             id = 3,
             nombre = "Julián R. López",
             fotoUrl = "https://randomuser.me/api/portraits/men/3.jpg",
-            disponibilidad = "Turnos rotativos",
+            disponibilidad = stringResource(R.string.mock_rescuer_avail_3),
             municipio = "Popayán",
             barrio = "San Eduardo",
-            especialidad = "Estudio/Rescate técni...",
+            especialidad = stringResource(R.string.mock_rescuer_spec_3),
             organizacion = "Independiente - Red...",
-            estado = "Ocupado",
+            estado = statusBusy,
             whatsapp = "123456789",
             telefono = "987654321"
         ),
@@ -80,12 +84,12 @@ fun RescatistaContactosScreen(navController: NavHostController) {
             id = 4,
             nombre = "María Fernanda Ruiz",
             fotoUrl = "https://randomuser.me/api/portraits/women/4.jpg",
-            disponibilidad = "Tiempo completo",
+            disponibilidad = stringResource(R.string.mock_rescuer_avail_1),
             municipio = "Popayán",
-            barrio = "El Modelo",
-            especialidad = "Rescate animal y pri...",
+            barrio = stringResource(R.string.mock_location_4),
+            especialidad = stringResource(R.string.mock_rescuer_spec_4),
             organizacion = "Fundación ComeDog...",
-            estado = "Ocupado",
+            estado = statusBusy,
             whatsapp = "123456789",
             telefono = "987654321"
         )
@@ -106,17 +110,14 @@ fun RescatistaContactosScreen(navController: NavHostController) {
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Header Morado con diseño similar a la imagen
                 item {
                     RescatistaHeader()
                 }
 
-                // Filtros (Municipio, Especialidad, Barrio, Disponible)
                 item {
                     RescatistaFilters()
                 }
 
-                // Lista de Rescatistas
                 items(rescatistasPrueba) { rescatista ->
                     RescatistaCard(rescatista)
                 }
@@ -142,7 +143,7 @@ fun RescatistaHeader() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "Contacto de rescatistas",
+                text = stringResource(R.string.rescuer_title),
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -150,7 +151,7 @@ fun RescatistaHeader() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Este espacio nace como respuesta al compromiso creciente de Popayán con el bienestar animal. Está diseñado para acercar a los rescatistas que, con entrega y compasión, dedican su tiempo a salvar, rehabilitar y proteger animales en situación de abandono, maltrato o vulnerabilidad.",
+                text = stringResource(R.string.rescuer_header_desc),
                 color = Color.White.copy(alpha = 0.9f),
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center,
@@ -168,13 +169,13 @@ fun RescatistaFilters() {
             .padding(16.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FilterDropdown("Municipio", Modifier.weight(1f))
-            FilterDropdown("Especialidad", Modifier.weight(1f))
+            FilterDropdown(stringResource(R.string.rescuer_filter_city), Modifier.weight(1f))
+            FilterDropdown(stringResource(R.string.rescuer_filter_spec), Modifier.weight(1f))
         }
         Spacer(modifier = Modifier.height(12.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            FilterDropdown("Barrio", Modifier.weight(1f))
-            FilterDropdown("Disponible", Modifier.weight(1f))
+            FilterDropdown(stringResource(R.string.rescuer_filter_hood), Modifier.weight(1f))
+            FilterDropdown(stringResource(R.string.rescuer_filter_available), Modifier.weight(1f))
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -196,7 +197,7 @@ fun FilterDropdown(label: String, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Todos", color = Color.White, fontSize = 13.sp)
+                Text(text = stringResource(R.string.rescuer_filter_all), color = Color.White, fontSize = 13.sp)
                 Icon(Icons.Default.KeyboardArrowDown, null, tint = Color.White, modifier = Modifier.size(20.dp))
             }
         }
@@ -205,6 +206,7 @@ fun FilterDropdown(label: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun RescatistaCard(rescatista: Rescatista) {
+    val statusAvail = stringResource(R.string.rescuer_status_avail)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,59 +215,56 @@ fun RescatistaCard(rescatista: Rescatista) {
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) { // Aumentado padding interno
+        Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = rescatista.nombre,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontSize = 20.sp, // Aumentado tamaño nombre
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
             
-            Spacer(modifier = Modifier.height(16.dp)) // Más espacio bajo el nombre
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
-                verticalAlignment = Alignment.Top, // Alineado arriba para dar más aire
+                verticalAlignment = Alignment.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Foto más grande y con más espacio
                 Image(
                     painter = rememberAsyncImagePainter(rescatista.fotoUrl),
                     contentDescription = null,
                     modifier = Modifier
-                        .size(100.dp) // Foto un poco más grande
+                        .size(100.dp)
                         .clip(CircleShape)
                         .background(Color.LightGray),
                     contentScale = ContentScale.Crop
                 )
 
-                Spacer(modifier = Modifier.width(20.dp)) // Más espacio entre foto e info
+                Spacer(modifier = Modifier.width(20.dp))
 
-                // Columna central de información
                 Column(modifier = Modifier.weight(1.3f)) {
-                    RescatistaDetail("Disponibilidad:", rescatista.disponibilidad, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_avail), rescatista.disponibilidad, Color(0xFF9575CD))
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail("Municipio:", rescatista.municipio, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_city), rescatista.municipio, Color(0xFF9575CD))
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail("Barrio:", rescatista.barrio, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_hood), rescatista.barrio, Color(0xFF9575CD))
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail("Especialidad:", rescatista.especialidad, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_spec), rescatista.especialidad, Color(0xFF9575CD))
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail("Organización:", rescatista.organizacion, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_org), rescatista.organizacion, Color(0xFF9575CD))
                 }
 
-                // Columna derecha de estado y botones
                 Column(
                     modifier = Modifier.weight(0.7f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    Text("Estado", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.rescuer_label_status), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (rescatista.estado == "Disponible") Color(0xFF7E57C2) else Color(0xFFF06292)
+                        color = if (rescatista.estado == statusAvail) Color(0xFF7E57C2) else Color(0xFFF06292)
                     ) {
                         Text(
                             text = rescatista.estado,
@@ -276,9 +275,8 @@ fun RescatistaCard(rescatista: Rescatista) {
                         )
                     }
                     
-                    Spacer(modifier = Modifier.height(20.dp)) // Más espacio antes de los botones
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                    // Botón WhatsApp
                     Surface(
                         modifier = Modifier
                             .size(40.dp)
@@ -299,7 +297,6 @@ fun RescatistaCard(rescatista: Rescatista) {
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Botón Teléfono
                     Surface(
                         modifier = Modifier
                             .size(40.dp)

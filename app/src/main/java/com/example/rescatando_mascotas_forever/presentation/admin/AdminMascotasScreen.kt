@@ -1,12 +1,10 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,19 +15,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 
+// Usamos IDs de recursos para que la traducción sea automática al cambiar el idioma
 data class MascotaAdmin(
     val id: Int,
     val nombre: String,
-    val especie: String,
-    val edad: String,
-    val estado: String, // Adoptado, Disponible, En Proceso
+    val especieRes: Int,
+    val edadValor: String,
+    val estadoRes: Int,
     val imagenUrl: String
 )
 
@@ -42,11 +43,12 @@ fun AdminMascotasScreen(navController: NavHostController) {
     var showDialog by remember { mutableStateOf(false) }
     var mascotaEditando by remember { mutableStateOf<MascotaAdmin?>(null) }
 
+    // Lista de mascotas usando referencias a strings.xml
     val mascotas = remember {
         mutableStateListOf(
-            MascotaAdmin(1, "Firulais", "Perro", "2 años", "Disponible", "https://images.unsplash.com/photo-1543466835-00a7907e9de1"),
-            MascotaAdmin(2, "Michi", "Gato", "6 meses", "En Proceso", "https://images.unsplash.com/photo-1514888286872-01d6d87f1c65"),
-            MascotaAdmin(3, "Luna", "Perro", "4 años", "Adoptado", "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8")
+            MascotaAdmin(1, "Firulais", R.string.species_dog, "2", R.string.status_available, "https://images.unsplash.com/photo-1543466835-00a7907e9de1"),
+            MascotaAdmin(2, "Michi", R.string.species_cat, "6", R.string.status_in_process, "https://images.unsplash.com/photo-1514888286872-01d6d87f1c65"),
+            MascotaAdmin(3, "Luna", R.string.species_dog, "4", R.string.status_adopted, "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8")
         )
     }
 
@@ -72,7 +74,7 @@ fun AdminMascotasScreen(navController: NavHostController) {
                     containerColor = Color(0xFF673AB7),
                     contentColor = Color.White
                 ) {
-                    Icon(Icons.Default.Add, "Agregar Mascota")
+                    Icon(Icons.Default.Add, stringResource(R.string.admin_pets_add))
                 }
             }
         ) { padding ->
@@ -89,8 +91,8 @@ fun AdminMascotasScreen(navController: NavHostController) {
                         .padding(20.dp)
                 ) {
                     Column {
-                        Text("Gestión de Mascotas", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text("Administra el inventario de peluditos", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text(stringResource(R.string.admin_pets_title), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.admin_pets_subtitle), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
@@ -134,82 +136,55 @@ fun AdminMascotasScreen(navController: NavHostController) {
 @Composable
 fun MascotaDialogStepByStep(mascota: MascotaAdmin?, onDismiss: () -> Unit, onConfirm: (MascotaAdmin) -> Unit) {
     var currentStep by remember { mutableIntStateOf(1) }
+    val totalSteps = 2
 
     var nombre by remember { mutableStateOf(mascota?.nombre ?: "") }
-    var especie by remember { mutableStateOf(mascota?.especie ?: "Perro") }
-    var edad by remember { mutableStateOf(mascota?.edad ?: "") }
-    var estado by remember { mutableStateOf(mascota?.estado ?: "Disponible") }
+    var edad by remember { mutableStateOf(mascota?.edadValor ?: "") }
     var url by remember { mutableStateOf(mascota?.imagenUrl ?: "https://") }
+
+    // Configuración de colores para que el texto sea BLANCO
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Color.White,
+        unfocusedTextColor = Color.White,
+        focusedLabelColor = Color.White,
+        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+        focusedBorderColor = Color.White,
+        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+        cursorColor = Color.White
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color(0xFF673AB7), // Fondo púrpura para que el texto blanco resalte
         title = {
-            Column {
-                Text(
-                    if (mascota == null) "Nueva Mascota" else "Editar Mascota",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "Paso $currentStep de 2",
-                    fontSize = 12.sp,
-                    color = Color(0xFF333333),
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text(
+                if (mascota == null) stringResource(R.string.admin_pets_new_title) else stringResource(R.string.admin_pets_edit_title),
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                LinearProgressIndicator(
-                    progress = { currentStep.toFloat() / 2f },
-                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                    color = Color(0xFF673AB7),
-                    trackColor = Color(0xFFEEEEEE)
-                )
-
-                val textFieldColors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = Color(0xFF673AB7),
-                    unfocusedLabelColor = Color(0xFF333333),
-                    focusedBorderColor = Color(0xFF673AB7),
-                    unfocusedBorderColor = Color.Gray
-                )
-
                 if (currentStep == 1) {
                     OutlinedTextField(
-                        value = nombre,
-                        onValueChange = { nombre = it },
-                        label = { Text("Nombre", fontWeight = FontWeight.Bold) },
+                        value = nombre, 
+                        onValueChange = { nombre = it }, 
+                        label = { Text(stringResource(R.string.admin_pets_label_name)) }, 
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
                     OutlinedTextField(
-                        value = especie,
-                        onValueChange = { especie = it },
-                        label = { Text("Especie", fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
-                    )
-                    OutlinedTextField(
-                        value = edad,
-                        onValueChange = { edad = it },
-                        label = { Text("Edad", fontWeight = FontWeight.Bold) },
+                        value = edad, 
+                        onValueChange = { edad = it }, 
+                        label = { Text(stringResource(R.string.admin_pets_label_age)) }, 
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
                 } else {
                     OutlinedTextField(
-                        value = estado,
-                        onValueChange = { estado = it },
-                        label = { Text("Estado", fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
-                    )
-                    OutlinedTextField(
-                        value = url,
-                        onValueChange = { url = it },
-                        label = { Text("URL Imagen", fontWeight = FontWeight.Bold) },
+                        value = url, 
+                        onValueChange = { url = it }, 
+                        label = { Text(stringResource(R.string.admin_pets_label_image)) }, 
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
@@ -217,34 +192,19 @@ fun MascotaDialogStepByStep(mascota: MascotaAdmin?, onDismiss: () -> Unit, onCon
             }
         },
         confirmButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (currentStep == 1) {
-                    Button(
-                        onClick = { currentStep = 2 },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7), contentColor = Color.White)
-                    ) {
-                        Text("SIGUIENTE", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                } else {
-                    Button(
-                        onClick = { onConfirm(MascotaAdmin(mascota?.id ?: 0, nombre, especie, edad, estado, url)) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
-                    ) {
-                        Text("GUARDAR", color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                }
+            Button(
+                onClick = { 
+                    if (currentStep == 1) currentStep = 2 
+                    else onConfirm(MascotaAdmin(mascota?.id ?: 0, nombre, R.string.species_dog, edad, R.string.status_available, url)) 
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF673AB7))
+            ) {
+                Text(if (currentStep == 1) stringResource(R.string.btn_next) else stringResource(R.string.btn_save_upper))
             }
         },
         dismissButton = {
-            Row {
-                if (currentStep == 2) {
-                    TextButton(onClick = { currentStep = 1 }) {
-                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
-                    }
-                }
-                TextButton(onClick = onDismiss) {
-                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
-                }
+            TextButton(onClick = onDismiss) { 
+                Text(stringResource(R.string.btn_cancel_upper), color = Color.White.copy(alpha = 0.8f)) 
             }
         }
     )
@@ -265,9 +225,7 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
             Image(
                 painter = rememberAsyncImagePainter(mascota.imagenUrl),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(12.dp)),
+                modifier = Modifier.size(70.dp).clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )
 
@@ -275,23 +233,17 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
 
             Column(Modifier.weight(1f)) {
                 Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                Text("${mascota.especie} • ${mascota.edad}", color = Color(0xFF333333), fontSize = 13.sp)
+                Text("${stringResource(mascota.especieRes)} • ${mascota.edadValor} ${stringResource(R.string.pet_age_suffix)}", fontSize = 13.sp, color = Color.DarkGray)
 
                 Spacer(Modifier.height(4.dp))
 
-                val statusColor = when(mascota.estado) {
-                    "Disponible" -> Color(0xFF2E7D32)
-                    "En Proceso" -> Color(0xFFEF6C00)
-                    else -> Color(0xFF1565C0)
-                }
-
                 Surface(
-                    color = statusColor.copy(alpha = 0.1f),
+                    color = Color(0xFF673AB7).copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = mascota.estado,
-                        color = statusColor,
+                        text = stringResource(mascota.estadoRes),
+                        color = Color(0xFF673AB7),
                         fontSize = 11.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                         fontWeight = FontWeight.Bold
@@ -300,12 +252,8 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
             }
 
             Row {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, "Editar", tint = Color(0xFF673AB7))
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, "Eliminar", tint = Color.Red)
-                }
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = Color(0xFF673AB7)) }
+                IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, null, tint = Color.Red) }
             }
         }
     }

@@ -37,7 +37,7 @@ class HomeViewModel : ViewModel() {
                     id = 1,
                     nombre = "Luna",
                     especie = "Perro",
-                    edadAprox = 2,
+                    edadAprox = 2.0,
                     genero = "Hembra",
                     estado = "En adopcion",
                     ubicacion = "Quito, Ecuador", // Agregado
@@ -51,7 +51,7 @@ class HomeViewModel : ViewModel() {
                     id = 2,
                     nombre = "Simba",
                     especie = "Gato",
-                    edadAprox = 1,
+                    edadAprox = 1.0,
                     genero = "Macho",
                     estado = "En adopcion",
                     ubicacion = "Guayaquil, Ecuador", // Agregado
@@ -65,7 +65,7 @@ class HomeViewModel : ViewModel() {
                     id = 3,
                     nombre = "Rocky",
                     especie = "Perro",
-                    edadAprox = 4,
+                    edadAprox = 4.0,
                     genero = "Macho",
                     estado = "Adoptado",
                     ubicacion = "Cuenca, Ecuador", // Agregado
@@ -79,7 +79,7 @@ class HomeViewModel : ViewModel() {
                     id = 4,
                     nombre = "Mora",
                     especie = "Perro",
-                    edadAprox = 3,
+                    edadAprox = 3.0,
                     genero = "Hembra",
                     estado = "En adopcion",
                     ubicacion = "Ambato, Ecuador", // Agregado

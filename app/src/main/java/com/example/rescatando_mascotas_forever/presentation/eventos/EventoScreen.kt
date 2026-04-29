@@ -17,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
@@ -35,45 +37,50 @@ fun EventoScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val categorias = listOf("Todos", "Gratis", "Concursos", "Adopciones")
-    var categoriaSeleccionada by remember { mutableStateOf("Todos") }
+    val catAll = stringResource(R.string.event_cat_all)
+    val catFree = stringResource(R.string.event_cat_free)
+    val catContests = stringResource(R.string.event_cat_contests)
+    val catAdoptions = stringResource(R.string.event_cat_adoptions)
+    
+    val categorias = listOf(catAll, catFree, catContests, catAdoptions)
+    var categoriaSeleccionada by remember { mutableStateOf(catAll) }
 
     val eventosBase = listOf(
         Evento(
             id = 1,
-            titulo = "Gran Jornada de Adopción 2025",
+            titulo = stringResource(R.string.mock_event_title_1),
             fecha = "15 Marzo",
             hora = "9am - 5pm",
-            precio = "Gratis",
-            ubicacion = "Parque Simón Bolívar",
-            descripcion = "Más de 80 mascotas buscando hogar. Habrá veterinarios, vacunación gratuita y mucho más.",
+            precio = stringResource(R.string.event_free_label),
+            ubicacion = stringResource(R.string.mock_location_1),
+            descripcion = stringResource(R.string.mock_event_desc_1),
             imagenUrl = "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?q=80&w=1000",
-            etiqueta = "DESTACADO",
+            etiqueta = stringResource(R.string.mock_event_tag_1),
             confirmados = 342
         ),
         Evento(
             id = 2,
-            titulo = "Taller de Adiestramiento Básico",
+            titulo = stringResource(R.string.mock_event_title_2),
             fecha = "22 Marzo",
             hora = "10am",
             precio = "$35.000",
-            ubicacion = "Centro Veterinario Norte",
-            descripcion = "Aprende las técnicas básicas para educar a tu cachorro de forma positiva.",
+            ubicacion = stringResource(R.string.mock_location_2),
+            descripcion = stringResource(R.string.mock_event_desc_2),
             imagenUrl = "https://images.unsplash.com/photo-1587300003388-59208cc962cb?q=80&w=1000",
-            etiqueta = "TALLER",
+            etiqueta = stringResource(R.string.mock_event_tag_2),
             cuposActuales = 18,
             cuposTotales = 25
         ),
         Evento(
             id = 3,
-            titulo = "Feria Mascota Feliz 🎊",
+            titulo = stringResource(R.string.mock_event_title_3),
             fecha = "05 Abril",
             hora = "11am",
             precio = "$15.000",
-            ubicacion = "C.C. Gran Estación",
-            descripcion = "Un día lleno de sorpresas, premios y actividades para toda la familia multiespecie.",
+            ubicacion = stringResource(R.string.mock_location_3),
+            descripcion = stringResource(R.string.mock_event_desc_3),
             imagenUrl = "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=1000",
-            etiqueta = "CONCURSO",
+            etiqueta = stringResource(R.string.mock_event_tag_3),
             confirmados = 126
         )
     )
@@ -81,9 +88,9 @@ fun EventoScreen(navController: NavHostController) {
     // Filtrado de eventos por categoría
     val eventosFiltrados = remember(categoriaSeleccionada) {
         when (categoriaSeleccionada) {
-            "Todos" -> eventosBase
-            "Gratis" -> eventosBase.filter { it.precio == "Gratis" }
-            else -> eventosBase.filter { it.etiqueta.contains(categoriaSeleccionada.dropLast(2), ignoreCase = true) }
+            catAll -> eventosBase
+            catFree -> eventosBase.filter { it.precio == catFree || it.precio == "Gratis" }
+            else -> eventosBase.filter { it.etiqueta.contains(categoriaSeleccionada.take(4), ignoreCase = true) }
         }
     }
 
@@ -106,8 +113,8 @@ fun EventoScreen(navController: NavHostController) {
             ) {
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text("Explorar Eventos", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF2E1A7A))
-                    Text("Únete a la comunidad animalista", fontSize = 14.sp, color = Color.Gray)
+                    Text(stringResource(R.string.event_title), fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF2E1A7A))
+                    Text(stringResource(R.string.event_subtitle), fontSize = 14.sp, color = Color.Gray)
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
@@ -123,9 +130,9 @@ fun EventoScreen(navController: NavHostController) {
                                 label = { Text(categoria) },
                                 leadingIcon = {
                                     val icon = when(categoria) {
-                                        "Todos" -> Icons.Default.DateRange
-                                        "Gratis" -> Icons.Default.Favorite
-                                        "Concursos" -> Icons.Default.EmojiEvents
+                                        catAll -> Icons.Default.DateRange
+                                        catFree -> Icons.Default.Favorite
+                                        catContests -> Icons.Default.EmojiEvents
                                         else -> Icons.Default.Pets
                                     }
                                     Icon(icon, null, modifier = Modifier.size(18.dp))
@@ -143,12 +150,13 @@ fun EventoScreen(navController: NavHostController) {
                 }
 
                 items(eventosFiltrados) { evento ->
+                    val snackMsg = stringResource(R.string.event_snack_joined, evento.titulo)
                     EventCard(
                         evento = evento, 
-                        isFeatured = (evento.etiqueta == "DESTACADO"),
+                        isFeatured = (evento.etiqueta == stringResource(R.string.mock_event_tag_1) || evento.etiqueta == "DESTACADO"),
                         onActionClick = {
                             scope.launch {
-                                snackbarHostState.showSnackbar("¡Excelente! Te has registrado en: ${evento.titulo}")
+                                snackbarHostState.showSnackbar(snackMsg)
                             }
                         }
                     )
@@ -237,7 +245,11 @@ fun EventCard(evento: Evento, isFeatured: Boolean = false, onActionClick: () -> 
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                val infoExtra = if (evento.confirmados != null) "${evento.confirmados} asistirán" else "${evento.cuposActuales}/${evento.cuposTotales} cupos"
+                val infoExtra = if (evento.confirmados != null) {
+                    stringResource(R.string.event_attendees, evento.confirmados!!)
+                } else {
+                    stringResource(R.string.event_spots, evento.cuposActuales ?: 0, evento.cuposTotales ?: 0)
+                }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(infoExtra, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color(0xFF673AB7))
@@ -248,7 +260,7 @@ fun EventCard(evento: Evento, isFeatured: Boolean = false, onActionClick: () -> 
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
                         modifier = Modifier.height(40.dp)
                     ) {
-                        Text("Unirme →", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(stringResource(R.string.event_btn_join), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }

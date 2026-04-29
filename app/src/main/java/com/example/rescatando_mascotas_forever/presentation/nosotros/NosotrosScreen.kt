@@ -18,12 +18,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
@@ -56,12 +58,12 @@ fun NosotrosScreen(navController: NavHostController) {
                     .padding(padding)
                     .background(Color.White)
             ) {
-                // 1. Encabezado con degradado (unificado con el resto de la app)
+                // 1. Encabezado con degradado
                 item {
-                    GradientHeader("Nosotros")
+                    GradientHeader(stringResource(R.string.about_title))
                 }
 
-                // 2. Imagen de "Hero" - Inspira confianza y modernidad
+                // 2. Imagen de "Hero"
                 item {
                     Box(
                         modifier = Modifier
@@ -70,7 +72,7 @@ fun NosotrosScreen(navController: NavHostController) {
                     ) {
                         Image(
                             painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=2000&auto=format&fit=crop"),
-                            contentDescription = "Perro y humano",
+                            contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -80,7 +82,7 @@ fun NosotrosScreen(navController: NavHostController) {
                                 .background(Color.Black.copy(alpha = 0.4f))
                         )
                         Text(
-                            "Sanando historias,\nuniendo corazones.",
+                            stringResource(R.string.about_hero_title),
                             color = Color.White,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
@@ -106,7 +108,7 @@ fun NosotrosScreen(navController: NavHostController) {
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Text(
-                                "NUESTRA HISTORIA",
+                                stringResource(R.string.about_history_badge),
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                                 color = Color(0xFF2E1A7A),
                                 fontSize = 12.sp,
@@ -115,7 +117,7 @@ fun NosotrosScreen(navController: NavHostController) {
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "En Rescatando Mascotas Forever creemos que cada vida importa. Nacimos del deseo de cambiar la realidad de miles de animales que sufren abandono o maltrato. Somos un equipo comprometido con el rescate y la búsqueda de hogares responsables.",
+                            stringResource(R.string.about_description),
                             style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Center,
                             lineHeight = 26.sp,
@@ -124,7 +126,7 @@ fun NosotrosScreen(navController: NavHostController) {
                     }
                 }
 
-                // 4. Misión y Visión como Tarjetas Modernas (Estilo limpio)
+                // 4. Misión y Visión
                 item {
                     Column(
                         modifier = Modifier
@@ -132,24 +134,24 @@ fun NosotrosScreen(navController: NavHostController) {
                             .padding(24.dp)
                     ) {
                         ModernInfoCard(
-                            title = "Misión",
-                            text = "Rescatar y rehabilitar animales en situación de abandono, brindándoles atención integral y conectándolos con hogares amorosos a través de nuestra plataforma digital.",
+                            title = stringResource(R.string.about_mission_title),
+                            text = stringResource(R.string.about_mission_desc),
                             icon = Icons.Default.Favorite
                         )
                         Spacer(modifier = Modifier.height(20.dp))
                         ModernInfoCard(
-                            title = "Visión",
-                            text = "Ser la plataforma líder en adopción responsable, fomentando una cultura de respeto y empatía hacia los animales en toda nuestra comunidad.",
+                            title = stringResource(R.string.about_vision_title),
+                            text = stringResource(R.string.about_vision_desc),
                             icon = Icons.Default.Star
                         )
                     }
                 }
 
-                // 5. Valores (Iconos limpios con círculos)
+                // 5. Valores
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Nuestros Valores",
+                        stringResource(R.string.about_values_title),
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
@@ -163,9 +165,9 @@ fun NosotrosScreen(navController: NavHostController) {
                             .padding(bottom = 48.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        ValueItem(Icons.Default.CheckCircle, "Respeto")
-                        ValueItem(Icons.Default.Face, "Empatía")
-                        ValueItem(Icons.Default.Info, "Compromiso")
+                        ValueItem(Icons.Default.CheckCircle, stringResource(R.string.about_value_respeto))
+                        ValueItem(Icons.Default.Face, stringResource(R.string.about_value_empatia))
+                        ValueItem(Icons.Default.Info, stringResource(R.string.about_value_compromiso))
                     }
                 }
             }

@@ -10,20 +10,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,7 +33,6 @@ import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
-import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,19 +65,15 @@ fun HomeScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Bienvenida Personalizada
-                item { 
-                    HomeHeader(navController) 
-                }
-
-                // Banner Promocional / Informativo
-                item {
-                    PromoBanner(navController)
-                }
+                item { HomeHeader(navController) }
+                item { PromoBanner(navController) }
 
                 // SECCIÓN: PROCESO DE ADOPCIÓN
                 item {
-                    SectionHeader("Estado de tu proceso", "Ver detalles") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_process), 
+                        stringResource(R.string.home_action_details)
+                    ) {
                         navController.navigate("proceso_adopcion")
                     }
                     AdoptionProcessHomeCard(navController)
@@ -87,15 +81,21 @@ fun HomeScreen(
 
                 // Sección de Categorías
                 item {
-                    SectionHeader("Categorías", "Ver todas") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_categories), 
+                        stringResource(R.string.home_action_all)
+                    ) {
                         navController.navigate("adopciones")
                     }
                     CategoryList(navController)
                 }
 
-                // Mascotas en Adopción (Cerca de ti)
+                // Mascotas en Adopción
                 item {
-                    SectionHeader("Cerca de ti", "Ver más") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_nearby), 
+                        stringResource(R.string.home_action_more)
+                    ) {
                         navController.navigate("adopciones")
                     }
                     if (isLoading) {
@@ -117,7 +117,10 @@ fun HomeScreen(
 
                 // SECCIÓN: ÚLTIMOS RESCATES
                 item {
-                    SectionHeader("Últimos rescates", "Ver mapa") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_rescues), 
+                        stringResource(R.string.home_action_map)
+                    ) {
                         navController.navigate("ultimos_rescates")
                     }
                     RecentRescuesRow(navController)
@@ -125,7 +128,10 @@ fun HomeScreen(
 
                 // SECCIÓN: REPORTE RÁPIDO
                 item {
-                    SectionHeader("Reportar emergencia", "Ayuda") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_report), 
+                        stringResource(R.string.home_action_help)
+                    ) {
                         navController.navigate("formulario_rescate")
                     }
                     QuickRescateCard(navController)
@@ -133,7 +139,10 @@ fun HomeScreen(
 
                 // SECCIÓN: EVENTOS
                 item {
-                    SectionHeader("Próximos eventos", "Calendario") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_events), 
+                        stringResource(R.string.home_action_calendar)
+                    ) {
                         navController.navigate("eventos")
                     }
                     HomeEventsList(navController)
@@ -141,7 +150,10 @@ fun HomeScreen(
 
                 // SECCIÓN: NOSOTROS
                 item {
-                    SectionHeader("Nuestra fundación", "Saber más") {
+                    SectionHeader(
+                        stringResource(R.string.home_section_about), 
+                        stringResource(R.string.home_btn_more)
+                    ) {
                         navController.navigate("nosotros")
                     }
                     AboutUsHomeCard(navController)
@@ -167,13 +179,13 @@ fun HomeHeader(navController: NavHostController) {
         ) {
             Column {
                 Text(
-                    "¡Hola, Yeison! 👋",
+                    stringResource(R.string.home_welcome),
                     fontSize = 24.sp, 
                     fontWeight = FontWeight.Bold, 
                     color = Color(0xFF2E1A7A)
                 )
                 Text(
-                    "Popayán, Cauca", 
+                    stringResource(R.string.home_location_default), 
                     fontSize = 14.sp, 
                     color = Color.Gray
                 )
@@ -223,7 +235,7 @@ fun PromoBanner(navController: NavHostController) {
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Adopta un amigo,\ncambia una vida",
+                        stringResource(R.string.home_promo_title),
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -236,7 +248,7 @@ fun PromoBanner(navController: NavHostController) {
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.height(36.dp)
                     ) {
-                        Text("Saber más", color = Color(0xFF673AB7), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.home_btn_more), color = Color(0xFF673AB7), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -266,11 +278,12 @@ fun SectionHeader(title: String, action: String, onActionClick: () -> Unit) {
 
 @Composable
 fun CategoryList(navController: NavHostController) {
+    val shopLabel = stringResource(R.string.home_cat_shop)
     val items = listOf(
-        Triple("Perros", Icons.Default.Pets, Color(0xFFE8F5E9)),
-        Triple("Gatos", Icons.Default.CrueltyFree, Color(0xFFFFF3E0)),
-        Triple("Otros", Icons.Default.GridView, Color(0xFFE3F2FD)),
-        Triple("Tienda", Icons.Default.Storefront, Color(0xFFF3E5F5))
+        Triple(stringResource(R.string.home_cat_dogs), Icons.Default.Pets, Color(0xFFE8F5E9)),
+        Triple(stringResource(R.string.home_cat_cats), Icons.Default.CrueltyFree, Color(0xFFFFF3E0)),
+        Triple(stringResource(R.string.home_cat_others), Icons.Default.GridView, Color(0xFFE3F2FD)),
+        Triple(shopLabel, Icons.Default.Storefront, Color(0xFFF3E5F5))
     )
     
     LazyRow(
@@ -281,7 +294,7 @@ fun CategoryList(navController: NavHostController) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.clickable { 
-                    if (item.first == "Tienda") navController.navigate("donaciones")
+                    if (item.first == shopLabel) navController.navigate("donaciones")
                     else navController.navigate("adopciones")
                 }
             ) {
@@ -322,7 +335,8 @@ fun ModernMascotaCard(mascota: Mascota, navController: NavHostController) {
                     shape = RoundedCornerShape(8.dp),
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
-                    Text("${mascota.genero} • ${mascota.edadAprox} años", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, fontSize = 10.sp)
+                    val ageSuffix = if (mascota.edadAprox.toInt() == 1) stringResource(R.string.pet_age_singular) else stringResource(R.string.pet_age_suffix)
+                    Text("${mascota.genero} • ${mascota.edadAprox} $ageSuffix", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), color = Color.White, fontSize = 10.sp)
                 }
             }
             Column(modifier = Modifier.padding(12.dp)) {
@@ -352,8 +366,8 @@ fun QuickRescateCard(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("¿Encontraste una mascota?", fontWeight = FontWeight.Bold, color = Color(0xFFB71C1C))
-                Text("Repórtala aquí para ayudarla rápido", fontSize = 12.sp, color = Color(0xFFD32F2F))
+                Text(stringResource(R.string.home_report_title), fontWeight = FontWeight.Bold, color = Color(0xFFB71C1C))
+                Text(stringResource(R.string.home_report_desc), fontSize = 12.sp, color = Color(0xFFD32F2F))
             }
         }
     }
@@ -377,8 +391,8 @@ fun HomeEventsList(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("Gran Jornada de Adopción 2025", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
-                Text("Parque Simón Bolívar • 9:00 AM", fontSize = 12.sp, color = Color.DarkGray)
+                Text(stringResource(R.string.mock_event_title_1), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
+                Text("${stringResource(R.string.mock_location_1)} • 9:00 AM", fontSize = 12.sp, color = Color.DarkGray)
             }
         }
     }
@@ -395,14 +409,14 @@ fun AdoptionProcessHomeCard(navController: NavHostController) {
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE1F5FE))
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.List, null, tint = Color(0xFF0288D1), modifier = Modifier.size(32.dp))
+            Icon(Icons.AutoMirrored.Filled.List, null, tint = Color(0xFF0288D1), modifier = Modifier.size(32.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text("Tu Proceso de Adopción", fontWeight = FontWeight.Bold, color = Color(0xFF01579B))
-                Text("Consulta requisitos y estado de tu solicitud", fontSize = 12.sp, color = Color(0xFF0277BD))
+                Text(stringResource(R.string.home_process_title), fontWeight = FontWeight.Bold, color = Color(0xFF01579B))
+                Text(stringResource(R.string.home_process_desc), fontSize = 12.sp, color = Color(0xFF0277BD))
             }
             Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Default.KeyboardArrowRight, null, tint = Color(0xFF0288D1))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color(0xFF0288D1))
         }
     }
 }
@@ -410,8 +424,8 @@ fun AdoptionProcessHomeCard(navController: NavHostController) {
 @Composable
 fun RecentRescuesRow(navController: NavHostController) {
     val rescues = listOf(
-        Pair("https://images.unsplash.com/photo-1537151608828-ea2b11777ee8", "Barrio El Modelo"),
-        Pair("https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba", "Sector Norte")
+        Pair("https://images.unsplash.com/photo-1537151608828-ea2b11777ee8", stringResource(R.string.mock_location_4)),
+        Pair("https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba", stringResource(R.string.mock_location_5))
     )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -449,8 +463,8 @@ fun AboutUsHomeCard(navController: NavHostController) {
     ) {
         Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Conócenos", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF4A148C))
-                Text("Sanando su historia y uniendo familias desde 2020.", fontSize = 12.sp, color = Color(0xFF4A148C))
+                Text(stringResource(R.string.home_about_title), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF4A148C))
+                Text(stringResource(R.string.home_about_desc), fontSize = 12.sp, color = Color(0xFF4A148C))
             }
             Icon(Icons.Default.Info, null, modifier = Modifier.size(40.dp), tint = Color(0xFF9C27B0))
         }

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -95,13 +96,13 @@ fun LoginScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "¡Bienvenido de nuevo!",
+                text = stringResource(R.string.login_welcome),
                 color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "Tu ayuda hace la diferencia",
+                text = stringResource(R.string.login_subtitle),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium
@@ -140,7 +141,7 @@ fun LoginScreen(navController: NavHostController) {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "Usuario",
+                                stringResource(R.string.login_role_user),
                                 color = if (!isAdmin) Color(0xFF673AB7) else Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
@@ -156,7 +157,7 @@ fun LoginScreen(navController: NavHostController) {
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "Admin",
+                                stringResource(R.string.login_role_admin),
                                 color = if (isAdmin) Color(0xFF673AB7) else Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
@@ -170,7 +171,7 @@ fun LoginScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Correo electrónico", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = { Text(stringResource(R.string.login_email_hint), color = Color.White.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -190,7 +191,7 @@ fun LoginScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Contraseña", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = { Text(stringResource(R.string.login_password_hint), color = Color.White.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -217,7 +218,7 @@ fun LoginScreen(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        "¿Olvidaste tu contraseña?",
+                        stringResource(R.string.login_forgot_password),
                         modifier = Modifier.align(Alignment.End),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 12.sp
@@ -249,7 +250,7 @@ fun LoginScreen(navController: NavHostController) {
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
                         Text(
-                            text = "INGRESAR",
+                            text = stringResource(R.string.login_btn_enter),
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 16.sp,
                             letterSpacing = 1.sp
@@ -265,8 +266,8 @@ fun LoginScreen(navController: NavHostController) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable { /* Navegar a registro */ }
             ) {
-                Text("¿No tienes una cuenta? ", color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
-                Text("Regístrate aquí", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(stringResource(R.string.login_no_account), color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
+                Text(stringResource(R.string.login_register_here), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }

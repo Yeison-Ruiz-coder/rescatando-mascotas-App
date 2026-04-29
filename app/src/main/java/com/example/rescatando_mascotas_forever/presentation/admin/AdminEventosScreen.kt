@@ -15,11 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 
 data class EventoAdmin(
@@ -70,7 +72,7 @@ fun AdminEventosScreen(navController: NavHostController) {
                     containerColor = Color(0xFF673AB7),
                     contentColor = Color.White
                 ) {
-                    Icon(Icons.Default.Add, "Agregar Evento")
+                    Icon(Icons.Default.Add, stringResource(R.string.admin_pets_add))
                 }
             }
         ) { padding ->
@@ -87,8 +89,9 @@ fun AdminEventosScreen(navController: NavHostController) {
                         .padding(20.dp)
                 ) {
                     Column {
-                        Text("Gestión de Eventos", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text("Crea y organiza actividades", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        // TÍTULOS DINÁMICOS
+                        Text(stringResource(R.string.admin_action_events_title), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.admin_action_events_desc), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
@@ -132,6 +135,7 @@ fun AdminEventosScreen(navController: NavHostController) {
 @Composable
 fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfirm: (EventoAdmin) -> Unit) {
     var currentStep by remember { mutableIntStateOf(1) }
+    val totalSteps = 2
 
     var titulo by remember { mutableStateOf(evento?.titulo ?: "") }
     var fecha by remember { mutableStateOf(evento?.fecha ?: "") }
@@ -139,19 +143,31 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
     var etiqueta by remember { mutableStateOf(evento?.etiqueta ?: "NORMAL") }
     var url by remember { mutableStateOf(evento?.imagenUrl ?: "https://") }
 
+    // Configuración de colores para que el texto sea BLANCO
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Color.White,
+        unfocusedTextColor = Color.White,
+        focusedLabelColor = Color.White,
+        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
+        focusedBorderColor = Color.White,
+        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+        cursorColor = Color.White
+    )
+
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = Color(0xFF673AB7), // Fondo púrpura para que el texto blanco resalte
         title = {
             Column {
                 Text(
-                    if (evento == null) "Nuevo Evento" else "Editar Evento",
-                    color = Color.Black,
+                    if (evento == null) stringResource(R.string.admin_events_new) else stringResource(R.string.admin_events_edit),
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "Paso $currentStep de 2",
+                    stringResource(R.string.rescue_survey_step, currentStep, totalSteps),
                     fontSize = 12.sp,
-                    color = Color(0xFF333333),
+                    color = Color.White.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -159,40 +175,31 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 LinearProgressIndicator(
-                    progress = { currentStep.toFloat() / 2f },
+                    progress = { currentStep.toFloat() / totalSteps.toFloat() },
                     modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                    color = Color(0xFF673AB7),
-                    trackColor = Color(0xFFEEEEEE)
-                )
-
-                val textFieldColors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = Color(0xFF673AB7),
-                    unfocusedLabelColor = Color(0xFF333333),
-                    focusedBorderColor = Color(0xFF673AB7),
-                    unfocusedBorderColor = Color.Gray
+                    color = Color.White,
+                    trackColor = Color.White.copy(alpha = 0.2f)
                 )
 
                 if (currentStep == 1) {
                     OutlinedTextField(
                         value = titulo,
                         onValueChange = { titulo = it },
-                        label = { Text("Título del Evento", fontWeight = FontWeight.Bold) },
+                        label = { Text(stringResource(R.string.admin_events_label_title), fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
                     OutlinedTextField(
                         value = fecha,
                         onValueChange = { fecha = it },
-                        label = { Text("Fecha", fontWeight = FontWeight.Bold) },
+                        label = { Text(stringResource(R.string.admin_events_label_date), fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
                     OutlinedTextField(
                         value = ubicacion,
                         onValueChange = { ubicacion = it },
-                        label = { Text("Ubicación", fontWeight = FontWeight.Bold) },
+                        label = { Text(stringResource(R.string.admin_events_label_location), fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
@@ -200,14 +207,14 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
                     OutlinedTextField(
                         value = etiqueta,
                         onValueChange = { etiqueta = it },
-                        label = { Text("Etiqueta", fontWeight = FontWeight.Bold) },
+                        label = { Text("Etiqueta / Tag", fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
                     OutlinedTextField(
                         value = url,
                         onValueChange = { url = it },
-                        label = { Text("URL Imagen", fontWeight = FontWeight.Bold) },
+                        label = { Text(stringResource(R.string.admin_pets_label_image), fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
@@ -219,16 +226,16 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
                 if (currentStep == 1) {
                     Button(
                         onClick = { currentStep = 2 },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7), contentColor = Color.White)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF673AB7))
                     ) {
-                        Text("SIGUIENTE", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold)
                     }
                 } else {
                     Button(
                         onClick = { onConfirm(EventoAdmin(evento?.id ?: 0, titulo, fecha, ubicacion, etiqueta, url)) },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
                     ) {
-                        Text("GUARDAR", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.btn_save_upper), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -237,11 +244,11 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
             Row {
                 if (currentStep == 2) {
                     TextButton(onClick = { currentStep = 1 }) {
-                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.btn_previous), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_cancel_upper), color = Color.White.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -293,10 +300,10 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
 
             Row {
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, "Editar", tint = Color(0xFF673AB7))
+                    Icon(Icons.Default.Edit, null, tint = Color(0xFF673AB7))
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, "Eliminar", tint = Color.Red)
+                    Icon(Icons.Default.Delete, null, tint = Color.Red)
                 }
             }
         }

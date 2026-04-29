@@ -16,12 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminDrawerContent
 
@@ -79,7 +81,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                     .background(Color(0xFFF8F9FA)),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                item { GradientHeader("Registro de Rescatista") }
+                item { GradientHeader(stringResource(R.string.rescuer_reg_title)) }
 
                 item {
                     Card(
@@ -101,14 +103,14 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                 modifier = Modifier.size(44.dp)
                             )
                             Text(
-                                "PASO $currentStep DE $totalSteps",
+                                stringResource(R.string.rescue_survey_step, currentStep, totalSteps),
                                 color = Color(0xFF673AB7),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                             Text(
-                                "FORMULARIO DE RESCATISTA",
+                                stringResource(R.string.rescuer_reg_header),
                                 color = Color.Black,
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 18.sp,
@@ -129,55 +131,55 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                             when (currentStep) {
                                 1 -> {
                                     // 1. DATOS PERSONALES
-                                    SectionHeader(Icons.Default.Person, "Datos Personales")
-                                    FormField("Nombre completo", nombre) { nombre = it }
+                                    SectionHeader(Icons.Default.Person, stringResource(R.string.rescuer_reg_sec_personal))
+                                    FormField(stringResource(R.string.rescuer_reg_label_name), nombre) { nombre = it }
                                     Row(Modifier.fillMaxWidth()) {
-                                        FormField("Documento", documento, Modifier.weight(1f)) { documento = it }
+                                        FormField(stringResource(R.string.rescuer_reg_label_doc), documento, Modifier.weight(1f)) { documento = it }
                                         Spacer(Modifier.width(8.dp))
-                                        FormField("F. Nacimiento", fechaNacimiento, Modifier.weight(1f)) { fechaNacimiento = it }
+                                        FormField(stringResource(R.string.rescuer_reg_label_birth), fechaNacimiento, Modifier.weight(1f)) { fechaNacimiento = it }
                                     }
                                     Row(Modifier.fillMaxWidth()) {
-                                        FormField("WhatsApp", whatsapp, Modifier.weight(1f)) { whatsapp = it }
+                                        FormField(stringResource(R.string.rescuer_reg_label_wa), whatsapp, Modifier.weight(1f)) { whatsapp = it }
                                         Spacer(Modifier.width(8.dp))
-                                        FormField("Email", email, Modifier.weight(1f)) { email = it }
+                                        FormField(stringResource(R.string.rescuer_reg_label_email), email, Modifier.weight(1f)) { email = it }
                                     }
                                 }
                                 2 -> {
                                     // 2. INFORMACIÓN DE RESCATE
-                                    SectionHeader(Icons.Default.Pets, "Capacidad y Logística")
-                                    FormField("Capacidad de animales (número)", capacidadAnimales) { capacidadAnimales = it }
+                                    SectionHeader(Icons.Default.Pets, stringResource(R.string.rescuer_reg_sec_logistic))
+                                    FormField(stringResource(R.string.rescuer_reg_label_capacity), capacidadAnimales) { capacidadAnimales = it }
 
                                     Spacer(Modifier.height(12.dp))
-                                    Text("¿Cuenta con espacio adecuado?", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
+                                    Text(stringResource(R.string.rescuer_reg_label_space), color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
                                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                         RadioButton(selected = tieneEspacio == true, onClick = { tieneEspacio = true })
-                                        Text("Sí, tengo espacio", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                        Text(stringResource(R.string.rescuer_reg_opt_space_yes), fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                                         Spacer(Modifier.width(16.dp))
                                         RadioButton(selected = tieneEspacio == false, onClick = { tieneEspacio = false })
-                                        Text("No tengo espacio", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                        Text(stringResource(R.string.rescuer_reg_opt_space_no), fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                                     }
 
                                     Spacer(Modifier.height(12.dp))
                                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                         Checkbox(checked = tieneTransporte, onCheckedChange = { tieneTransporte = it })
-                                        Text("Cuenta con transporte propio para rescates", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                        Text(stringResource(R.string.rescuer_reg_label_transport), fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                                     }
                                 }
                                 3 -> {
                                     // 3. MOTIVACIÓN Y TÉRMINOS
-                                    SectionHeader(Icons.Default.Favorite, "Experiencia y Compromiso")
-                                    Text("Cuéntanos tu motivación y experiencia previa:", color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
+                                    SectionHeader(Icons.Default.Favorite, stringResource(R.string.rescuer_reg_sec_exp))
+                                    Text(stringResource(R.string.rescuer_reg_label_motivation), color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                                     SimpleTextField(motivacion, Modifier.height(120.dp), singleLine = false) { motivacion = it }
 
                                     Spacer(Modifier.height(20.dp))
 
                                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                         Checkbox(checked = declaraVerdad, onCheckedChange = { declaraVerdad = it })
-                                        Text("Declaro que la información es verídica", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                        Text(stringResource(R.string.rescuer_reg_label_truth), fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                                     }
                                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                                         Checkbox(checked = aceptaTerminos, onCheckedChange = { aceptaTerminos = it })
-                                        Text("Acepto términos y condiciones de voluntariado", fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
+                                        Text(stringResource(R.string.rescuer_reg_label_terms), fontSize = 13.sp, color = Color.Black, fontWeight = FontWeight.Medium)
                                     }
                                 }
                             }
@@ -198,7 +200,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                     ) {
                                         Icon(Icons.Default.ArrowBack, null, tint = Color(0xFF673AB7))
                                         Spacer(Modifier.width(4.dp))
-                                        Text("ANTERIOR", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                                        Text(stringResource(R.string.btn_previous), color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
                                     }
                                 }
 
@@ -212,7 +214,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                             contentColor = Color.White
                                         )
                                     ) {
-                                        Text("SIGUIENTE", fontWeight = FontWeight.Bold, color = Color.White)
+                                        Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, color = Color.White)
                                         Spacer(Modifier.width(4.dp))
                                         Icon(Icons.Default.ArrowForward, null, tint = Color.White)
                                     }
@@ -228,7 +230,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                     ) {
                                         Icon(Icons.Default.Save, null, tint = Color.White)
                                         Spacer(Modifier.width(4.dp))
-                                        Text("ENVIAR", fontWeight = FontWeight.Bold, color = Color.White)
+                                        Text(stringResource(R.string.btn_send), fontWeight = FontWeight.Bold, color = Color.White)
                                     }
                                 }
                             }
@@ -241,7 +243,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     border = BorderStroke(1.dp, Color.Red)
                                 ) {
-                                    Text("CANCELAR", color = Color.Red, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.btn_cancel_upper), color = Color.Red, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -288,7 +290,7 @@ fun SimpleTextField(value: String, modifier: Modifier = Modifier, singleLine: Bo
         singleLine = singleLine,
         decorationBox = { innerTextField ->
             Box(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-                if (value.isEmpty()) Text("Escriba aquí...", color = Color(0xFF666666), fontSize = 14.sp)
+                if (value.isEmpty()) Text(stringResource(R.string.hint_type_here), color = Color(0xFF666666), fontSize = 14.sp)
                 innerTextField()
             }
         }
