@@ -8,14 +8,14 @@ import retrofit2.http.Query
 
 interface MascotaApi {
 
-    @GET("api/v1/mascotas")
+    @GET("api/mascotas")
     suspend fun getMascotas(
         @Query("especie") especie: String? = null,
         @Query("estado") estado: String? = null,
         @Query("page") page: Int? = null
     ): MascotaResponse
 
-    @GET("api/v1/mascotas/{id}")
+    @GET("api/mascotas/{id}")
     suspend fun getMascotaById(
         @Path("id") id: Int
     ): Mascota
