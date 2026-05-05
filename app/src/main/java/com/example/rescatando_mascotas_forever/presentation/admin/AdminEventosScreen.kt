@@ -19,36 +19,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
-
-data class EventoAdmin(
-    val id: Int,
-    val titulo: String,
-    val fecha: String,
-    val ubicacion: String,
-    val etiqueta: String,
-    val imagenUrl: String
-)
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoState
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminEventosScreen(navController: NavHostController) {
+fun AdminEventosScreen(
+    navController: NavHostController,
+    viewModel: EventoViewModel = viewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var showDialog by remember { mutableStateOf(false) }
-    var eventoEditando by remember { mutableStateOf<EventoAdmin?>(null) }
+    val state by viewModel.state.collectAsState()
 
-    val eventos = remember {
-        mutableStateListOf(
-            EventoAdmin(1, "Gran Jornada de Adopción", "15 Marzo", "Parque Simón Bolívar", "DESTACADO", "https://images.unsplash.com/photo-1548199973-03cce0bbc87b"),
-            EventoAdmin(2, "Taller de Adiestramiento", "22 Marzo", "Veterinaria Norte", "TALLER", "https://images.unsplash.com/photo-1587300003388-59208cc962cb"),
-            EventoAdmin(3, "Feria Mascota Feliz", "05 Abril", "C.C. Gran Estación", "CONCURSO", "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7")
-        )
-    }
+    var showDialog by remember { mutableStateOf(false) }
+    var eventoEditando by remember { mutableStateOf<Evento?>(null) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -89,26 +81,44 @@ fun AdminEventosScreen(navController: NavHostController) {
                         .padding(20.dp)
                 ) {
                     Column {
-                        // TÍTULOS DINÁMICOS
                         Text(stringResource(R.string.admin_action_events_title), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                         Text(stringResource(R.string.admin_action_events_desc), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(eventos) { evento ->
-                        EventoAdminCard(
-                            evento = evento,
-                            onEdit = {
-                                eventoEditando = evento
-                                showDialog = true
-                            },
-                            onDelete = { eventos.remove(evento) }
-                        )
+                when (val currentState = state) {
+                    is EventoState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = Color(0xFF673AB7))
+                        }
+                    }
+                    is EventoState.Success -> {
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(currentState.eventos) { evento ->
+                                EventoAdminCard(
+                                    evento = evento,
+                                    onEdit = {
+                                        eventoEditando = evento
+                                        showDialog = true
+                                    },
+                                    onDelete = { /* Implementar lógica de eliminación si es necesario */ }
+                                )
+                            }
+                        }
+                    }
+                    is EventoState.Error -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Error: ${currentState.message}", color = Color.Red)
+                                Button(onClick = { viewModel.getEventos() }) {
+                                    Text("Reintentar")
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -119,13 +129,7 @@ fun AdminEventosScreen(navController: NavHostController) {
         EventoDialogStepByStep(
             evento = eventoEditando,
             onDismiss = { showDialog = false },
-            onConfirm = { nuevoEvento ->
-                if (eventoEditando != null) {
-                    val index = eventos.indexOfFirst { it.id == eventoEditando!!.id }
-                    if (index != -1) eventos[index] = nuevoEvento
-                } else {
-                    eventos.add(nuevoEvento.copy(id = (eventos.maxByOrNull { it.id }?.id ?: 0) + 1))
-                }
+            onConfirm = { /* Implementar lógica para guardar o actualizar a través de la API */
                 showDialog = false
             }
         )
@@ -133,17 +137,16 @@ fun AdminEventosScreen(navController: NavHostController) {
 }
 
 @Composable
-fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfirm: (EventoAdmin) -> Unit) {
+fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (Evento) -> Unit) {
     var currentStep by remember { mutableIntStateOf(1) }
     val totalSteps = 2
 
-    var titulo by remember { mutableStateOf(evento?.titulo ?: "") }
+    var titulo by remember { mutableStateOf(evento?.nombre ?: "") }
     var fecha by remember { mutableStateOf(evento?.fecha ?: "") }
-    var ubicacion by remember { mutableStateOf(evento?.ubicacion ?: "") }
-    var etiqueta by remember { mutableStateOf(evento?.etiqueta ?: "NORMAL") }
-    var url by remember { mutableStateOf(evento?.imagenUrl ?: "https://") }
+    var ubicacion by remember { mutableStateOf(evento?.lugar ?: "") }
+    var tipo by remember { mutableStateOf(evento?.tipo ?: "NORMAL") }
+    var url by remember { mutableStateOf(evento?.imagenUrl ?: "") }
 
-    // Configuración de colores para que el texto sea BLANCO
     val textFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Color.White,
         unfocusedTextColor = Color.White,
@@ -156,7 +159,7 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF673AB7), // Fondo púrpura para que el texto blanco resalte
+        containerColor = Color(0xFF673AB7),
         title = {
             Column {
                 Text(
@@ -205,9 +208,9 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
                     )
                 } else {
                     OutlinedTextField(
-                        value = etiqueta,
-                        onValueChange = { etiqueta = it },
-                        label = { Text("Etiqueta / Tag", fontWeight = FontWeight.Bold) },
+                        value = tipo,
+                        onValueChange = { tipo = it },
+                        label = { Text("Tipo de Evento", fontWeight = FontWeight.Bold) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = textFieldColors
                     )
@@ -232,7 +235,24 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
                     }
                 } else {
                     Button(
-                        onClick = { onConfirm(EventoAdmin(evento?.id ?: 0, titulo, fecha, ubicacion, etiqueta, url)) },
+                        onClick = {
+                            // Aquí se crearía el objeto Evento real para enviar a la API
+                            onConfirm(Evento(
+                                id = evento?.id ?: 0,
+                                nombre = titulo,
+                                lugar = ubicacion,
+                                descripcion = evento?.descripcion,
+                                fecha = fecha,
+                                imagenUrl = url,
+                                imagenPublicId = evento?.imagenPublicId,
+                                fundacionId = evento?.fundacionId,
+                                tipo = tipo,
+                                likes = evento?.likes,
+                                createdAt = evento?.createdAt,
+                                updatedAt = evento?.updatedAt,
+                                deletedAt = evento?.deletedAt
+                            ))
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
                     ) {
                         Text(stringResource(R.string.btn_save_upper), color = Color.White, fontWeight = FontWeight.Bold)
@@ -256,7 +276,7 @@ fun EventoDialogStepByStep(evento: EventoAdmin?, onDismiss: () -> Unit, onConfir
 }
 
 @Composable
-fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Unit) {
+fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -279,8 +299,8 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
             Spacer(Modifier.width(16.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(evento.titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = Color.Black)
-                Text("${evento.fecha} • ${evento.ubicacion}", color = Color(0xFF333333), fontSize = 12.sp, maxLines = 1)
+                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = Color.Black)
+                Text("${evento.fecha} • ${evento.lugar}", color = Color(0xFF333333), fontSize = 12.sp, maxLines = 1)
 
                 Spacer(Modifier.height(4.dp))
 
@@ -289,7 +309,7 @@ fun EventoAdminCard(evento: EventoAdmin, onEdit: () -> Unit, onDelete: () -> Uni
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = evento.etiqueta,
+                        text = evento.tipo ?: "EVENTO",
                         color = Color(0xFF673AB7),
                         fontSize = 10.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
