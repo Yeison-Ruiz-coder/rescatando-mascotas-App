@@ -261,6 +261,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         )
         
         DrawerMenuItem(stringResource(R.string.nav_events), Icons.Default.DateRange, currentRoute == "eventos") { navigateAndClose("eventos") }
+        DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
         DrawerMenuItem(stringResource(R.string.drawer_item_volunteers), Icons.Default.Face, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
         DrawerMenuItem(stringResource(R.string.drawer_item_donations), Icons.Default.Star, currentRoute == "donaciones") { navigateAndClose("donaciones") }
         DrawerMenuItem(stringResource(R.string.drawer_item_about), Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
