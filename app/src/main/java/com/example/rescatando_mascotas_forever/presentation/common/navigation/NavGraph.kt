@@ -1,9 +1,13 @@
 package com.example.rescatando_mascotas_forever.presentation.common.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
@@ -13,6 +17,8 @@ import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRes
 import com.example.rescatando_mascotas_forever.presentation.rescates.FormularioRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.FormularioAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoDetalleScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
 import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
@@ -69,9 +75,30 @@ fun AppNavigation() {
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }
-        composable("eventos") {
-            EventoScreen(navController = navController)
+        
+        // --- BLOQUE EVENTOS ---
+        composable("eventos") { backStackEntry ->
+            // Obtenemos el ViewModel aquí
+            val viewModel: EventoViewModel = viewModel(backStackEntry)
+            EventoScreen(navController = navController, viewModel = viewModel)
         }
+        
+        composable(
+            route = "eventos/{eventoId}",
+            arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
+            
+            // BUSCAMOS EL VIEWMODEL DE LA PANTALLA ANTERIOR ("eventos")
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("eventos")
+            }
+            val viewModel: EventoViewModel = viewModel(parentEntry)
+            
+            EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
+        }
+        // ----------------------
+
         composable("rescatista_contactos") {
             RescatistaContactosScreen(navController = navController)
         }
