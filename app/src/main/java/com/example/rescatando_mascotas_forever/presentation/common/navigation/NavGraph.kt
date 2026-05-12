@@ -76,11 +76,17 @@ fun AppNavigation() {
         composable("encuesta_rescate") {
             EncuestaRescateScreen(navController = navController)
         }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
+        }
         composable("perfil") {
             ProfileScreen(navController = navController)
         }
         composable("configuracion") {
             SettingsScreen(navController = navController)
+        }
+        composable("veterinarias") {
+            VeterinariaScreen(navController = navController)
         }
 
         // RUTAS EXCLUSIVAS ADMIN

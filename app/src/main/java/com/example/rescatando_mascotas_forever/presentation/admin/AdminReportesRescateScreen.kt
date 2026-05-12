@@ -168,7 +168,7 @@ fun ReporteRescateCard(reporte: ReporteRescateAdmin) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Ver Detalles", fontSize = 12.sp)
+                    Text("Ver Detalles", fontSize = 12.sp , color = Color(0xFFF8F9FA))
                 }
                 OutlinedButton(
                     onClick = { },

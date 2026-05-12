@@ -1,7 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.donaciones
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -12,15 +11,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,11 +30,21 @@ import com.example.rescatando_mascotas_forever.presentation.common.components.*
 fun DonacionesScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val clipboardManager = LocalClipboardManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val bankInfo = """
+        ${stringResource(R.string.donations_bank_label)}: Bancolombia
+        ${stringResource(R.string.donations_account_type_label)}: 123-456789-01
+        ${stringResource(R.string.donations_nit_label)}: 900.123.456-7
+        ${stringResource(R.string.donations_holder_label)}: ${stringResource(R.string.donations_foundation_name)}
+    """.trimIndent()
 
     AppDrawer(navController = navController, drawerState = drawerState, scope = scope) {
         Scaffold(
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
-            bottomBar = { AppBottomBar(navController = navController) }
+            bottomBar = { AppBottomBar(navController = navController) },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
@@ -47,7 +59,7 @@ fun DonacionesScreen(navController: NavHostController) {
                 item {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text(
-                            "¿Cómo quieres ayudar?",
+                            text = stringResource(R.string.donations_how_to_help),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF333333)
@@ -55,22 +67,22 @@ fun DonacionesScreen(navController: NavHostController) {
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         DonationOptionCard(
-                            title = "Donación Económica",
-                            description = "Ayúdanos con los gastos veterinarios y de alimentación.",
+                            title = stringResource(R.string.donations_money_title),
+                            description = stringResource(R.string.donations_money_desc),
                             icon = Icons.Default.Payments,
                             color = Color(0xFF4CAF50)
                         )
                         
                         DonationOptionCard(
-                            title = "Donación de Alimento",
-                            description = "Aceptamos concentrado para perros y gatos de todas las edades.",
+                            title = stringResource(R.string.donations_food_title),
+                            description = stringResource(R.string.donations_food_desc),
                             icon = Icons.Default.Pets,
                             color = Color(0xFFFF9800)
                         )
                         
                         DonationOptionCard(
-                            title = "Insumos Médicos",
-                            description = "Gasas, alcohol, desparasitantes y medicamentos básicos.",
+                            title = stringResource(R.string.donations_medical_title),
+                            description = stringResource(R.string.donations_medical_desc),
                             icon = Icons.Default.MedicalServices,
                             color = Color(0xFF2196F3)
                         )
@@ -88,28 +100,30 @@ fun DonacionesScreen(navController: NavHostController) {
                     ) {
                         Column(modifier = Modifier.padding(24.dp)) {
                             Text(
-                                "Información Bancaria",
+                                text = stringResource(R.string.donations_bank_info_title),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp,
                                 color = Color(0xFF673AB7)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            BankDetailRow("Banco", "Bancolombia")
-                            BankDetailRow("Cuenta de Ahorros", "123-456789-01")
-                            BankDetailRow("NIT", "900.123.456-7")
-                            BankDetailRow("Titular", "Fundación Rescatando Mascotas")
+                            BankDetailRow(stringResource(R.string.donations_bank_label), "Bancolombia")
+                            BankDetailRow(stringResource(R.string.donations_account_type_label), "123-456789-01")
+                            BankDetailRow(stringResource(R.string.donations_nit_label), "900.123.456-7")
+                            BankDetailRow(stringResource(R.string.donations_holder_label), stringResource(R.string.donations_foundation_name))
                             
                             Spacer(modifier = Modifier.height(20.dp))
                             
                             Button(
-                                onClick = { },
+                                onClick = { 
+                                    clipboardManager.setText(AnnotatedString(bankInfo))
+                                },
                                 modifier = Modifier.fillMaxWidth().height(50.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
                             ) {
                                 Icon(Icons.Default.ContentCopy, null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Copiar Datos")
+                                Text(stringResource(R.string.donations_btn_copy))
                             }
                         }
                     }
@@ -144,14 +158,14 @@ fun DonacionHeader() {
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                "Tu donación salva vidas",
+                text = stringResource(R.string.donations_hero_title),
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Text(
-                "Cada granito de arena cuenta para ellos",
+                text = stringResource(R.string.donations_hero_desc),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center

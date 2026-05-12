@@ -1,0 +1,429 @@
+<resources>
+    <string name="app_name">Rescuing Pets Forever</string>
+
+    <!-- Auth / Login -->
+    <string name="login_welcome">Welcome back!</string>
+    <string name="login_subtitle">Your help makes a difference</string>
+    <string name="login_role_user">User</string>
+    <string name="login_role_admin">Admin</string>
+    <string name="login_email_hint">Email address</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_forgot_password">Forgot your password?</string>
+    <string name="login_btn_enter">LOG IN</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_register_here">Register here</string>
+
+    <!-- Adoption Form -->
+    <string name="adop_form_title">Adoption Application</string>
+    <string name="adop_form_subtitle">Complete the details to start the process</string>
+    <string name="adop_form_label_name">Full Name</string>
+    <string name="adop_form_label_age">Age</string>
+    <string name="adop_form_label_address">Home Address</string>
+    <string name="adop_form_label_phone">Contact Phone</string>
+    <string name="adop_form_label_motive">Why do you want to adopt?</string>
+    <string name="adop_form_label_others">Do you currently have other pets?</string>
+    <string name="adop_form_btn_send">SEND APPLICATION</string>
+    <string name="adop_applying_to">You are applying to adopt</string>
+    <string name="adop_sec_lifestyle">Housing and Lifestyle</string>
+    <string name="adop_label_others_convive">Do you currently live with other pets?</string>
+    <string name="adop_btn_send_full">SEND ADOPTION APPLICATION</string>
+
+    <!-- Full Adoption Form (5 steps) -->
+    <string name="full_adop_title">Adoption Application</string>
+    <string name="full_adop_header">ADOPTION FORM</string>
+    <string name="full_adop_sec_applicant">Applicant Details</string>
+    <string name="full_adop_label_fullname">Full name</string>
+    <string name="full_adop_label_dni">DNI / ID Card</string>
+    <string name="full_adop_label_age">Age</string>
+    <string name="full_adop_label_occupation">Occupation / Profession</string>
+    <string name="full_adop_label_phone">Contact Phone</string>
+
+    <string name="full_adop_sec_housing">Environment and Housing</string>
+    <string name="full_adop_q_housing_type">What type of housing will the pet live in?</string>
+    <string name="full_adop_opt_house">House</string>
+    <string name="full_adop_opt_apt">Apt</string>
+    <string name="full_adop_opt_farm">Farm</string>
+    <string name="full_adop_label_patio">Has secure patio or balcony</string>
+    <string name="full_adop_label_protection">Has protection (nets/walls)</string>
+
+    <string name="full_adop_sec_family">Family Nucleus</string>
+    <string name="full_adop_q_people_count">How many people live at home?</string>
+    <string name="full_adop_q_kids">Are there children in the home?</string>
+    <string name="full_adop_q_agreement">Is everyone in agreement with adopting?</string>
+
+    <string name="full_adop_sec_experience">Experience and Pets</string>
+    <string name="full_adop_label_others">Do you currently have other pets?</string>
+    <string name="full_adop_label_exp_desc">Tell us about your previous experience with animals:</string>
+
+    <string name="full_adop_sec_commitment">Life Commitment</string>
+    <string name="full_adop_q_daily_time">How much daily time will you dedicate to the pet?</string>
+    <string name="full_adop_label_budget">Has solvency for veterinary expenses</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_adopt">Adopt</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_menu">Menu</string>
+
+    <!-- Drawer Content -->
+    <string name="drawer_hello">Hello, %1$s</string>
+    <string name="drawer_section_management">PET MANAGEMENT</string>
+    <string name="drawer_section_community">COMMUNITY</string>
+    <string name="drawer_item_volunteers">Volunteers</string>
+    <string name="drawer_item_donations">Donations</string>
+    <string name="drawer_item_about">About Us</string>
+    <string name="drawer_logout">Logout</string>
+
+    <!-- Admin Home -->
+    <string name="admin_home_title">Admin Panel</string>
+    <string name="admin_home_subtitle">Full control of the rescue ecosystem</string>
+    <string name="admin_home_stat_title">CURRENT STATUS</string>
+    <string name="admin_home_stat_pets">Pets</string>
+    <string name="admin_home_stat_rescues">Rescues</string>
+    <string name="admin_home_stat_adoptions">Adoptions</string>
+    <string name="admin_home_stat_adoptions_short">Adoptions</string>
+    <string name="admin_home_actions_title">MANAGEMENT AND CONTROL</string>
+    <string name="admin_home_btn_preview">USER MODE PREVIEW</string>
+
+    <string name="admin_action_pets_title">Pet Management</string>
+    <string name="admin_action_pets_desc">Create and edit furry friends</string>
+    <string name="admin_action_adop_title">Adoption Requests</string>
+    <string name="admin_action_adop_desc">Validate new homes</string>
+    <string name="admin_action_reports_title">Rescue Reports</string>
+    <string name="admin_action_reports_desc">Monitor reported emergencies</string>
+    <string name="admin_action_events_title">Events Management</string>
+    <string name="admin_action_events_desc">Create and organize activities</string>
+    <string name="admin_action_users_title">User List</string>
+    <string name="admin_action_users_desc">Volunteer base</string>
+    <string name="admin_action_donations_title">Donations</string>
+    <string name="admin_action_donations_desc">Resource flow</string>
+
+    <!-- Admin Events Management -->
+    <string name="admin_events_new">New Event</string>
+    <string name="admin_events_edit">Edit Event</string>
+    <string name="admin_events_label_title">Event Title</string>
+    <string name="admin_events_label_date">Date</string>
+    <string name="admin_events_label_location">Location</string>
+
+    <!-- Admin Rescue Reports -->
+    <string name="admin_reports_title">Rescue Reports</string>
+    <string name="admin_reports_subtitle">Monitor reported emergencies</string>
+    <string name="admin_reports_view_details">View Details</string>
+    <string name="admin_reports_change_status">Change Status</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_on_way">On the Way</string>
+    <string name="status_rescued">Rescued</string>
+
+    <!-- Admin Drawer -->
+    <string name="admin_drawer_mode">Admin Mode</string>
+    <string name="admin_drawer_nav">Navigation</string>
+    <string name="admin_drawer_dashboard">Dashboard</string>
+    <string name="admin_drawer_forms">Forms</string>
+    <string name="admin_drawer_adop_form">Adoption Request</string>
+    <string name="admin_drawer_rescuer_reg">Rescuer Registration</string>
+    <string name="admin_drawer_rescue_enc">Rescue Survey</string>
+    <string name="admin_drawer_management">Management</string>
+    <string name="admin_drawer_pets">Pets</string>
+    <string name="admin_drawer_events">Events</string>
+    <string name="admin_drawer_rescue_reports">Rescue Reports</string>
+    <string name="admin_drawer_donations">Donations</string>
+    <string name="admin_drawer_users">Users</string>
+    <string name="admin_drawer_exit">Exit Admin Mode</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+
+    <string name="settings_section_account">Account</string>
+    <string name="settings_edit_profile">Edit Profile</string>
+    <string name="settings_edit_profile_desc">Name, email and photo</string>
+    <string name="settings_security">Security</string>
+    <string name="settings_security_desc">Change password</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_desc">Rescue and event alerts</string>
+
+    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_language">App Language</string>
+    <string name="settings_language_desc">Select your preferred language</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_desc">Visual app theme</string>
+    <string name="settings_location">Location</string>
+    <string name="settings_location_desc">Current city permissions</string>
+
+    <string name="settings_section_legal">Legal</string>
+    <string name="settings_terms">Terms and Conditions</string>
+    <string name="settings_terms_desc">Platform usage</string>
+    <string name="settings_privacy">Privacy Policy</string>
+    <string name="settings_privacy_desc">Data protection</string>
+
+    <!-- Home Screen -->
+    <string name="home_welcome">Hi, Yeison! 👋</string>
+    <string name="home_location_default">Popayan, Cauca</string>
+    <string name="home_promo_title">Adopt a friend,\nchange a life</string>
+    <string name="home_btn_more">Know more</string>
+
+    <string name="home_section_process">Your process status</string>
+    <string name="home_action_details">View details</string>
+    <string name="home_section_categories">Categories</string>
+    <string name="home_action_all">View all</string>
+    <string name="home_section_nearby">Near you</string>
+    <string name="home_action_more">View more</string>
+    <string name="home_section_rescues">Latest rescues</string>
+    <string name="home_action_map">View map</string>
+    <string name="home_section_report">Report</string>
+    <string name="home_action_help">Help</string>
+    <string name="home_section_events">Upcoming events</string>
+    <string name="home_action_calendar">Calendar</string>
+    <string name="home_section_about">Our foundation</string>
+
+    <string name="home_report_title">Did you find a pet?</string>
+    <string name="home_report_desc">Report it here to help quickly</string>
+
+    <string name="home_process_title">Your Adoption Process</string>
+    <string name="home_process_desc">Check requirements and status of your request</string>
+
+    <string name="home_about_title">Our Foundation</string>
+    <string name="home_about_desc">Healing their story and uniting families since 2020.</string>
+
+    <!-- Adoption Screen -->
+    <string name="adopt_title">Adoptions</string>
+    <string name="adopt_search_hint">Search by breed, age or city...</string>
+    <string name="adopt_subtitle">Find your new best friend</string>
+    <string name="adopt_btn_more">See more rescued pets →</string>
+    <string name="adopt_fact_title">Did you know...?</string>
+    <string name="adopt_fact_desc">Adopting saves two lives: the animal you take home and the next one that can take its place.</string>
+    <string name="adopt_steps_title">Steps to adopt</string>
+    <string name="adopt_step_1">Choose your ideal pet from our list.</string>
+    <string name="adopt_step_2">Complete the official application form.</string>
+    <string name="adopt_step_3">We will conduct a short interview and visit.</string>
+    <string name="adopt_step_4">Sign the deed and take it to its new home!</string>
+    <string name="adopt_btn_form">Go to Adoption Form</string>
+
+    <string name="pet_status_available">Available</string>
+    <string name="pet_species_dog">Dog</string>
+    <string name="pet_species_cat">Cat</string>
+    <string name="pet_gender_male">Male</string>
+    <string name="pet_gender_female">Female</string>
+    <string name="pet_age_suffix">years</string>
+    <string name="pet_age_singular">year</string>
+
+    <string name="mock_pet_desc_1">A very playful puppy full of energy, ideal for active families.</string>
+    <string name="mock_pet_desc_2">A sweet and calm dog looking for a home full of love.</string>
+    <string name="mock_pet_desc_3">Loyal and protective, this dog is the perfect companion for long walks.</string>
+    <string name="mock_pet_desc_4">A curious and independent kitten who enjoys naps in the sun.</string>
+    <string name="mock_pet_desc_5">Affectionate dog who loves to be pampered all day.</string>
+    <string name="mock_pet_desc_6">An elegant and quiet kitten who will bring peace to your home.</string>
+
+    <!-- Events Screen -->
+    <string name="event_title">Explore Events</string>
+    <string name="event_subtitle">Join the animalist community</string>
+    <string name="event_cat_all">All</string>
+    <string name="event_cat_free">Free</string>
+    <string name="event_cat_contests">Contests</string>
+    <string name="event_cat_adoptions">Adoptions</string>
+    <string name="event_btn_join">Join →</string>
+    <string name="event_snack_joined">Great! You have registered for: %1$s</string>
+    <string name="event_attendees">%1$d will attend</string>
+    <string name="event_spots">%1$d/%2$d spots</string>
+    <string name="event_free_label">Free</string>
+
+    <!-- Mock Events Data -->
+    <string name="mock_event_title_1">Great Adoption Fair</string>
+    <string name="mock_location_1">Caldas Park, Popayan</string>
+    <string name="mock_event_desc_1">Come and meet your next best friend at our monthly fair. There will be surprises and talks on responsible ownership.</string>
+    <string name="mock_event_tag_1">FEATURED</string>
+
+    <string name="mock_event_title_2">5K Dog Walk</string>
+    <string name="mock_location_2">Olympic Village</string>
+    <string name="mock_event_desc_2">A morning of exercise and fun with your furry friend. Registration open for all breeds.</string>
+    <string name="mock_event_tag_2">SPORT</string>
+
+    <string name="mock_event_title_3">First Aid Workshop</string>
+    <string name="mock_location_3">CAM Auditorium</string>
+    <string name="mock_event_desc_3">Learn how to react to common emergencies with pets. Taught by expert veterinarians.</string>
+    <string name="mock_event_tag_3">EDUCATION</string>
+
+    <string name="mock_location_4">Historic Center, Popayan</string>
+    <string name="mock_location_5">Humilladero Bridge</string>
+
+    <!-- Rescuers Screen -->
+    <string name="rescuer_title">Rescuers Contact</string>
+    <string name="rescuer_header_desc">This space was born as a response to Popayan\'s growing commitment to animal welfare. It is designed to bring together rescuers who, with dedication and compassion, devote their time to saving, rehabilitating and protecting animals in situations of abandonment, abuse or vulnerability.</string>
+    <string name="rescuer_filter_city">City</string>
+    <string name="rescuer_filter_spec">Specialty</string>
+    <string name="rescuer_filter_hood">Neighborhood</string>
+    <string name="rescuer_filter_available">Available</string>
+    <string name="rescuer_filter_all">All</string>
+
+    <string name="rescuer_label_status">Status</string>
+    <string name="rescuer_status_avail">Available</string>
+    <string name="rescuer_status_busy">Busy</string>
+
+    <string name="rescuer_detail_avail">Availability:</string>
+    <string name="rescuer_detail_city">City:</string>
+    <string name="rescuer_detail_hood">Neighborhood:</string>
+    <string name="rescuer_detail_spec">Specialty:</string>
+    <string name="rescuer_detail_org">Organization:</string>
+
+    <!-- Mock Rescuers Data -->
+    <string name="mock_rescuer_avail_1">Monday to Friday - 8am to 6pm</string>
+    <string name="mock_rescuer_avail_2">Weekends and Holidays</string>
+    <string name="mock_rescuer_avail_3">24/7 Emergency Availability</string>
+    <string name="mock_rescuer_spec_1">First Aid and Transportation</string>
+    <string name="mock_rescuer_spec_2">High Altitude and Difficult Space Rescue</string>
+    <string name="mock_rescuer_spec_3">Rehabilitation and Post-op Care</string>
+    <string name="mock_rescuer_spec_4">Aggressive Canine Handling</string>
+
+    <!-- Rescuer Registration Form -->
+    <string name="rescuer_reg_title">Rescuer Registration</string>
+    <string name="rescuer_reg_header">RESCUER FORM</string>
+    <string name="rescuer_reg_sec_personal">Personal Data</string>
+    <string name="rescuer_reg_label_name">Full name</string>
+    <string name="rescuer_reg_label_doc">ID Document</string>
+    <string name="rescuer_reg_label_birth">Birth Date</string>
+    <string name="rescuer_reg_label_wa">WhatsApp</string>
+    <string name="rescuer_reg_label_email">Email</string>
+    <string name="rescuer_reg_sec_logistic">Capacity and Logistics</string>
+    <string name="rescuer_reg_label_capacity">Animal capacity (number)</string>
+    <string name="rescuer_reg_label_space">Do you have adequate space?</string>
+    <string name="rescuer_reg_opt_space_yes">Yes, I have space</string>
+    <string name="rescuer_reg_opt_space_no">No space available</string>
+    <string name="rescuer_reg_label_transport">Own transport for rescues</string>
+    <string name="rescuer_reg_sec_exp">Experience and Commitment</string>
+    <string name="rescuer_reg_label_motivation">Tell us your motivation and previous experience:</string>
+    <string name="rescuer_reg_label_truth">I declare that the information is truthful</string>
+    <string name="rescuer_reg_label_terms">I accept volunteer terms and conditions</string>
+
+    <!-- Rescue Survey / Encuesta -->
+    <string name="rescue_survey_title">Rescue Survey</string>
+    <string name="rescue_survey_step">STEP %1$d OF %2$d</string>
+    <string name="rescue_survey_header">RESCUE REPORT</string>
+    <string name="rescue_survey_sec_pet">Pet Information</string>
+    <string name="rescue_survey_label_age">Approx. age</string>
+    <string name="rescue_survey_label_sex">Sex</string>
+    <string name="rescue_survey_label_health">Initial health status</string>
+    <string name="rescue_survey_label_rescuer">Rescuer</string>
+    <string name="rescue_survey_label_date">Date</string>
+    <string name="rescue_survey_sec_details">Finding Details</string>
+    <string name="rescue_survey_label_loc">Address / Exact location</string>
+    <string name="rescue_survey_desc_cond">Describe the conditions in which it was found:</string>
+    <string name="rescue_survey_sec_reporter">Reporter Information</string>
+    <string name="rescue_survey_label_reporter_name">Name of reporter</string>
+    <string name="rescue_survey_label_reporter_phone">Contact phone</string>
+    <string name="rescue_survey_info_verify">Check that all data is correct before submitting the final report.</string>
+
+    <!-- Rescue Form Labels -->
+    <string name="rescue_form_upload_photo">Upload New Photo</string>
+    <string name="rescue_form_pet_name">Pet Name</string>
+    <string name="rescue_form_species">Species (Dog, Cat, etc.)</string>
+    <string name="rescue_form_breed">Breed</string>
+    <string name="rescue_form_gender">Gender</string>
+    <string name="rescue_form_health_status">Health Status</string>
+    <string name="rescue_form_assigned_shelter">Assigned Shelter</string>
+    <string name="rescue_form_btn_save">Save Changes</string>
+    <string name="rescue_form_btn_cancel">Cancel</string>
+    <string name="rescue_form_gender_m">M</string>
+    <string name="rescue_form_gender_h">F</string>
+
+    <!-- Admin Pets Management -->
+    <string name="admin_pets_title">Pet Management</string>
+    <string name="admin_pets_subtitle">Manage the furry friends inventory</string>
+    <string name="admin_pets_add">Add Pet</string>
+    <string name="admin_pets_new_title">New Pet</string>
+    <string name="admin_pets_edit_title">Edit Pet</string>
+    <string name="admin_pets_label_name">Name</string>
+    <string name="admin_pets_label_species">Species</string>
+    <string name="admin_pets_label_age">Age</string>
+    <string name="admin_pets_label_status">Status</string>
+    <string name="admin_pets_label_image">Image URL</string>
+    <string name="admin_pets_status_avail">Available</string>
+    <string name="admin_pets_status_process">In Process</string>
+    <string name="admin_pets_status_adopted">Adopted</string>
+    <string name="admin_pets_btn_edit">Edit</string>
+    <string name="admin_pets_btn_delete">Delete</string>
+
+    <!-- Species and Status -->
+    <string name="species_dog">Dog</string>
+    <string name="species_cat">Cat</string>
+    <string name="status_available">Available</string>
+    <string name="status_in_process">In Process</string>
+    <string name="status_adopted">Adopted</string>
+
+    <string name="btn_previous">PREVIOUS</string>
+    <string name="btn_next">NEXT</string>
+    <string name="btn_finish">FINISH</string>
+    <string name="btn_cancel_upper">CANCEL</string>
+    <string name="btn_send">SEND</string>
+    <string name="btn_save_upper">SAVE</string>
+    <string name="hint_type_here">Type here...</string>
+
+    <!-- Donations Screen -->
+    <string name="donations_hero_title">Your donation saves lives</string>
+    <string name="donations_hero_desc">Every grain of sand counts for them</string>
+    <string name="donations_how_to_help">How do you want to help?</string>
+    <string name="donations_money_title">Economic Donation</string>
+    <string name="donations_money_desc">Help us with veterinary and food expenses.</string>
+    <string name="donations_food_title">Food Donation</string>
+    <string name="donations_food_desc">We accept food for dogs and cats of all ages.</string>
+    <string name="donations_medical_title">Medical Supplies</string>
+    <string name="donations_medical_desc">Gauze, alcohol, dewormers and basic medications.</string>
+    <string name="donations_bank_info_title">Bank Information</string>
+    <string name="donations_bank_label">Bank</string>
+    <string name="donations_account_type_label">Savings Account</string>
+    <string name="donations_nit_label">NIT</string>
+    <string name="donations_holder_label">Holder</string>
+    <string name="donations_btn_copy">Copy Data</string>
+    <string name="donations_foundation_name">Rescuing Pets Foundation</string>
+
+    <!-- Nosotros Screen -->
+    <string name="about_title">About Us</string>
+    <string name="about_hero_title">Dedicated to giving them\na second chance</string>
+    <string name="about_history_badge">OUR STORY</string>
+    <string name="about_description">We are a non-profit foundation that works tirelessly for animal welfare. Since our creation, we have rescued and found homes for hundreds of pets in vulnerable situations.</string>
+    <string name="about_mission_title">Mission</string>
+    <string name="about_mission_desc">Rescue, rehabilitate and relocate animals into loving homes, promoting a culture of respect and animal care.</string>
+    <string name="about_vision_title">Vision</string>
+    <string name="about_vision_desc">To be the leading foundation in animal protection, ensuring every pet has a dignified home and eradicating abandonment.</string>
+    <string name="about_values_title">OUR VALUES</string>
+    <string name="about_value_respeto">Respect</string>
+    <string name="about_value_empatia">Empathy</string>
+    <string name="about_value_compromiso">Commitment</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_my_adoptions">My Adoptions</string>
+    <string name="profile_adoptions_desc">Check the status of your requests</string>
+    <string name="profile_my_rescues">My Rescues</string>
+    <string name="profile_rescues_desc">History of reports made</string>
+    <string name="profile_settings">Settings</string>
+    <string name="profile_settings_desc">Language, notifications and account</string>
+    <string name="profile_support">Support</string>
+    <string name="profile_support_desc">Need help with the app?</string>
+    <string name="profile_logout">Logout</string>
+
+    <!-- Languages -->
+    <string name="lang_spanish">Spanish</string>
+    <string name="lang_english">English</string>
+
+    <!-- Rescate Screen -->
+    <string name="rescue_title">Ongoing Rescues</string>
+    <string name="rescue_hero_title">Every rescue is a life that changes</string>
+    <string name="rescue_hero_desc">Learn about the cases we are currently attending</string>
+    <string name="rescue_subtitle">Our Rescues</string>
+    <string name="rescue_subtitle_desc">Stories of hope and courage</string>
+    <string name="rescue_quote">Love has no breed or condition</string>
+    <string name="rescue_quote_desc">Thanks to your support we can continue saving those who have no voice.</string>
+    <string name="rescue_action_title">Do you want to be part of the change?</string>
+    <string name="rescue_btn_report">Report a Rescue</string>
+    <string name="rescue_btn_join">Join as Rescuer</string>
+    <string name="rescue_card_history">View Full History</string>
+    <string name="rescue_status_treatment">In Treatment</string>
+    <string name="rescue_status_recovery">In Recovery</string>
+    <string name="mock_rescue_date_1">October 12, 2023</string>
+    <string name="mock_rescue_loc_1">Bolivar Neighborhood, Popayan</string>
+    <string name="mock_rescue_date_2">November 05, 2023</string>
+    <string name="mock_rescue_loc_2">Downtown Area, Popayan</string>
+    <string name="mock_rescue_date_3">November 20, 2023</string>
+    <string name="mock_rescue_loc_3">Commune 2, Popayan</string>
+</resources>

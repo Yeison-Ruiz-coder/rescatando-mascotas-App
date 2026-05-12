@@ -13,19 +13,19 @@ data class Mascota(
     val especie: String,
 
     @SerializedName("edad_aprox")
-    val edadAprox: Int?,
+    val edadAprox: Double?,
 
     @SerializedName("genero")
     val genero: String,
 
     @SerializedName("estado")
-    val estado: String, // "Adoptado", "En adopcion", etc.
-
-    @SerializedName("ubicacion")
-    val ubicacion: String,
+    val estado: String,
 
     @SerializedName("descripcion")
     val descripcion: String?,
+
+    @SerializedName("lugar_rescate")
+    val ubicacion: String?,
 
     @SerializedName("foto_principal")
     val fotoPrincipal: String?,
@@ -40,14 +40,21 @@ data class Mascota(
     val fundacionId: Int?
 )
 
-// Para respuestas de lista de mascotas
 data class MascotaResponse(
-    @SerializedName("data")
-    val data: List<Mascota>,
+    @SerializedName("success")
+    val success: Boolean,
 
     @SerializedName("message")
     val message: String?,
 
-    @SerializedName("success")
-    val success: Boolean
+    @SerializedName("data")
+    val data: MascotaDataWrapper
+)
+
+data class MascotaDataWrapper(
+    @SerializedName("current_page")
+    val currentPage: Int?,
+
+    @SerializedName("data")
+    val data: List<Mascota>
 )
