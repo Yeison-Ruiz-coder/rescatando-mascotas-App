@@ -27,8 +27,6 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacione
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
-import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
-
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
