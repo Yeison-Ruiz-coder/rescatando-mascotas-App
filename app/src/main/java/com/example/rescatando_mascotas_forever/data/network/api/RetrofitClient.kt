@@ -43,4 +43,8 @@ object RetrofitClient {
     val eventoApi: EventoApi by lazy {
         createService(EventoApi::class.java)
     }
+
+    val veterinariaApi: VeterinariaApi by lazy {
+        createService(VeterinariaApi::class.java)
+    }
 }

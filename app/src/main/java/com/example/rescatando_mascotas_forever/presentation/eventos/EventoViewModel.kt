@@ -8,6 +8,7 @@ import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 sealed class EventoState {
@@ -22,6 +23,9 @@ class EventoViewModel(
 
     private val _state = MutableStateFlow<EventoState>(EventoState.Loading)
     val state: StateFlow<EventoState> = _state.asStateFlow()
+
+    private val _eventoDetalle = MutableStateFlow<Evento?>(null)
+    val eventoDetalle: StateFlow<Evento?> = _eventoDetalle
 
     init {
         getEventos()
@@ -38,5 +42,26 @@ class EventoViewModel(
                 }
             }
         }
+    }
+
+    fun getEventoById(id: Int) {
+        // 1. Intento rápido: si ya tenemos los eventos, lo asignamos de inmediato
+        val currentState = _state.value
+        if (currentState is EventoState.Success) {
+            _eventoDetalle.value = currentState.eventos.find { it.id == id }
+        }
+
+        // 2. Por si acaso aún está cargando la lista, nos quedamos escuchando
+        viewModelScope.launch {
+            state.collectLatest { latestState ->
+                if (latestState is EventoState.Success) {
+                    _eventoDetalle.value = latestState.eventos.find { it.id == id }
+                }
+            }
+        }
+    }
+    
+    fun limpiarDetalle() {
+        _eventoDetalle.value = null
     }
 }

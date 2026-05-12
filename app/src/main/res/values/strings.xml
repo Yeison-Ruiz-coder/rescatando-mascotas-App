@@ -258,7 +258,25 @@
     <string name="event_spots">%1$d/%2$d cupos</string>
     <string name="event_free_label">Gratis</string>
 
-    <!-- Mock Events Data -->
+    <!-- New Event Buttons and texts -->
+    <string name="event_btn_details">Ver Detalles</string>
+    <string name="event_btn_like">Dar like</string>
+    <string name="event_btn_liked">Me gusta</string>
+    <string name="event_btn_attend">Asistiré</string>
+    <string name="event_btn_confirmed">Confirmado</string>
+    <string name="event_search_hint">Buscar por nombre, ciudad...</string>
+    <string name="event_btn_filters">Filtros</string>
+    <string name="event_btn_clear_filters">Limpiar filtros</string>
+
+    <!-- Event Detail -->
+    <string name="event_detail_back">Volver a Eventos</string>
+    <string name="event_detail_share">Compartir</string>
+    <string name="event_detail_confirm">Confirmar mi asistencia</string>
+    <string name="event_detail_confirmed">¡Asistencia confirmada!</string>
+    <string name="event_detail_maps">Ver en Google Maps</string>
+    <string name="event_detail_info_title">Información del Evento</string>
+
+    <!-- Mock Events Data (Keep for fallback or if needed) -->
     <string name="mock_event_title_1">Gran Feria de Adopción</string>
     <string name="mock_location_1">Parque Caldas, Popayán</string>
     <string name="mock_event_desc_1">Ven y conoce a tu próximo mejor amigo en nuestra feria mensual. Habrá sorpresas y charlas de tenencia responsable.</string>
