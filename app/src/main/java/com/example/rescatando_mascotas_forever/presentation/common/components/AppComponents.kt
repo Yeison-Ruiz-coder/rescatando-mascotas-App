@@ -84,9 +84,6 @@ fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
                 )
             }
         },
-        actions = {
-            // Lupa eliminada
-        },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = Color.White
         )
@@ -103,19 +100,18 @@ fun AppBottomBar(navController: NavHostController) {
         containerColor = Color.White,
         tonalElevation = 8.dp
     ) {
-        // Usamos etiquetas cortas para evitar deformaciones en la barra
         val items = listOf(
-            Triple("home", Icons.Default.Home, stringResource(R.string.nav_home)),
-            Triple("adopciones", Icons.Default.Pets, stringResource(R.string.nav_adopt)),
-            Triple("formulario_rescate", Icons.Default.AddCircle, stringResource(R.string.home_section_report)), 
-            Triple("perfil", Icons.Default.Person, stringResource(R.string.nav_profile))
+            Triple("home", Icons.Default.Home, "Inicio"),
+            Triple("adopciones", Icons.Default.Pets, "Adoptar"),
+            Triple("formulario_rescate", Icons.Default.AddCircle, "Reportar"),
+            Triple("perfil", Icons.Default.Person, "Perfil")
         )
 
         items.forEach { (route, icon, label) ->
             val isSelected = currentRoute == route
             NavigationBarItem(
                 selected = isSelected,
-                alwaysShowLabel = true, // Esto mantiene el texto siempre visible y evita que los iconos "salten"
+                alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != route) {
                         navController.navigate(route) {
@@ -137,17 +133,19 @@ fun AppBottomBar(navController: NavHostController) {
                 label = { 
                     Text(
                         text = label, 
-                        color = if (isSelected) brandPurple else Color.Gray, 
+                        color = if (route == "formulario_rescate") Color.Red else if (isSelected) brandPurple else Color.Gray,
                         fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
-                        fontSize = 11.sp, // Tamaño un poco más pequeño para mayor estabilidad
+                        fontSize = 11.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     ) 
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedTextColor = brandPurple,
+                    selectedIconColor = if (route == "formulario_rescate") Color.Red else brandPurple,
+                    selectedTextColor = if (route == "formulario_rescate") Color.Red else brandPurple,
+                    unselectedIconColor = if (route == "formulario_rescate") Color.Red.copy(alpha = 0.6f) else Color.Gray,
                     unselectedTextColor = Color.Gray,
-                    indicatorColor = Color(0xFFD1C4E9).copy(alpha = 0.3f)
+                    indicatorColor = brandPurple.copy(alpha = 0.1f)
                 )
             )
         }
@@ -202,7 +200,6 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
             .verticalScroll(scrollState)
             .padding(bottom = 24.dp)
     ) {
-        // Cabecera del Menú
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -220,57 +217,59 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    stringResource(R.string.drawer_hello, "Yeison"), 
+                    "Hola, Valeria", 
                     color = Color.White, 
                     fontWeight = FontWeight.Bold, 
                     fontSize = 20.sp
                 )
-                Text("usuario@ejemplo.com", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text("valeria@ejemplo.com", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items del Menú Principal - Usando gris oscuro para no seleccionados
-        DrawerMenuItem(stringResource(R.string.nav_home), Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
-        DrawerMenuItem(stringResource(R.string.nav_profile), Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
+        // SECCIÓN PRINCIPAL
+        DrawerMenuItem("Inicio", Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
+        DrawerMenuItem("Perfil", Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
         
+        // SECCIÓN GESTIÓN
         Text(
-            stringResource(R.string.drawer_section_management), 
+            "GESTIÓN", 
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), 
             fontSize = 12.sp, 
             fontWeight = FontWeight.Bold, 
             color = darkGray
         )
         
-        DrawerMenuItem(stringResource(R.string.nav_adopt), Icons.Default.Favorite, currentRoute == "adopciones") { navigateAndClose("adopciones") }
-        DrawerMenuItem(stringResource(R.string.home_section_report), Icons.Default.AddCircle, currentRoute == "formulario_rescate", Color.Red) { navigateAndClose("formulario_rescate") }
-        DrawerMenuItem(stringResource(R.string.adop_form_title), Icons.AutoMirrored.Filled.Assignment, currentRoute == "formulario_adopcion") { navigateAndClose("formulario_adopcion") }
-        DrawerMenuItem(stringResource(R.string.home_section_rescues), Icons.AutoMirrored.Filled.List, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
+        DrawerMenuItem("Adoptar", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
+        DrawerMenuItem("Reportar", Icons.Default.AddCircle, currentRoute == "formulario_rescate", Color.Red) { navigateAndClose("formulario_rescate") }
+        DrawerMenuItem("Solicitud Adopción", Icons.AutoMirrored.Filled.Assignment, currentRoute == "formulario_adopcion") { navigateAndClose("formulario_adopcion") }
+        DrawerMenuItem("Últimos Rescates", Icons.AutoMirrored.Filled.List, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
 
+        // SECCIÓN COMUNIDAD
         Text(
-            stringResource(R.string.drawer_section_community), 
+            "COMUNIDAD", 
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), 
             fontSize = 12.sp, 
             fontWeight = FontWeight.Bold, 
             color = darkGray
         )
         
-        DrawerMenuItem(stringResource(R.string.nav_events), Icons.Default.DateRange, currentRoute == "eventos") { navigateAndClose("eventos") }
+        DrawerMenuItem("Eventos", Icons.Default.DateRange, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
-        DrawerMenuItem(stringResource(R.string.drawer_item_volunteers), Icons.Default.Face, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
-        DrawerMenuItem(stringResource(R.string.drawer_item_donations), Icons.Default.Star, currentRoute == "donaciones") { navigateAndClose("donaciones") }
-        DrawerMenuItem(stringResource(R.string.drawer_item_about), Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
+        DrawerMenuItem("Voluntarios", Icons.Default.Face, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
+        DrawerMenuItem("Donaciones", Icons.Default.Star, currentRoute == "donaciones") { navigateAndClose("donaciones") }
+        DrawerMenuItem("Nosotros", Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
         
         Spacer(modifier = Modifier.weight(1f))
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
 
-        DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) {
+        DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) {
             navigateAndClose("login")
         }
     }
