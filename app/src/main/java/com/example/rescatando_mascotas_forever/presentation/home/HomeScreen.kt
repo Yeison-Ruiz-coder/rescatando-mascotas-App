@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -19,18 +18,16 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
-import kotlinx.coroutines.launch
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,32 +51,7 @@ fun HomeScreen(
                 MainTopBar(drawerState = drawerState, scope = scope)
             },
             bottomBar = {
-                NavigationBar(containerColor = Color(0xFF5E49BF)) {
-                    NavigationBarItem(
-                        selected = true,
-                        onClick = { },
-                        icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
-                        label = { Text("Inicio", color = Color.White) }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate("adopciones") },
-                        icon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.White.copy(0.6f)) },
-                        label = { Text("Buscar", color = Color.White.copy(0.6f)) }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { },
-                        icon = { Icon(Icons.Default.Warning, contentDescription = null, tint = Color.White.copy(0.6f)) },
-                        label = { Text("Reportar", color = Color.White.copy(0.6f)) }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { navController.navigate("perfil") },
-                        icon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color.White.copy(0.6f)) },
-                        label = { Text("Perfil", color = Color.White.copy(0.6f)) }
-                    )
-                }
+                AppBottomBar(navController = navController)
             }
         ) { padding ->
             LazyColumn(
@@ -97,7 +69,7 @@ fun HomeScreen(
                     SectionTitle("Cerca de ti")
                     if (isLoading) {
                         Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator()
+                            CircularProgressIndicator(color = Color(0xFF673AB7))
                         }
                     } else if (mascotas.isEmpty()) {
                         Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
@@ -121,7 +93,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Próximos eventos", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFF5E49BF))
-                        TextButton(onClick = { }) {
+                        TextButton(onClick = { navController.navigate("eventos") }) {
                             Text("Ver todos →", fontSize = 12.sp, color = Color.Gray)
                         }
                     }
@@ -188,10 +160,10 @@ fun SectionTitle(title: String) {
 @Composable
 fun CategoryRow() {
     val categories = listOf(
-        CategoryItem("Perros", Icons.Default.Info, Color(0xFF5E49BF), true),
-        CategoryItem("Gatos", Icons.Default.Info, Color.White, false),
-        CategoryItem("Conejos", Icons.Default.Info, Color.White, false),
-        CategoryItem("Aves", Icons.Default.Info, Color.White, false)
+        CategoryItem("Perros", Icons.Default.Pets, Color(0xFF5E49BF), true),
+        CategoryItem("Gatos", Icons.Default.Pets, Color.White, false),
+        CategoryItem("Conejos", Icons.Default.Pets, Color.White, false),
+        CategoryItem("Aves", Icons.Default.Pets, Color.White, false)
     )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -228,7 +200,6 @@ fun CategoryRow() {
 
 @Composable
 fun MascotaCardVertical(mascota: Mascota) {
-    // Construir la URL completa para la imagen desde Railway
     val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
         mascota.fotoPrincipal
     } else {
@@ -262,33 +233,12 @@ fun MascotaCardVertical(mascota: Mascota) {
                         fontWeight = FontWeight.Bold
                     )
                 }
-                IconButton(
-                    onClick = { },
-                    modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)
-                ) {
-                    Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = Color.White)
-                }
             }
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp , color = Color.Black)
                 Text("${mascota.especie} • ${mascota.edadAprox ?: 0} años", fontSize = 12.sp, color = Color.Gray)
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TagChip("Juguetón")
-                    TagChip("Tranquilo")
-                }
             }
         }
-    }
-}
-
-@Composable
-fun TagChip(text: String) {
-    Surface(
-        color = Color(0xFFD9D9D9),
-        shape = RoundedCornerShape(4.dp)
-    ) {
-        Text(text, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), fontSize = 10.sp, color = Color(0xFF7333BE))
     }
 }
 
@@ -313,23 +263,14 @@ fun EventList() {
                             .background(Color(0xFF5E49BF)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(event.date, color = Color.White, textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(event.date, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(
-                            text = event.title, 
-                            fontWeight = FontWeight.Bold, 
-                            fontSize = 14.sp,
-                            color = Color(0xFF5E49BF) 
-                        )
+                        Text(text = event.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF5E49BF))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = Color.Red)
                             Text(event.location, fontSize = 12.sp, color = Color.Gray)
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Surface(color = Color(0xFFD1FADF), shape = RoundedCornerShape(4.dp)) {
-                            Text(event.price, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 10.sp, color = Color(0xFF027A48))
                         }
                     }
                 }
