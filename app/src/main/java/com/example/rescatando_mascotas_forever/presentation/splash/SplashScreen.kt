@@ -15,16 +15,20 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
     var startAnimation by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
     
     // Animación de escala y opacidad
     val scale by animateFloatAsState(
@@ -32,21 +36,35 @@ fun SplashScreen(navController: NavHostController) {
         animationSpec = tween(
             durationMillis = 1000,
             easing = FastOutSlowInEasing
-        )
+        ), label = ""
     )
     
     val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = tween(
             durationMillis = 1000
-        )
+        ), label = ""
     )
 
     LaunchedEffect(key1 = true) {
         startAnimation = true
         delay(2500) // Duración del "telón"
-        navController.navigate("home") {
-            popUpTo("splash") { inclusive = true }
+        
+        if (sessionManager.isLoggedIn()) {
+            val user = sessionManager.getUser()
+            if (user?.tipo == "admin") {
+                navController.navigate("admin_home") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            } else {
+                navController.navigate("home") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            }
+        } else {
+            navController.navigate("login") {
+                popUpTo("splash") { inclusive = true }
+            }
         }
     }
 

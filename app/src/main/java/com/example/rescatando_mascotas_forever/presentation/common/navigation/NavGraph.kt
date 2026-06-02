@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
+import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
@@ -33,6 +34,7 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacione
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -46,6 +48,9 @@ fun AppNavigation() {
         }
         composable("login") {
             LoginScreen(navController = navController)
+        }
+        composable("register") {
+            RegisterScreen(navController = navController)
         }
         composable("home") {
             HomeScreen(navController = navController)
