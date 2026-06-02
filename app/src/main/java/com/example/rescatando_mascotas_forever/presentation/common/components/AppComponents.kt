@@ -14,11 +14,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,7 +31,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -176,6 +181,13 @@ fun AppDrawer(
 
 @Composable
 fun DrawerContent(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope) {
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    val user = remember { sessionManager.getUser() }
+    
+    val userName = user?.nombre ?: "Usuario"
+    val userEmail = user?.email ?: "usuario@ejemplo.com"
+
     val darkGray = Color(0xFF333333)
     val scrollState = rememberScrollState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -213,16 +225,40 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
                     shape = CircleShape,
                     color = Color.White.copy(alpha = 0.2f)
                 ) {
-                    Icon(Icons.Default.AccountCircle, null, tint = Color.White, modifier = Modifier.size(48.dp))
+                    if (!user?.avatar.isNullOrEmpty()) {
+                        Image(
+                            painter = rememberAsyncImagePainter(user?.avatar),
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                            Icon(
+                                imageVector = Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(48.dp)
+                            )
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Hola, Valeria", 
+                    "Hola, $userName", 
                     color = Color.White, 
                     fontWeight = FontWeight.Bold, 
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Text("valeria@ejemplo.com", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text(
+                    userEmail, 
+                    color = Color.White.copy(alpha = 0.8f), 
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
 
@@ -270,7 +306,13 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
 
         DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) {
-            navigateAndClose("login")
+            scope.launch {
+                drawerState.close()
+                sessionManager.logout()
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
         }
     }
 }
