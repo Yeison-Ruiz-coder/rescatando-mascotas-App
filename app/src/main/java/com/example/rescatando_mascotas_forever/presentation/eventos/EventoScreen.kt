@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,9 +42,9 @@ fun EventoScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val state by viewModel.state.collectAsState()
-
-    // Estado para la barra de búsqueda
-    var searchText by remember { mutableStateOf("") }
+    val filteredEventos by viewModel.filteredEventos.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
 
     val catAll = stringResource(R.string.event_cat_all)
     val catFree = "Gratis"
@@ -51,7 +52,6 @@ fun EventoScreen(
     val catAdoptions = "Adopciones"
 
     val categorias = listOf(catAll, catFree, catContests, catAdoptions)
-    var categoriaSeleccionada by remember { mutableStateOf(catAll) }
 
     AppDrawer(
         navController = navController,
@@ -91,7 +91,7 @@ fun EventoScreen(
                 item {
                     OutlinedTextField(
                         value = searchText,
-                        onValueChange = { searchText = it },
+                        onValueChange = { viewModel.onSearchTextChange(it) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Buscar evento o lugar") },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -112,8 +112,8 @@ fun EventoScreen(
                     ) {
                         items(categorias) { categoria ->
                             FilterChip(
-                                selected = categoria == categoriaSeleccionada,
-                                onClick = { categoriaSeleccionada = categoria },
+                                selected = categoria == selectedCategory,
+                                onClick = { viewModel.onCategorySelected(categoria) },
                                 label = { Text(categoria) },
                                 leadingIcon = {
                                     val icon = when (categoria) {
@@ -152,42 +152,49 @@ fun EventoScreen(
                     }
 
                     is EventoState.Success -> {
-                        val eventosFiltrados = currentState.eventos.filter { evento ->
-                            val matchesCat = when (categoriaSeleccionada) {
-                                catAll -> true
-                                catFree -> evento.tipo?.contains("Gratis", ignoreCase = true) == true
-                                else -> evento.tipo?.contains(categoriaSeleccionada, ignoreCase = true) == true
-                            }
-                            val matchesSearch = searchText.isEmpty() ||
-                                    evento.nombre.contains(searchText, ignoreCase = true) ||
-                                    (evento.lugar?.contains(searchText, ignoreCase = true) == true)
-                            matchesCat && matchesSearch
-                        }
-
-                        if (eventosFiltrados.isEmpty()) {
+                        if (filteredEventos.isEmpty()) {
                             item {
-                                Box(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(100.dp),
-                                    contentAlignment = Alignment.Center
+                                        .padding(top = 40.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text("No se encontraron eventos", color = Color.Gray)
+                                    Icon(
+                                        Icons.Default.EventBusy,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(64.dp),
+                                        tint = Color.Gray.copy(alpha = 0.5f)
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        "No se encontraron eventos",
+                                        color = Color.Gray,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    Text(
+                                        "Intenta con otros filtros o términos",
+                                        color = Color.Gray.copy(alpha = 0.7f),
+                                        fontSize = 13.sp
+                                    )
                                 }
                             }
                         } else {
-                            items(eventosFiltrados) { evento ->
-                                EventCard(
-                                    evento = evento,
-                                    onDetailsClick = {
-                                        navController.navigate("eventos/${evento.id}")
-                                    },
-                                    onActionClick = { msg ->
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(msg)
+                            items(filteredEventos, key = { it.id }) { evento ->
+                                Box(modifier = Modifier.animateItem()) {
+                                    EventCard(
+                                        evento = evento,
+                                        onDetailsClick = {
+                                            navController.navigate("eventos/${evento.id}")
+                                        },
+                                        onActionClick = { msg ->
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(msg)
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
                         }
@@ -294,10 +301,17 @@ fun EventCard(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(evento.lugar, fontSize = 13.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.weight(1f))
                     Text(
-                        evento.tipo ?: "Gratis",
+                        text = evento.lugar,
+                        fontSize = 13.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = evento.tipo ?: "Gratis",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF2E1A7A)
@@ -323,7 +337,7 @@ fun EventCard(
                     OutlinedButton(
                         onClick = onDetailsClick,
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(1.3f)
                             .height(40.dp),
                         shape = RoundedCornerShape(10.dp),
                         contentPadding = PaddingValues(horizontal = 4.dp)
@@ -334,7 +348,12 @@ fun EventCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(stringResource(R.string.event_btn_details), fontSize = 11.sp)
+                        Text(
+                            text = stringResource(R.string.event_btn_details),
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false
+                        )
                     }
 
                     OutlinedButton(
@@ -356,7 +375,9 @@ fun EventCard(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             stringResource(if (isFavorite) R.string.event_btn_liked else R.string.event_btn_like),
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
 
@@ -367,11 +388,11 @@ fun EventCard(
                             onActionClick(msg)
                         },
                         modifier = Modifier
-                            .weight(1.2f)
+                            .weight(1.3f)
                             .height(40.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isConfirmed) Color(0xFF4CAF50) else Color(0xFF2E1A7A)
+                            containerColor = if (isConfirmed) Color(0xFF4CAF50) else Color(0xFF673AB7)
                         ),
                         contentPadding = PaddingValues(horizontal = 4.dp)
                     ) {
@@ -383,7 +404,9 @@ fun EventCard(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             stringResource(if (isConfirmed) R.string.event_btn_confirmed else R.string.event_btn_attend),
-                            fontSize = 11.sp
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }

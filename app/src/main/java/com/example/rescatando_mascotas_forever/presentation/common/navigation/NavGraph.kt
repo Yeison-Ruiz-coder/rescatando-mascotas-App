@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
+import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
@@ -35,6 +36,7 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesR
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
 
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -48,6 +50,9 @@ fun AppNavigation() {
         }
         composable("login") {
             LoginScreen(navController = navController)
+        }
+        composable("register") {
+            RegisterScreen(navController = navController)
         }
         composable("home") {
             HomeScreen(navController = navController)
@@ -78,7 +83,7 @@ fun AppNavigation() {
         composable("suscripciones") {
             SubscriptionScreen(navController = navController)
         }
-        
+
         // --- BLOQUE EVENTOS ---
         composable("eventos") { backStackEntry ->
             // Obtenemos el ViewModel aquí
