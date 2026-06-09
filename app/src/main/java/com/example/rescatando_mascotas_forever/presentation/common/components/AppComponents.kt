@@ -158,11 +158,14 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
             scope.launch { 
                 drawerState.close()
                 sessionManager.logout()
-                navController.navigate("login") { popTo(0) { inclusive = true } } 
+                navController.navigate("login") { 
+                    popUpTo(0) { inclusive = true } 
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun GradientHeader(title: String) {

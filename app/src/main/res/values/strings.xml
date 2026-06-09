@@ -90,11 +90,23 @@
     <string name="nav_profile">Perfil</string>
     <string name="nav_search">Buscar</string>
     <string name="nav_menu">Menú</string>
+    <string name="nav_report">Reportar</string>
 
     <!-- Drawer Content -->
     <string name="drawer_hello">Hola, %1$s</string>
+    <string name="default_user_name">Usuario</string>
+    <string name="drawer_item_home">Inicio</string>
+    <string name="drawer_item_profile">Mi Perfil</string>
     <string name="drawer_section_management">GESTIÓN DE MASCOTAS</string>
+    <string name="drawer_section_management_short">GESTIÓN</string>
+    <string name="drawer_item_adopt_pet">Adoptar Mascota</string>
+    <string name="drawer_item_report_rescue">Reportar Rescate</string>
+    <string name="drawer_item_adoption_request">Solicitud Adopción</string>
+    <string name="drawer_item_subscriptions">Suscripciones</string>
+    <string name="drawer_item_last_rescues">Últimos Rescates</string>
     <string name="drawer_section_community">COMUNIDAD</string>
+    <string name="drawer_item_events">Eventos</string>
+    <string name="drawer_item_vets">Veterinarias</string>
     <string name="drawer_item_volunteers">Voluntarios</string>
     <string name="drawer_item_donations">Donaciones</string>
     <string name="drawer_item_about">Nosotros</string>
