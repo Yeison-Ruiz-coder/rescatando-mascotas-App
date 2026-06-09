@@ -48,7 +48,13 @@ fun SubscriptionScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                actions = {
+                    // Botón temporal para que veas el Panel Admin Senior rápidamente
+                    TextButton(onClick = { navController.navigate("admin_suscripciones") }) {
+                        Text("Admin View", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -126,58 +132,104 @@ fun EmptySubscriptionsView() {
 fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Imagen de la mascota
-            val fotoUrl = suscripcion.mascota?.fotoPrincipal ?: ""
-            val fullImageUrl = if (fotoUrl.startsWith("http")) fotoUrl else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/$fotoUrl"
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Imagen de la mascota
+                val fotoUrl = suscripcion.mascota?.fotoPrincipal ?: ""
+                val fullImageUrl = if (fotoUrl.startsWith("http")) fotoUrl else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/$fotoUrl"
 
-            Image(
-                painter = rememberAsyncImagePainter(fullImageUrl),
-                contentDescription = null,
-                modifier = Modifier.size(70.dp).clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
+                Image(
+                    painter = rememberAsyncImagePainter(fullImageUrl),
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp).clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
-            Spacer(Modifier.width(16.dp))
+                Spacer(Modifier.width(16.dp))
 
-            Column(modifier = Modifier.weight(1f)) {
-                val capitalizedFrecuencia = suscripcion.frecuencia.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        suscripcion.mascota?.nombre ?: "Mascota", 
+                        fontWeight = FontWeight.ExtraBold, 
+                        fontSize = 18.sp,
+                        color = Color(0xFF2E1A7A)
+                    )
+                    val capitalizedFrecuencia = suscripcion.frecuencia.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+                    }
+                    Text(
+                        capitalizedFrecuencia,
+                        color = Color.Gray, 
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        "$${suscripcion.montoMensual}", 
+                        color = Color(0xFF673AB7), 
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
                 }
-                Text(suscripcion.mascota?.nombre ?: "Mascota", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("$capitalizedFrecuencia • $${suscripcion.montoMensual}", color = Color(0xFF673AB7), fontWeight = FontWeight.Medium)
-                Text("Desde: ${suscripcion.fechaInicio}", fontSize = 12.sp, color = Color.Gray)
-                
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = when(suscripcion.estado) {
-                        "activo" -> Color(0xFFE8F5E9)
-                        else -> Color(0xFFF5F5F5)
-                    },
-                    modifier = Modifier.padding(top = 4.dp)
+
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red.copy(alpha = 0.4f))
+                }
+            }
+
+            if (!suscripcion.mensajeApoyo.isNullOrBlank()) {
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF0EDFF))
+                        .padding(12.dp)
                 ) {
                     Text(
-                        text = suscripcion.estado.uppercase(),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        fontSize = 10.sp,
-                        color = when(suscripcion.estado) {
-                            "activo" -> Color(0xFF2E7D32)
-                            else -> Color.Gray
-                        },
-                        fontWeight = FontWeight.Bold
+                        text = "\"${suscripcion.mensajeApoyo}\"",
+                        fontSize = 13.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        color = Color(0xFF4C35A3)
                     )
                 }
             }
 
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red.copy(alpha = 0.6f))
+            Spacer(Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Desde: ${suscripcion.fechaInicio}", 
+                    fontSize = 11.sp, 
+                    color = Color.Gray
+                )
+                
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = when(suscripcion.estado) {
+                        "activo" -> Color(0xFFE8F5E9)
+                        "pausado" -> Color(0xFFFFF3E0)
+                        else -> Color(0xFFF5F5F5)
+                    }
+                ) {
+                    Text(
+                        text = suscripcion.estado.uppercase(),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        fontSize = 10.sp,
+                        color = when(suscripcion.estado) {
+                            "activo" -> Color(0xFF2E7D32)
+                            "pausado" -> Color(0xFFEF6C00)
+                            else -> Color.Gray
+                        },
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
             }
         }
     }

@@ -120,7 +120,7 @@ fun AdopcionListScreen(
                             chunks.forEach { rowMascotas ->
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                     rowMascotas.forEach { mascota ->
-                                        ModernPetCard(mascota, Modifier.weight(1f))
+                                        ModernPetCard(mascota, navController, Modifier.weight(1f))
                                     }
                                     if (rowMascotas.size < 2) {
                                         repeat(2 - rowMascotas.size) { Spacer(modifier = Modifier.weight(1f)) }
@@ -211,7 +211,7 @@ fun AdopcionListScreen(
 }
 
 @Composable
-fun ModernPetCard(mascota: Mascota, modifier: Modifier = Modifier) {
+fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: Modifier = Modifier) {
     val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
         mascota.fotoPrincipal
     } else {
@@ -260,10 +260,24 @@ fun ModernPetCard(mascota: Mascota, modifier: Modifier = Modifier) {
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocationOn, null, tint = Color.Red.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
                     Text(mascota.ubicacion ?: "Sin ubicación", fontSize = 11.sp, color = Color.Gray)
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Button(
+                    onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                ) {
+                    Icon(Icons.Default.Favorite, null, modifier = Modifier.size(14.dp), tint = Color.White)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Apadrinar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

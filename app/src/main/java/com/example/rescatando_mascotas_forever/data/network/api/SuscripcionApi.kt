@@ -24,6 +24,9 @@ interface SuscripcionApi {
     @PATCH("api/suscripciones/user/{id}/reactivar")
     suspend fun reactivarSuscripcion(@Path("id") id: Int): SuscripcionResponse
 
+    @PATCH("api/suscripciones/user/{id}")
+    suspend fun updateSuscripcion(@Path("id") id: Int, @Body data: Map<String, Any?>): SingleSuscripcionResponse
+
     // Rutas Públicas - Planes
     @GET("api/suscripciones/planes")
     suspend fun getPlanes(): SuscripcionResponse

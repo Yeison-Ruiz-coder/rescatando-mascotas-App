@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import kotlinx.coroutines.delay
 
 @Composable
@@ -51,6 +52,9 @@ fun SplashScreen(navController: NavHostController) {
         delay(2500) // Duración del "telón"
         
         if (sessionManager.isLoggedIn()) {
+            val token = sessionManager.getToken()
+            RetrofitClient.setToken(token)
+
             val user = sessionManager.getUser()
             if (user?.tipo == "admin") {
                 navController.navigate("admin_home") {

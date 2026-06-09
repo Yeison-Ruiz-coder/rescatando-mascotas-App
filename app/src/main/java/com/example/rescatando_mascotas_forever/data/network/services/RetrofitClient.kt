@@ -2,19 +2,39 @@ package com.example.rescatando_mascotas_forever.data.network.services
 
 import com.example.rescatando_mascotas_forever.data.network.api.*
 import com.example.rescatando_mascotas_forever.utils.Constants
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
+    private var authToken: String? = null
+
+    fun setToken(token: String?) {
+        authToken = token
+    }
+
+    private val authInterceptor = Interceptor { chain ->
+        val requestBuilder = chain.request().newBuilder()
+        requestBuilder.addHeader("Accept", "application/json") // Forzar respuesta JSON
+        requestBuilder.addHeader("Content-Type", "application/json")
+
+        authToken?.let {
+            requestBuilder.addHeader("Authorization", "Bearer $it")
+        }
+        chain.proceed(requestBuilder.build())
+    }
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(authInterceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)

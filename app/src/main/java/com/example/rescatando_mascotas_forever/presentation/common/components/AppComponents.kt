@@ -310,6 +310,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
             scope.launch {
                 drawerState.close()
                 sessionManager.logout()
+                com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.setToken(null)
                 navController.navigate("login") {
                     popUpTo(0) { inclusive = true }
                 }

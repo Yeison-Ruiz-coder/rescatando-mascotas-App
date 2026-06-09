@@ -34,6 +34,24 @@ class SuscripcionRepository(private val api: SuscripcionApi) {
         }
     }
 
+    fun getAllSuscripciones(): Flow<Result<List<Suscripcion>>> = flow {
+        try {
+            val response = api.getPlanes() // Usaremos este endpoint o uno similar para admin
+            emit(Result.success(response.data))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
+    fun updateSuscripcionStatus(id: Int, status: String): Flow<Result<Boolean>> = flow {
+        try {
+            api.updateSuscripcion(id, mapOf("estado" to status))
+            emit(Result.success(true))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
     fun pausarSuscripcion(id: Int): Flow<Result<Boolean>> = flow {
         try {
             api.pausarSuscripcion(id)
