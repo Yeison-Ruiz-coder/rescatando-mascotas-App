@@ -246,6 +246,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         DrawerMenuItem("Adoptar", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
         DrawerMenuItem("Reportar", Icons.Default.AddCircle, currentRoute == "formulario_rescate", Color.Red) { navigateAndClose("formulario_rescate") }
         DrawerMenuItem("Solicitud Adopción", Icons.AutoMirrored.Filled.Assignment, currentRoute == "formulario_adopcion") { navigateAndClose("formulario_adopcion") }
+        DrawerMenuItem("Suscripciones", Icons.Default.Star, currentRoute == "suscripciones") { navigateAndClose("suscripciones") }
         DrawerMenuItem("Últimos Rescates", Icons.AutoMirrored.Filled.List, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))

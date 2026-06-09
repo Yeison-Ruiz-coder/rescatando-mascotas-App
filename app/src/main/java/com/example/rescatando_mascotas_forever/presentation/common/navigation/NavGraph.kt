@@ -33,6 +33,8 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacione
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -72,6 +74,9 @@ fun AppNavigation() {
         }
         composable("donaciones") {
             DonacionesScreen(navController = navController)
+        }
+        composable("suscripciones") {
+            SubscriptionScreen(navController = navController)
         }
         
         // --- BLOQUE EVENTOS ---
@@ -113,7 +118,7 @@ fun AppNavigation() {
             SettingsScreen(navController = navController)
         }
         composable("veterinarias") {
-            VeterinariaScreen(navController = navController)
+           // VeterinariaScreen(navController = navController)
         }
 
         // RUTAS EXCLUSIVAS ADMIN

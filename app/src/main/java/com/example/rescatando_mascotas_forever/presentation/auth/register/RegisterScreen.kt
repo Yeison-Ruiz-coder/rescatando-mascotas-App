@@ -1,5 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.auth.register
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+import com.example.rescatando_mascotas_forever.data.service.RetrofitClient
+import com.example.rescatando_mascotas_forever.data.service.LoginRequest
+import com.example.rescatando_mascotas_forever.utils.TokenManager
+import com.example.rescatando_mascotas_forever.data.service.RegisterRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +40,8 @@ fun RegisterScreen(navController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val mainGradient = Brush.verticalGradient(
         colors = listOf(
@@ -96,7 +108,12 @@ fun RegisterScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Nombre completo", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = {
+                            Text(
+                                "Nombre completo",
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -116,7 +133,12 @@ fun RegisterScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Correo electrónico", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = {
+                            Text(
+                                "Correo electrónico",
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -136,7 +158,12 @@ fun RegisterScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Contraseña", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = {
+                            Text(
+                                "Contraseña",
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -166,7 +193,12 @@ fun RegisterScreen(navController: NavHostController) {
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
-                        placeholder = { Text("Confirmar contraseña", color = Color.White.copy(alpha = 0.6f)) },
+                        placeholder = {
+                            Text(
+                                "Confirmar contraseña",
+                                color = Color.White.copy(alpha = 0.6f)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
@@ -182,19 +214,80 @@ fun RegisterScreen(navController: NavHostController) {
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
-
                     Button(
-                        onClick = { /* Lógica de registro */ },
+
+                        onClick = {
+                            Log.d("REGISTER_DEBUG", "email=$email password=$password")
+                            scope.launch {
+
+                                try {
+
+                                    val api = RetrofitClient.create(context)
+
+                                    val response = api.register(
+                                        RegisterRequest(
+                                            name = name,
+                                            email = email,
+                                            password = password,
+                                            password_confirmation = confirmPassword
+                                        )
+                                    )
+
+                                    if (response.isSuccessful) {
+
+                                        val token = response.body()?.token
+
+                                        if (token != null) {
+
+                                            val tokenManager = TokenManager(context)
+                                            tokenManager.saveToken(token)
+
+                                            Toast.makeText(
+                                                context,
+                                                "Login exitoso",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+
+                                            navController.navigate("home")
+                                        }
+
+                                    } else {
+
+                                        Toast.makeText(
+                                            context,
+                                            "Error de login",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                } catch (e: Exception) {
+
+                                    Toast.makeText(
+                                        context,
+                                        "Error: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        },
+
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
+
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = Color(0xFF673AB7)
                         ),
+
                         shape = RoundedCornerShape(16.dp),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 8.dp
+                        )
+
                     ) {
+
                         Text(
                             text = "REGISTRARME",
                             fontWeight = FontWeight.ExtraBold,
@@ -202,9 +295,9 @@ fun RegisterScreen(navController: NavHostController) {
                             letterSpacing = 1.sp
                         )
                     }
+                    ///hasta aqui
                 }
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(

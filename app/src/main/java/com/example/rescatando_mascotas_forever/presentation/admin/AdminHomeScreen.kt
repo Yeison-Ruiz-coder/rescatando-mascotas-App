@@ -125,7 +125,8 @@ fun AdminHomeScreen(navController: NavHostController) {
                         AdminAction(stringResource(R.string.admin_action_reports_title), Icons.Default.LocationOn, "admin_reportes_rescate", stringResource(R.string.admin_action_reports_desc)),
                         AdminAction(stringResource(R.string.admin_action_events_title), Icons.Default.Event, "admin_eventos", stringResource(R.string.admin_action_events_desc)),
                         AdminAction(stringResource(R.string.admin_action_users_title), Icons.Default.Group, "admin_usuarios", stringResource(R.string.admin_action_users_desc)),
-                        AdminAction(stringResource(R.string.admin_action_donations_title), Icons.Default.Payments, "admin_donaciones", stringResource(R.string.admin_action_donations_desc))
+                        AdminAction(stringResource(R.string.admin_action_donations_title), Icons.Default.Payments, "admin_donaciones", stringResource(R.string.admin_action_donations_desc)),
+                        AdminAction(stringResource(R.string.admin_action_subscriptions_title), Icons.Default.Star, "suscripciones", stringResource(R.string.admin_action_subscriptions_desc))
                     )
 
                     adminActions.chunked(2).forEach { rowActions ->
@@ -269,6 +270,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
         DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_reports), Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_donations), Icons.Default.Payments, isSelected = currentRoute == "admin_donaciones") { navigateAndClose("admin_donaciones") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_users), Icons.Default.Group, isSelected = currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
+        DrawerMenuItem(stringResource(R.string.admin_drawer_subscriptions), Icons.Default.Star, isSelected = currentRoute == "suscripciones") { navigateAndClose("suscripciones") }
 
         Spacer(modifier = Modifier.weight(1f))
         
