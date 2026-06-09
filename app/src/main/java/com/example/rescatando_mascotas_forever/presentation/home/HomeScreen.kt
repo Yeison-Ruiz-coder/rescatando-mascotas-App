@@ -46,6 +46,7 @@ fun HomeScreen(
     val mascotas by viewModel.mascotas.collectAsState()
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val selectedCategoria by viewModel.selectedCategoria.collectAsState()
     
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
@@ -93,7 +94,10 @@ fun HomeScreen(
 
                 item {
                     SectionTitle("Explorar por categoría")
-                    CategoryRow()
+                    CategoryRow(
+                        selectedCategoria = selectedCategoria,
+                        onCategoriaSelected = { viewModel.selectCategoria(it) }
+                    )
                 }
 
                 item {
@@ -307,23 +311,30 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun CategoryRow() {
+fun CategoryRow(
+    selectedCategoria: String,
+    onCategoriaSelected: (String) -> Unit
+) {
     val categories = listOf(
-        CategoryItem("Perros", Icons.Default.Pets, Color(0xFF5E49BF), true),
-        CategoryItem("Gatos", Icons.Default.Pets, Color.White, false),
-        CategoryItem("Conejos", Icons.Default.Pets, Color.White, false),
-        CategoryItem("Aves", Icons.Default.Pets, Color.White, false)
+        CategoryItem("Todos", Icons.Default.Apps, Color(0xFF5E49BF)),
+        CategoryItem("Perros", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Gatos", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Conejos", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Aves", Icons.Default.Pets, Color(0xFF5E49BF))
     )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(categories) { cat ->
+            val isSelected = cat.name == selectedCategoria
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = cat.bgColor,
+                color = if (isSelected) Color(0xFF5E49BF) else Color.White,
                 shadowElevation = 2.dp,
-                modifier = Modifier.height(40.dp)
+                modifier = Modifier
+                    .height(40.dp)
+                    .clickable { onCategoriaSelected(cat.name) }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -333,12 +344,12 @@ fun CategoryRow() {
                         cat.icon, 
                         contentDescription = null, 
                         modifier = Modifier.size(16.dp),
-                        tint = if (cat.isSelected) Color.White else Color.Gray
+                        tint = if (isSelected) Color.White else Color.Gray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         cat.name, 
-                        color = if (cat.isSelected) Color.White else Color.Black,
+                        color = if (isSelected) Color.White else Color.Black,
                         fontSize = 14.sp
                     )
                 }
@@ -521,5 +532,5 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
     }
 }
 
-data class CategoryItem(val name: String, val icon: ImageVector, val bgColor: Color, val isSelected: Boolean)
+data class CategoryItem(val name: String, val icon: ImageVector, val bgColor: Color)
 data class EventData(val date: String, val title: String, val location: String, val price: String, val statusColor: Color)
