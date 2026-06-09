@@ -238,6 +238,9 @@ fun QuickActionsRow(navController: NavHostController) {
         QuickActionItem("Donar", Icons.Default.Favorite, Color(0xFFE91E63)) {
             navController.navigate("donaciones")
         }
+        QuickActionItem("Planes", Icons.Default.CardMembership, Color(0xFF673AB7)) {
+            navController.navigate("suscripciones")
+        }
         QuickActionItem("Veterinarias", Icons.Default.LocalHospital, Color(0xFF4CAF50)) {
             navController.navigate("veterinarias")
         }

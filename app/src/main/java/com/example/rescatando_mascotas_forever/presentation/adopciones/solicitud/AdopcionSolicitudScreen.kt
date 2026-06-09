@@ -1,10 +1,13 @@
 package com.example.rescatando_mascotas_forever.presentation.adopciones.solicitud
 
-import androidx.compose.foundation.Image
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -12,144 +15,112 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import com.example.rescatando_mascotas_forever.R
-import com.example.rescatando_mascotas_forever.presentation.common.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdopcionSolicitudScreen(
     navController: NavHostController,
-    mascotaId: Int
+    mascotaId: Int = 0
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-    
-    // Estados del formulario
+    var currentStep by remember { mutableIntStateOf(1) }
+    val totalSteps = 3
+
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
-    var direccion by remember { mutableStateOf("") }
     var ocupacion by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
     var tieneMascotas by remember { mutableStateOf(false) }
-    var porQueAdopta by remember { mutableStateOf("") }
+    var motivo by remember { mutableStateOf("") }
 
-    AppDrawer(navController = navController, drawerState = drawerState, scope = scope) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(stringResource(R.string.adop_form_title), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
-                )
-            }
-        ) { padding ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFF673AB7), Color(0xFF9C27B0))
+    )
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Solicitud de Adopción", fontWeight = FontWeight.Bold, color = Color.White) },
+                navigationIcon = {
+                    IconButton(onClick = { 
+                        if (currentStep > 1) currentStep-- else navController.popBackStack() 
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+            )
+        },
+        containerColor = Color(0xFFF8F9FA)
+    ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxWidth().height(220.dp).background(gradient))
+
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp)
             ) {
-                // Cabecera con Info de la Mascota
-                item {
-                    SolicitudPetHeader("Boby") // Nombre temporal, debería venir de un ViewModel
+                SolicitudStepper(currentStep, totalSteps)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    shape = RoundedCornerShape(32.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(24.dp).verticalScroll(rememberScrollState())
+                    ) {
+                        AnimatedContent(
+                            targetState = currentStep,
+                            transitionSpec = {
+                                if (targetState > initialState) {
+                                    slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                                } else {
+                                    slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                                }.using(SizeTransform(clip = false))
+                            }, label = "FormTransition"
+                        ) { step ->
+                            when (step) {
+                                1 -> StepPersonal(nombre, { nombre = it }, telefono, { telefono = it })
+                                2 -> StepEnvironment(ocupacion, { ocupacion = it }, direccion, { direccion = it }, tieneMascotas, { tieneMascotas = it })
+                                3 -> StepMotivation(motivo, { motivo = it })
+                            }
+                        }
+                    }
                 }
 
-                item {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        // Sección: Datos Personales
-                        FormSectionLabel(stringResource(R.string.rescuer_reg_sec_personal))
-                        OutlinedTextField(
-                            value = nombre,
-                            onValueChange = { nombre = it },
-                            label = { Text(stringResource(R.string.rescuer_reg_label_name)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            leadingIcon = { Icon(Icons.Default.Person, null, tint = Color(0xFF673AB7)) }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedTextField(
-                            value = telefono,
-                            onValueChange = { telefono = it },
-                            label = { Text(stringResource(R.string.rescue_survey_label_reporter_phone)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            leadingIcon = { Icon(Icons.Default.Phone, null, tint = Color(0xFF673AB7)) }
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Sección: Vivienda y Estilo de Vida
-                        FormSectionLabel(stringResource(R.string.adop_sec_lifestyle))
-                        OutlinedTextField(
-                            value = direccion,
-                            onValueChange = { direccion = it },
-                            label = { Text(stringResource(R.string.rescue_survey_label_loc)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            leadingIcon = { Icon(Icons.Default.Home, null, tint = Color(0xFF673AB7)) }
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedTextField(
-                            value = ocupacion,
-                            onValueChange = { ocupacion = it },
-                            label = { Text(stringResource(R.string.full_adop_label_occupation)) },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            leadingIcon = { Icon(Icons.Default.Work, null, tint = Color(0xFF673AB7)) }
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Checkbox(
-                                checked = tieneMascotas,
-                                onCheckedChange = { tieneMascotas = it },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF673AB7))
-                            )
-                            Text(stringResource(R.string.adop_label_others_convive), fontSize = 14.sp)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (currentStep > 1) {
+                        TextButton(onClick = { currentStep-- }) {
+                            Text("ANTERIOR", color = Color.Gray, fontWeight = FontWeight.Bold)
                         }
+                    } else {
+                        Spacer(Modifier.width(80.dp))
+                    }
 
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        // Sección: Compromiso
-                        FormSectionLabel(stringResource(R.string.full_adop_sec_commitment))
-                        OutlinedTextField(
-                            value = porQueAdopta,
-                            onValueChange = { porQueAdopta = it },
-                            label = { Text(stringResource(R.string.adop_form_label_motive)) },
-                            modifier = Modifier.fillMaxWidth().height(120.dp),
-                            shape = RoundedCornerShape(12.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        Button(
-                            onClick = { 
-                                // Aquí se llamaría al ViewModel para enviar la solicitud
-                                navController.navigate("home") 
-                            },
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
-                        ) {
-                            Text(stringResource(R.string.adop_btn_send_full), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        }
-                        
-                        Spacer(modifier = Modifier.height(40.dp))
+                    Button(
+                        onClick = {
+                            if (currentStep < totalSteps) currentStep++
+                            else { navController.popBackStack() }
+                        },
+                        modifier = Modifier.height(56.dp).width(160.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                    ) {
+                        Text(if (currentStep == totalSteps) "ENVIAR" else "SIGUIENTE", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
@@ -158,49 +129,73 @@ fun AdopcionSolicitudScreen(
 }
 
 @Composable
-fun SolicitudPetHeader(name: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp)
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1543466835-00a7907e9de1"),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
-        )
-        Column(
-            modifier = Modifier.fillMaxSize().padding(20.dp),
-            verticalArrangement = Arrangement.Bottom
-        ) {
-            Text(
-                stringResource(R.string.adop_applying_to),
-                color = Color.White.copy(alpha = 0.8f),
-                fontSize = 14.sp
-            )
-            Text(
-                name,
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+fun SolicitudStepper(currentStep: Int, totalSteps: Int) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+        for (i in 1..totalSteps) {
+            val isActive = i <= currentStep
+            Box(
+                modifier = Modifier.size(36.dp).clip(CircleShape).background(if (isActive) Color.White else Color.White.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = i.toString(), color = if (isActive) Color(0xFF673AB7) else Color.White, fontWeight = FontWeight.Bold)
+            }
+            if (i < totalSteps) {
+                Box(modifier = Modifier.width(40.dp).height(2.dp).background(if (i < currentStep) Color.White else Color.White.copy(alpha = 0.3f)))
+            }
         }
     }
 }
 
 @Composable
-fun FormSectionLabel(text: String) {
-    Text(
-        text = text.uppercase(),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Black,
-        color = Color(0xFF673AB7),
-        modifier = Modifier.padding(bottom = 12.dp)
+fun StepPersonal(nombre: String, onNombre: (String) -> Unit, tel: String, onTel: (String) -> Unit) {
+    Column {
+        Text("Cuéntanos de ti", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF2E1A7A))
+        Text("Queremos conocer a la persona que cuidará de nuestro peludito.", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(32.dp))
+        SolicitudInput(nombre, onNombre, "Nombre Completo", Icons.Default.Person)
+        Spacer(modifier = Modifier.height(16.dp))
+        SolicitudInput(tel, onTel, "Teléfono de Contacto", Icons.Default.Phone, KeyboardType.Phone)
+    }
+}
+
+@Composable
+fun StepEnvironment(ocup: String, onOcup: (String) -> Unit, dir: String, onDir: (String) -> Unit, tiene: Boolean, onTiene: (Boolean) -> Unit) {
+    Column {
+        Text("Tu Entorno", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF2E1A7A))
+        Text("¿Cómo es el ambiente donde vivirá la mascota?", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(32.dp))
+        SolicitudInput(ocup, onOcup, "Ocupación / Profesión", Icons.Default.Work)
+        Spacer(modifier = Modifier.height(16.dp))
+        SolicitudInput(dir, onDir, "Dirección de Residencia", Icons.Default.Home)
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = tiene, onCheckedChange = onTiene, colors = CheckboxDefaults.colors(checkedColor = Color(0xFF673AB7)))
+            Text("¿Convives con otras mascotas?", fontSize = 15.sp)
+        }
+    }
+}
+
+@Composable
+fun StepMotivation(motivo: String, onMotivo: (String) -> Unit) {
+    Column {
+        Text("El Compromiso", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF2E1A7A))
+        Text("¿Por qué deseas adoptar y qué prometes al nuevo integrante?", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(32.dp))
+        OutlinedTextField(
+            value = motivo, onValueChange = onMotivo, modifier = Modifier.fillMaxWidth().height(200.dp),
+            label = { Text("Escribe tus motivos aquí...") }, shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF673AB7))
+        )
+    }
+}
+
+@Composable
+fun SolicitudInput(value: String, onValueChange: (String) -> Unit, label: String, icon: ImageVector, keyboardType: KeyboardType = KeyboardType.Text) {
+    OutlinedTextField(
+        value = value, onValueChange = onValueChange, label = { Text(label) },
+        leadingIcon = { Icon(icon, null, tint = Color(0xFF673AB7)) }, modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp), keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF673AB7), unfocusedBorderColor = Color(0xFFE0E0E0)),
+        singleLine = true
     )
 }

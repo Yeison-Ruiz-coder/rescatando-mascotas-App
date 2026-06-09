@@ -35,6 +35,8 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosS
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionScreen
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -78,10 +80,12 @@ fun AppNavigation() {
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }
+        composable("suscripciones") {
+            SuscripcionScreen(navController = navController)
+        }
         
         // --- BLOQUE EVENTOS ---
         composable("eventos") { backStackEntry ->
-            // Obtenemos el ViewModel aquí
             val viewModel: EventoViewModel = viewModel(backStackEntry)
             EventoScreen(navController = navController, viewModel = viewModel)
         }
@@ -91,13 +95,10 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
         ) { backStackEntry ->
             val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
-            
-            // BUSCAMOS EL VIEWMODEL DE LA PANTALLA ANTERIOR ("eventos")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("eventos")
             }
             val viewModel: EventoViewModel = viewModel(parentEntry)
-            
             EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
         }
         // ----------------------
@@ -142,6 +143,11 @@ fun AppNavigation() {
         }
         composable("admin_donaciones") {
             AdminDonacionesScreen(navController = navController)
+        }
+        composable("admin_suscripciones") {
+            // Podrías crear una pantalla de gestión de planes para el admin, 
+            // por ahora reutilizamos la misma o apuntamos a la misma lógica.
+            SuscripcionScreen(navController = navController)
         }
         composable("admin_usuarios") {
             AdminUsuariosScreen(navController = navController)

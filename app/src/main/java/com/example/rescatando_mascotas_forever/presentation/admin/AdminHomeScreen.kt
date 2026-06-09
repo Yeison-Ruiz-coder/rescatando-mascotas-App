@@ -17,14 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rescatando_mascotas_forever.R
-import com.example.rescatando_mascotas_forever.presentation.common.components.*
+import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.DrawerMenuItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,6 +38,7 @@ fun AdminHomeScreen(navController: NavHostController) {
         colors = listOf(Color(0xFF673AB7), Color(0xFF512DA8))
     )
 
+    // Usamos el ModalNavigationDrawer directamente para poder pasar el AdminDrawerContent personalizado
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -71,7 +72,7 @@ fun AdminHomeScreen(navController: NavHostController) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = stringResource(R.string.admin_home_title),
+                                text = "Panel de Control",
                                 fontSize = 26.sp,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Color.White
@@ -80,7 +81,7 @@ fun AdminHomeScreen(navController: NavHostController) {
                             Icon(Icons.Default.VerifiedUser, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
                         }
                         Text(
-                            text = stringResource(R.string.admin_home_subtitle),
+                            text = "Bienvenido, Administrador",
                             fontSize = 14.sp,
                             color = Color.White.copy(alpha = 0.8f)
                         )
@@ -88,12 +89,11 @@ fun AdminHomeScreen(navController: NavHostController) {
                 }
 
                 Column(modifier = Modifier.padding(20.dp)) {
-                    // Resumen de Estadísticas
                     Text(
-                        text = stringResource(R.string.admin_home_stat_title),
+                        text = "ESTADÍSTICAS GENERALES",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF444444), // Gris oscuro para mejor contraste
+                        color = Color(0xFF444444),
                         letterSpacing = 1.sp,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
@@ -102,16 +102,15 @@ fun AdminHomeScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        StatCard(stringResource(R.string.admin_home_stat_pets), "24", Icons.Default.Pets, Color(0xFF4CAF50), Modifier.weight(1f))
-                        StatCard(stringResource(R.string.admin_home_stat_rescues), "12", Icons.Default.Warning, Color(0xFFF44336), Modifier.weight(1f))
-                        StatCard(stringResource(R.string.admin_home_stat_adoptions), "8", Icons.Default.CheckCircle, Color(0xFF2196F3), Modifier.weight(1f))
+                        StatCard("Mascotas", "24", Icons.Default.Pets, Color(0xFF4CAF50), Modifier.weight(1f))
+                        StatCard("Rescates", "12", Icons.Default.Warning, Color(0xFFF44336), Modifier.weight(1f))
+                        StatCard("Adopciones", "8", Icons.Default.CheckCircle, Color(0xFF2196F3), Modifier.weight(1f))
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Acciones Rápidas (Panel de Control)
                     Text(
-                        text = stringResource(R.string.admin_home_actions_title),
+                        text = "GESTIÓN DE MÓDULOS",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF444444),
@@ -120,12 +119,12 @@ fun AdminHomeScreen(navController: NavHostController) {
                     )
 
                     val adminActions = listOf(
-                        AdminAction(stringResource(R.string.admin_action_pets_title), Icons.Default.Favorite, "admin_mascotas", stringResource(R.string.admin_action_pets_desc)),
-                        AdminAction(stringResource(R.string.admin_action_adop_title), Icons.Default.Description, "admin_formulario_adopcion", stringResource(R.string.admin_action_adop_desc)),
-                        AdminAction(stringResource(R.string.admin_action_reports_title), Icons.Default.LocationOn, "admin_reportes_rescate", stringResource(R.string.admin_action_reports_desc)),
-                        AdminAction(stringResource(R.string.admin_action_events_title), Icons.Default.Event, "admin_eventos", stringResource(R.string.admin_action_events_desc)),
-                        AdminAction(stringResource(R.string.admin_action_users_title), Icons.Default.Group, "admin_usuarios", stringResource(R.string.admin_action_users_desc)),
-                        AdminAction(stringResource(R.string.admin_action_donations_title), Icons.Default.Payments, "admin_donaciones", stringResource(R.string.admin_action_donations_desc))
+                        AdminAction("Mascotas", Icons.Default.Favorite, "admin_mascotas", "Inventario y estados"),
+                        AdminAction("Adopciones", Icons.Default.Description, "admin_formulario_adopcion", "Gestionar solicitudes"),
+                        AdminAction("Reportes", Icons.Default.LocationOn, "admin_reportes_rescate", "Mapa y emergencias"),
+                        AdminAction("Eventos", Icons.Default.Event, "admin_eventos", "Organizar actividades"),
+                        AdminAction("Suscripciones", Icons.Default.CardMembership, "admin_suscripciones", "Planes y socios premium"),
+                        AdminAction("Usuarios", Icons.Default.Group, "admin_usuarios", "Control de accesos")
                     )
 
                     adminActions.chunked(2).forEach { rowActions ->
@@ -144,7 +143,6 @@ fun AdminHomeScreen(navController: NavHostController) {
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Botón de Modo Usuario para Vista Previa
                     OutlinedButton(
                         onClick = { navController.navigate("home") },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -153,56 +151,10 @@ fun AdminHomeScreen(navController: NavHostController) {
                     ) {
                         Icon(Icons.Default.RemoveRedEye, null, tint = Color(0xFF673AB7))
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.admin_home_btn_preview), color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                        Text("IR A VISTA USUARIO", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Card(
-        modifier = modifier
-            .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = Color(0xFF673AB7).copy(alpha = 0.1f),
-                modifier = Modifier.size(45.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = action.icon,
-                        contentDescription = null,
-                        tint = Color(0xFF673AB7),
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = action.title,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
-                color = Color(0xFF222222) // Negro mucho más legible
-            )
-            Text(
-                text = action.description ?: "",
-                fontSize = 11.sp,
-                color = Color(0xFF555555), // Gris fuerte legible
-                lineHeight = 14.sp
-            )
         }
     }
 }
@@ -223,64 +175,64 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(bottom = 24.dp)
+        modifier = Modifier.fillMaxSize().verticalScroll(scrollState).padding(bottom = 24.dp)
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Brush.horizontalGradient(listOf(Color(0xFF673AB7), Color(0xFF512DA8))))
-                .padding(24.dp)
-                .padding(top = 24.dp)
+            modifier = Modifier.fillMaxWidth().background(Brush.horizontalGradient(listOf(Color(0xFF673AB7), Color(0xFF512DA8)))).padding(24.dp).padding(top = 24.dp)
         ) {
             Column {
-                Surface(
-                    modifier = Modifier.size(64.dp),
-                    shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.2f)
-                ) {
+                Surface(modifier = Modifier.size(64.dp), shape = CircleShape, color = Color.White.copy(alpha = 0.2f)) {
                     Icon(Icons.Default.AdminPanelSettings, null, tint = Color.White, modifier = Modifier.size(40.dp))
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(R.string.admin_drawer_mode), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("admin@rescatando.com", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                Text("MODO ADMINISTRADOR", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("admin@rescatandomascotas.com", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Text(stringResource(R.string.admin_drawer_nav), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
-        DrawerMenuItem(stringResource(R.string.admin_drawer_dashboard), Icons.Default.Dashboard, isSelected = currentRoute == "admin_home") { navigateAndClose("admin_home") }
+        
+        DrawerMenuItem("Dashboard", Icons.Default.Dashboard, currentRoute == "admin_home") { navigateAndClose("admin_home") }
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
         
-        Text(stringResource(R.string.admin_drawer_forms), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
-        DrawerMenuItem(stringResource(R.string.admin_drawer_adop_form), Icons.Default.Description, isSelected = currentRoute == "admin_formulario_adopcion") { navigateAndClose("admin_formulario_adopcion") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescuer_reg), Icons.Default.Badge, isSelected = currentRoute == "admin_registro_rescatista") { navigateAndClose("admin_registro_rescatista") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_enc), Icons.Default.Quiz, isSelected = currentRoute == "admin_encuesta_rescate") { navigateAndClose("admin_encuesta_rescate") }
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
+        DrawerMenuItem("Mascotas", Icons.Default.Pets, currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
+        DrawerMenuItem("Suscripciones", Icons.Default.CardMembership, currentRoute == "admin_suscripciones") { navigateAndClose("admin_suscripciones") }
+        DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
+        DrawerMenuItem("Usuarios", Icons.Default.Group, currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
         
-        Text(stringResource(R.string.admin_drawer_management), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
-        DrawerMenuItem(stringResource(R.string.admin_action_pets_title), Icons.Default.Pets, isSelected = currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_events), Icons.Default.Event, isSelected = currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_reports), Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_donations), Icons.Default.Payments, isSelected = currentRoute == "admin_donaciones") { navigateAndClose("admin_donaciones") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_users), Icons.Default.Group, isSelected = currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
-
         Spacer(modifier = Modifier.weight(1f))
         
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
 
-        DrawerMenuItem(stringResource(R.string.admin_drawer_exit), Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color.Red) {
+        DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) {
             scope.launch {
                 drawerState.close()
                 navController.navigate("login") {
                     popUpTo(0) { inclusive = true }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Surface(shape = RoundedCornerShape(12.dp), color = Color(0xFF673AB7).copy(alpha = 0.1f), modifier = Modifier.size(40.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(action.icon, null, tint = Color(0xFF673AB7), modifier = Modifier.size(20.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(action.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
+            action.description?.let { Text(it, fontSize = 11.sp, color = Color.Gray, lineHeight = 14.sp) }
         }
     }
 }
@@ -293,14 +245,11 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.Black)
-            Text(text = title, fontSize = 12.sp, color = Color(0xFF555555)) // Gris más oscuro que Color.Gray
+        Column(modifier = Modifier.padding(16.dp)) {
+            Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(value, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color.Black)
+            Text(title, fontSize = 11.sp, color = Color.Gray)
         }
     }
 }
