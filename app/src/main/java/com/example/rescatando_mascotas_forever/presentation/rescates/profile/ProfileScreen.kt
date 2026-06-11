@@ -1,4 +1,4 @@
-package com.example.rescatando_mascotas_forever.presentation.profile
+package com.example.rescatando_mascotas_forever.presentation.rescates.profile
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -248,8 +248,12 @@ fun ProfileMenuItem(
 @Composable
 fun LogoutButton(navController: NavHostController, sessionManager: SessionManager) {
     Button(
+<<<<<<< HEAD:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/rescates/profile/ProfileScreen.kt
+        onClick = {
+=======
         onClick = { 
             sessionManager.logout()
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/profile/ProfileScreen.kt
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
             }

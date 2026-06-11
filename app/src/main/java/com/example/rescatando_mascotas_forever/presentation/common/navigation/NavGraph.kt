@@ -1,8 +1,11 @@
 package com.example.rescatando_mascotas_forever.presentation.common.navigation
 
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
+=======
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,7 +27,7 @@ import com.example.rescatando_mascotas_forever.presentation.rescatistas.Rescatis
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen
-import com.example.rescatando_mascotas_forever.presentation.profile.ProfileScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.profile.ProfileScreen
 import com.example.rescatando_mascotas_forever.presentation.settings.SettingsScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminHomeScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminFormularioAdopcionScreen
@@ -35,8 +38,14 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosS
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+<<<<<<< HEAD
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
+=======
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
 
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 @Composable
@@ -62,7 +71,21 @@ fun AppNavigation() {
         composable("admin_home") {
             AdminHomeScreen(navController = navController)
         }
-        
+
+        // --- RUTA LISTA DE FUNDACIONES ---
+        composable("fundaciones") {
+            FoundationListScreen(navController = navController)
+        }
+
+        // --- RUTA DETALLE FUNDACIÓN ---
+        composable(
+            route = "foundation_detail/{foundationName}",
+            arguments = listOf(navArgument("foundationName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("foundationName") ?: ""
+            FoundationDetailScreen(foundationName = name, navController = navController)
+        }
+
         // RUTAS PÚBLICAS
         composable("adopciones") {
             AdopcionListScreen(navController = navController)
@@ -132,7 +155,17 @@ fun AppNavigation() {
             SettingsScreen(navController = navController)
         }
         composable("veterinarias") {
+<<<<<<< HEAD
+            VeterinariaScreen(navController = navController)
+        }
+        composable("proceso_adopcion") {
+            ProcesoAdopcionScreen(navController = navController)
+        }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
+=======
            // VeterinariaScreen(navController = navController)
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
         }
 
         // RUTAS EXCLUSIVAS ADMIN
