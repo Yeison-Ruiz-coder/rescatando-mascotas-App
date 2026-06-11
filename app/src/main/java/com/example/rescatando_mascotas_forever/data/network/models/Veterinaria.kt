@@ -31,7 +31,7 @@ data class Veterinaria(
     val whatsapp: String?,
 
     @SerializedName("redes_sociales")
-    val redesSociales: String?,
+    val redesSociales: Any?,
 
     @SerializedName("Email")
     val email: String?,
@@ -43,40 +43,40 @@ data class Veterinaria(
     val logo: String?,
 
     @SerializedName("galeria_fotos")
-    val galeriaFotos: String?,
+    val galeriaFotos: Any?,
 
     @SerializedName("logo_public_id")
     val logoPublicId: String?,
 
     @SerializedName("servicios")
-    val servicios: String?,
+    val servicios: Any?,
 
     @SerializedName("precio_consulta")
     val precioConsulta: String?,
 
     @SerializedName("acepta_seguros")
-    val aceptaSeguros: Int?,
+    val aceptaSeguros: Boolean?,
 
     @SerializedName("servicios_detallados")
-    val serviciosDetallados: String?,
+    val serviciosDetallados: Any?,
 
     @SerializedName("equipo_medico")
-    val equipoMedico: String?,
+    val equipoMedico: Any?,
 
     @SerializedName("horario_atencion")
     val horarioAtencion: String?,
 
     @SerializedName("urgencias_24h")
-    val urgencias24h: Int?,
+    val urgencias24h: Boolean?,
 
     @SerializedName("verificado")
-    val verificado: Int?,
+    val verificado: Boolean?,
 
     @SerializedName("documentos_verificacion")
-    val documentosVerificacion: String?,
+    val documentosVerificacion: Any?,
 
     @SerializedName("convenios")
-    val convenios: String?,
+    val convenios: Any?,
 
     @SerializedName("valoracion_promedio")
     val valoracionPromedio: String?,
@@ -97,7 +97,7 @@ data class Veterinaria(
     val radioAtencion: String?,
 
     @SerializedName("cobertura_zona")
-    val coberturaZona: String?,
+    val coberturaZona: Any?,
 
     @SerializedName("created_at")
     val createdAt: String?,
