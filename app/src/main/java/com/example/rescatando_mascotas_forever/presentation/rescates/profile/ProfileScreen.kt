@@ -1,4 +1,4 @@
-package com.example.rescatando_mascotas_forever.presentation.profile
+package com.example.rescatando_mascotas_forever.presentation.rescates.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -188,7 +188,7 @@ fun ProfileMenuItem(
 @Composable
 fun LogoutButton(navController: NavHostController) {
     Button(
-        onClick = { 
+        onClick = {
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
             }

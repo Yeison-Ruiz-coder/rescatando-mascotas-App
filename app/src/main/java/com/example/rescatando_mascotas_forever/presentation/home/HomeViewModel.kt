@@ -3,10 +3,16 @@ package com.example.rescatando_mascotas_forever.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+
+data class Foundation(
+    val id: Int,
+    val name: String,
+    val city: String,
+    val address: String,
+    val isVerified: Boolean = true
+)
 
 class HomeViewModel : ViewModel() {
 
@@ -16,83 +22,57 @@ class HomeViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+    // --- ESTADOS DE FUNDACIONES ---
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    private val _selectedCity = MutableStateFlow("Todas las ciudades")
+    val selectedCity: StateFlow<String> = _selectedCity
+
+    private val _allFoundations = MutableStateFlow(listOf(
+        Foundation(1, "Amigos Peludos", "Bucaramanga", "Carrera 25 # 10-05"),
+        Foundation(2, "Corazón Animal", "Bogotá", "Calle 15 # 45-67"),
+        Foundation(3, "El Refugio", "Barranquilla", "Calle 50 # 20-30"),
+        Foundation(4, "Patitas Alegres", "Cali", "Calle 8 # 34-56"),
+        Foundation(5, "Huellitas de Amor", "Popayán", "Centro Histórico"),
+        Foundation(6, "Rescate Fiel", "Medellín", "El Poblado")
+    ))
+
+    val cities: StateFlow<List<String>> = _allFoundations
+        .map { foundations -> listOf("Todas las ciudades") + foundations.map { it.city }.distinct().sorted() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("Todas las ciudades"))
+
+    val filteredFoundations: StateFlow<List<Foundation>> = combine(
+        _searchQuery,
+        _selectedCity,
+        _allFoundations
+    ) { query, city, foundations ->
+        foundations.filter { foundation ->
+            val matchesQuery = foundation.name.contains(query, ignoreCase = true) ||
+                               foundation.city.contains(query, ignoreCase = true)
+            val matchesCity = city == "Todas las ciudades" || foundation.city == city
+            matchesQuery && matchesCity
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun onSearchQueryChange(newQuery: String) {
+        _searchQuery.value = newQuery
+    }
+
+    fun onCitySelected(city: String) {
+        _selectedCity.value = city
+    }
+
+    fun clearFilters() {
+        _searchQuery.value = ""
+        _selectedCity.value = "Todas las ciudades"
+    }
 
     init {
         cargarMascotas()
     }
 
-    fun cargarMascotas(especie: String? = null, estado: String? = "En adopcion") {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            
-            // Simulamos una pequeña espera de red para que se vea el cargando
-            delay(1000)
-
-            // Datos de prueba (MOCK DATA)
-            val listaPrueba = listOf(
-                Mascota(
-                    id = 1,
-                    nombre = "Luna",
-                    especie = "Perro",
-                    edadAprox = 2,
-                    genero = "Hembra",
-                    estado = "En adopcion",
-                    ubicacion = "Quito, Ecuador", // Agregado
-                    descripcion = "Es muy juguetona y cariñosa.",
-                    fotoPrincipal = "https://images.dog.ceo/breeds/retriever-golden/n02099601_3004.jpg",
-                    aptoConNinos = true,
-                    aptoConOtrosAnimales = true,
-                    fundacionId = 1
-                ),
-                Mascota(
-                    id = 2,
-                    nombre = "Simba",
-                    especie = "Gato",
-                    edadAprox = 1,
-                    genero = "Macho",
-                    estado = "En adopcion",
-                    ubicacion = "Guayaquil, Ecuador", // Agregado
-                    descripcion = "Gatito rescatado, muy tranquilo.",
-                    fotoPrincipal = "https://images.ctfassets.net/denf86kkcx7r/4IPlg4Qazd4sFRuCUHIJ1T/f6c71da7eec727babcd554d843a528b8/gatocomuneuropeo-97",
-                    aptoConNinos = true,
-                    aptoConOtrosAnimales = false,
-                    fundacionId = 1
-                ),
-                Mascota(
-                    id = 3,
-                    nombre = "Rocky",
-                    especie = "Perro",
-                    edadAprox = 4,
-                    genero = "Macho",
-                    estado = "Adoptado",
-                    ubicacion = "Cuenca, Ecuador", // Agregado
-                    descripcion = "Ya encontró un hogar feliz.",
-                    fotoPrincipal = "https://images.ctfassets.net/denf86kkcx7r/HJO06XFEAWjMW42CkMPQz/c3cb44ef5b0815101349affd2353033e/Beagle.webp?fm=webp&w=913",
-                    aptoConNinos = true,
-                    aptoConOtrosAnimales = true,
-                    fundacionId = 1
-                ),
-                Mascota(
-                    id = 4,
-                    nombre = "Mora",
-                    especie = "Perro",
-                    edadAprox = 3,
-                    genero = "Hembra",
-                    estado = "En adopcion",
-                    ubicacion = "Ambato, Ecuador", // Agregado
-                    descripcion = "Busca una familia activa.",
-                    fotoPrincipal = "https://images.dog.ceo/breeds/labrador/n02099712_3503.jpg",
-                    aptoConNinos = false,
-                    aptoConOtrosAnimales = true,
-                    fundacionId = 1
-                )
-            )
-
-            _mascotas.value = listaPrueba
-            _isLoading.value = false
-        }
+    fun cargarMascotas() {
+        // Lógica de carga de mascotas si es necesaria
     }
 }

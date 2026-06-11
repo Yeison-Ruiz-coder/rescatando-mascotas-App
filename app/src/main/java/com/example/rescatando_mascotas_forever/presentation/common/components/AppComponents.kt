@@ -1,23 +1,18 @@
 package com.example.rescatando_mascotas_forever.presentation.common.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,7 +26,6 @@ import com.example.rescatando_mascotas_forever.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// Degradado global para la aplicación
 val AppMainGradient = Brush.horizontalGradient(
     colors = listOf(Color(0xFF9C27B0), Color(0xFF3F51B5))
 )
@@ -58,48 +52,20 @@ fun GradientHeader(title: String) {
 fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
     TopAppBar(
         title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
-                    color = Color.White
-                ) {
-                    Image(
-                        painter = painterResource(id = R.mipmap.logo_foreground),
-                        contentDescription = null,
-                        modifier = Modifier.padding(2.dp)
-                    )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Surface(modifier = Modifier.size(35.dp), shape = CircleShape, color = Color.White) {
+                    Image(painter = painterResource(id = R.mipmap.logo_foreground), contentDescription = null)
                 }
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    "Rescatando Mascotas",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF673AB7)
-                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Rescatando Mascotas", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(0xFF673AB7))
             }
         },
         navigationIcon = {
-            IconButton(
-                onClick = { 
-                    scope.launch { 
-                        if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                    } 
-                }
-            ) {
-                Icon(
-                    Icons.Default.Menu,
-                    contentDescription = "Menú",
-                    tint = Color(0xFF673AB7)
-                )
+            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                Icon(Icons.Default.Menu, "Menú", tint = Color(0xFF673AB7))
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.White
-        )
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
     )
 }
 
@@ -108,45 +74,28 @@ fun AppBottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar(
-        containerColor = Color.White,
-        tonalElevation = 8.dp
-    ) {
+    NavigationBar(containerColor = Color.White) {
         NavigationBarItem(
             selected = currentRoute == "home",
-            onClick = { if (currentRoute != "home") navController.navigate("home") },
+            onClick = { navController.navigate("home") },
             icon = { Icon(Icons.Default.Home, null) },
             label = { Text("Inicio") }
         )
         NavigationBarItem(
             selected = currentRoute == "adopciones",
-            onClick = { if (currentRoute != "adopciones") navController.navigate("adopciones") },
+            onClick = { navController.navigate("adopciones") },
             icon = { Icon(Icons.Default.Favorite, null) },
             label = { Text("Adopta") }
         )
-        // BOTÓN DE RESCATAR EN ROJO
         NavigationBarItem(
             selected = currentRoute == "formulario_rescate",
-            onClick = { if (currentRoute != "formulario_rescate") navController.navigate("formulario_rescate") },
-            icon = { 
-                Icon(
-                    Icons.Default.AddCircle, 
-                    contentDescription = null,
-                    tint = if (currentRoute == "formulario_rescate") Color.Red else Color.Red.copy(alpha = 0.7f)
-                ) 
-            },
-            label = { Text("Rescatar", color = Color.Red, fontWeight = FontWeight.Bold) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.Red,
-                unselectedIconColor = Color.Red.copy(alpha = 0.7f),
-                selectedTextColor = Color.Red,
-                unselectedTextColor = Color.Red.copy(alpha = 0.7f),
-                indicatorColor = Color.Red.copy(alpha = 0.1f)
-            )
+            onClick = { navController.navigate("formulario_rescate") },
+            icon = { Icon(Icons.Default.AddCircle, null, tint = Color.Red) },
+            label = { Text("Rescatar", color = Color.Red) }
         )
         NavigationBarItem(
             selected = currentRoute == "perfil",
-            onClick = { if (currentRoute != "perfil") navController.navigate("perfil") },
+            onClick = { navController.navigate("perfil") },
             icon = { Icon(Icons.Default.Person, null) },
             label = { Text("Perfil") }
         )
@@ -154,31 +103,27 @@ fun AppBottomBar(navController: NavHostController) {
 }
 
 @Composable
-fun AppDrawer(
-    navController: NavHostController,
-    drawerState: DrawerState,
-    scope: CoroutineScope,
-    content: @Composable () -> Unit
-) {
+fun AppDrawer(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope, content: @Composable () -> Unit) {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(
-                drawerContainerColor = Color.White,
-                modifier = Modifier.width(300.dp)
-            ) {
-                DrawerContent(navController, drawerState, scope)
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route ?: ""
+            val isAdminRoute = currentRoute.startsWith("admin_")
+
+            ModalDrawerSheet(modifier = Modifier.width(300.dp)) {
+                if (isAdminRoute) {
+                    AdminDrawerContent(navController, drawerState, scope)
+                } else {
+                    DrawerContent(navController, drawerState, scope)
+                }
             }
         }
-    ) {
-        content()
-    }
+    ) { content() }
 }
 
 @Composable
 fun DrawerContent(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope) {
-    val scrollState = rememberScrollState()
-    
     val navigateAndClose: (String) -> Unit = { route ->
         scope.launch {
             drawerState.close()
@@ -186,74 +131,65 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(bottom = 24.dp)
-    ) {
-        // Cabecera del Menú
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(AppMainGradient)
-                .padding(24.dp)
-                .padding(top = 24.dp)
-        ) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Box(modifier = Modifier.fillMaxWidth().background(AppMainGradient).padding(24.dp)) {
             Column {
-                Surface(
-                    modifier = Modifier.size(64.dp),
-                    shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.2f)
-                ) {
-                    Icon(Icons.Default.AccountCircle, null, tint = Color.White, modifier = Modifier.size(48.dp))
-                }
+                Icon(Icons.Default.AccountCircle, null, tint = Color.White, modifier = Modifier.size(64.dp))
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Hola, Yeison", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("usuario@ejemplo.com", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text("Hola, Yeison", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Items del Menú Principal
+        Spacer(Modifier.height(8.dp))
         DrawerMenuItem("Inicio", Icons.Default.Home) { navigateAndClose("home") }
         DrawerMenuItem("Mi Perfil", Icons.Default.Person) { navigateAndClose("perfil") }
-        
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
-        
-        Text("GESTIÓN DE MASCOTAS", modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
-        
-        DrawerMenuItem("Adoptar Mascota", Icons.Default.Favorite) { navigateAndClose("adopciones") }
-        DrawerMenuItem("Reportar Rescate", Icons.Default.AddCircle, Color.Red) { navigateAndClose("formulario_rescate") }
-        DrawerMenuItem("Solicitud de Adopción", Icons.Default.Assignment) { navigateAndClose("formulario_adopcion") }
-        DrawerMenuItem("Últimos Rescates", Icons.AutoMirrored.Filled.List) { navigateAndClose("ultimos_rescates") }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        Text("GESTIÓN", modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp), fontSize = 11.sp, color = Color.Gray)
+        DrawerMenuItem("Adoptar", Icons.Default.Favorite) { navigateAndClose("adopciones") }
+        DrawerMenuItem("Reportar Rescate", Icons.Default.AddCircle) { navigateAndClose("formulario_rescate") }
 
-        Text("COMUNIDAD", modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
-        
+        HorizontalDivider(Modifier.padding(vertical = 8.dp))
+        Text("COMUNIDAD", modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp), fontSize = 11.sp, color = Color.Gray)
         DrawerMenuItem("Eventos", Icons.Default.DateRange) { navigateAndClose("eventos") }
         DrawerMenuItem("Voluntarios", Icons.Default.Face) { navigateAndClose("rescatista_contactos") }
         DrawerMenuItem("Donaciones", Icons.Default.Star) { navigateAndClose("donaciones") }
-        
-        Spacer(modifier = Modifier.weight(1f))
-        
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
+        DrawerMenuItem("Veterinarias", Icons.Default.LocationOn) { navigateAndClose("veterinarias") }
+        DrawerMenuItem("Fundaciones", Icons.Default.Business) { navigateAndClose("fundaciones") }
 
-        DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, Color.Red) {
-            navigateAndClose("login")
+        Spacer(Modifier.weight(1f))
+        DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, Color.Red) { navigateAndClose("login") }
+    }
+}
+
+@Composable
+fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope) {
+    val navigateAndClose: (String) -> Unit = { route ->
+        scope.launch {
+            drawerState.close()
+            navController.navigate(route)
         }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Box(modifier = Modifier.fillMaxWidth().background(Color(0xFF333333)).padding(24.dp)) {
+            Text("Panel Admin", color = Color.White, fontWeight = FontWeight.Bold)
+        }
+        DrawerMenuItem("Inicio Admin", Icons.Default.Dashboard) { navigateAndClose("admin_home") }
+        DrawerMenuItem("Veterinarias", Icons.Default.LocationOn) { navigateAndClose("veterinarias") }
+        DrawerMenuItem("Fundaciones", Icons.Default.Business) { navigateAndClose("fundaciones") }
+        HorizontalDivider()
+        DrawerMenuItem("Salir", Icons.AutoMirrored.Filled.ExitToApp) { navigateAndClose("home") }
     }
 }
 
 @Composable
 fun DrawerMenuItem(text: String, icon: ImageVector, color: Color = Color.DarkGray, onClick: () -> Unit) {
     NavigationDrawerItem(
-        label = { Text(text, color = color, fontWeight = FontWeight.Medium) },
+        label = { Text(text, color = color) },
         selected = false,
         onClick = onClick,
-        icon = { Icon(icon, contentDescription = null, tint = color) },
+        icon = { Icon(icon, null, tint = color) },
         modifier = Modifier.padding(horizontal = 12.dp),
         colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
     )

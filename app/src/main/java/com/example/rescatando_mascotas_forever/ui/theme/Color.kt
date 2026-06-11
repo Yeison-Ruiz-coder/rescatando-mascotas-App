@@ -1,5 +1,6 @@
 package com.example.rescatando_mascotas_forever.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -9,3 +10,14 @@ val Pink80 = Color(0xFFEFB8C8)
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
+
+// Web Theme Colors
+val WebDarkBg = Color(0xFF0A0E14)
+val WebCardDark = Color(0xFF161B22)
+val WebYellow = Color(0xFFFFD600)
+val WebVerifiedGreen = Color(0xFF4CAF50)
+
+// Gradients
+val WebPurpleGradient = Brush.verticalGradient(
+    colors = listOf(Color(0xFF9575CD), Color(0xFF7E57C2))
+)

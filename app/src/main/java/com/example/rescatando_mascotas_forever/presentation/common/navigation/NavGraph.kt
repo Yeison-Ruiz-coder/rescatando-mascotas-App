@@ -1,9 +1,11 @@
 package com.example.rescatando_mascotas_forever.presentation.common.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
@@ -17,7 +19,7 @@ import com.example.rescatando_mascotas_forever.presentation.rescatistas.Rescatis
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen
-import com.example.rescatando_mascotas_forever.presentation.profile.ProfileScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.profile.ProfileScreen
 import com.example.rescatando_mascotas_forever.presentation.settings.SettingsScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminHomeScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminFormularioAdopcionScreen
@@ -27,6 +29,9 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacione
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
 
 @Composable
 fun AppNavigation() {
@@ -48,7 +53,21 @@ fun AppNavigation() {
         composable("admin_home") {
             AdminHomeScreen(navController = navController)
         }
-        
+
+        // --- RUTA LISTA DE FUNDACIONES ---
+        composable("fundaciones") {
+            FoundationListScreen(navController = navController)
+        }
+
+        // --- RUTA DETALLE FUNDACIÓN ---
+        composable(
+            route = "foundation_detail/{foundationName}",
+            arguments = listOf(navArgument("foundationName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("foundationName") ?: ""
+            FoundationDetailScreen(foundationName = name, navController = navController)
+        }
+
         // RUTAS PÚBLICAS
         composable("adopciones") {
             AdopcionListScreen(navController = navController)
@@ -82,6 +101,15 @@ fun AppNavigation() {
         }
         composable("configuracion") {
             SettingsScreen(navController = navController)
+        }
+        composable("veterinarias") {
+            VeterinariaScreen(navController = navController)
+        }
+        composable("proceso_adopcion") {
+            ProcesoAdopcionScreen(navController = navController)
+        }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
         }
 
         // RUTAS EXCLUSIVAS ADMIN
