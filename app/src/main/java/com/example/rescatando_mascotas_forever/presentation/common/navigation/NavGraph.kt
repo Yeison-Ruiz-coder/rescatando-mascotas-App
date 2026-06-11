@@ -33,7 +33,11 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminEventosSc
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 @Composable
 fun AppNavigation() {
@@ -78,7 +82,17 @@ fun AppNavigation() {
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }
-        
+        composable("suscripciones") {
+            SubscriptionScreen(navController = navController)
+        }
+        composable(
+            route = "suscripcion_form/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId")
+            SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+        }
+
         // --- BLOQUE EVENTOS ---
         composable("eventos") { backStackEntry ->
             // Obtenemos el ViewModel aquí
@@ -118,7 +132,7 @@ fun AppNavigation() {
             SettingsScreen(navController = navController)
         }
         composable("veterinarias") {
-            VeterinariaScreen(navController = navController)
+           // VeterinariaScreen(navController = navController)
         }
 
         // RUTAS EXCLUSIVAS ADMIN
@@ -148,6 +162,9 @@ fun AppNavigation() {
         }
         composable("admin_reportes_rescate") {
             AdminReportesRescateScreen(navController = navController)
+        }
+        composable("admin_suscripciones") {
+            AdminSuscripcionesScreen(navController = navController)
         }
     }
 }

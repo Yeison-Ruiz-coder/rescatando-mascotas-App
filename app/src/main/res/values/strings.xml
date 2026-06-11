@@ -88,6 +88,7 @@
     <string name="nav_adopt">Adoptar</string>
     <string name="nav_events">Eventos</string>
     <string name="nav_profile">Perfil</string>
+    <string name="nav_subscriptions">Suscripciones</string>
     <string name="nav_search">Buscar</string>
     <string name="nav_menu">Menú</string>
 
@@ -123,6 +124,8 @@
     <string name="admin_action_users_desc">Base de voluntarios</string>
     <string name="admin_action_donations_title">Donaciones</string>
     <string name="admin_action_donations_desc">Flujo de recursos</string>
+    <string name="admin_action_subscriptions_title">Suscripciones</string>
+    <string name="admin_action_subscriptions_desc">Gestionar planes y pagos</string>
 
     <!-- Admin Events Management -->
     <string name="admin_events_new">Nuevo Evento</string>
@@ -154,6 +157,7 @@
     <string name="admin_drawer_rescue_reports">Reportes Rescate</string>
     <string name="admin_drawer_donations">Donaciones</string>
     <string name="admin_drawer_users">Usuarios</string>
+    <string name="admin_drawer_subscriptions">Suscripciones</string>
     <string name="admin_drawer_exit">Salir Modo Admin</string>
 
     <!-- Settings Screen -->
