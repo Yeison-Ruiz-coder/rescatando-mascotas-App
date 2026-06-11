@@ -217,8 +217,10 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
     val navigateAndClose: (String) -> Unit = { route ->
         scope.launch {
             drawerState.close()
-            navController.navigate(route) {
-                launchSingleTop = true
+            if (currentRoute != route) {
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
             }
         }
     }
@@ -227,44 +229,58 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .padding(bottom = 24.dp)
+            .background(Color.White)
     ) {
+        // HEADER ADMIN MODERNO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Brush.horizontalGradient(listOf(Color(0xFF673AB7), Color(0xFF512DA8))))
-                .padding(24.dp)
-                .padding(top = 24.dp)
+                .padding(horizontal = 24.dp, vertical = 40.dp)
         ) {
             Column {
                 Surface(
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.size(72.dp),
                     shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.2f)
+                    color = Color.White.copy(alpha = 0.25f),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
                 ) {
-                    Icon(Icons.Default.AdminPanelSettings, null, tint = Color.White, modifier = Modifier.size(40.dp))
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                        Icon(
+                            imageVector = Icons.Default.AdminPanelSettings, 
+                            contentDescription = null, 
+                            tint = Color.White, 
+                            modifier = Modifier.size(44.dp)
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(R.string.admin_drawer_mode), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("admin@rescatando.com", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.admin_drawer_mode), 
+                    color = Color.White, 
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = "admin@rescatando.com", 
+                    color = Color.White.copy(alpha = 0.85f), 
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Text(stringResource(R.string.admin_drawer_nav), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
+        DrawerSectionHeader(stringResource(R.string.admin_drawer_nav))
         DrawerMenuItem(stringResource(R.string.admin_drawer_dashboard), Icons.Default.Dashboard, isSelected = currentRoute == "admin_home") { navigateAndClose("admin_home") }
         
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
-        
-        Text(stringResource(R.string.admin_drawer_forms), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
+        DrawerSectionHeader(stringResource(R.string.admin_drawer_forms))
         DrawerMenuItem(stringResource(R.string.admin_drawer_adop_form), Icons.Default.Description, isSelected = currentRoute == "admin_formulario_adopcion") { navigateAndClose("admin_formulario_adopcion") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_rescuer_reg), Icons.Default.Badge, isSelected = currentRoute == "admin_registro_rescatista") { navigateAndClose("admin_registro_rescatista") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_enc), Icons.Default.Quiz, isSelected = currentRoute == "admin_encuesta_rescate") { navigateAndClose("admin_encuesta_rescate") }
 
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
-        
-        Text(stringResource(R.string.admin_drawer_management), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF444444))
+        DrawerSectionHeader(stringResource(R.string.admin_drawer_management))
         DrawerMenuItem(stringResource(R.string.admin_action_pets_title), Icons.Default.Pets, isSelected = currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_events), Icons.Default.Event, isSelected = currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
         DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_reports), Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
@@ -274,9 +290,12 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
 
         Spacer(modifier = Modifier.weight(1f))
         
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = Color.LightGray.copy(alpha = 0.5f))
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 24.dp), 
+            color = Color.LightGray.copy(alpha = 0.4f)
+        )
 
-        DrawerMenuItem(stringResource(R.string.admin_drawer_exit), Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color.Red) {
+        DrawerMenuItem(stringResource(R.string.admin_drawer_exit), Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color(0xFFD32F2F)) {
             scope.launch {
                 drawerState.close()
                 com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.setToken(null)
@@ -285,6 +304,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
                 }
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

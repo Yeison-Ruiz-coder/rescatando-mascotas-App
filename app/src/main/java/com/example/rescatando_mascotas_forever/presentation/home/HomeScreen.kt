@@ -47,6 +47,7 @@ fun HomeScreen(
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedCategoria by viewModel.selectedCategoria.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
@@ -85,7 +86,14 @@ fun HomeScreen(
                     .padding(padding)
                     .background(Color(0xFFF6EEE9))
             ) {
-                item { HeaderSection(greeting, firstName) }
+                item { 
+                    HeaderSection(
+                        greeting = greeting, 
+                        userName = firstName,
+                        searchQuery = searchQuery,
+                        onSearchChange = { viewModel.onSearchQueryChange(it) }
+                    ) 
+                }
                 
                 // Nueva sección de Acciones Rápidas
                 item {
@@ -145,11 +153,16 @@ fun HomeScreen(
 }
 
 @Composable
-fun HeaderSection(greeting: String, userName: String) {
+fun HeaderSection(
+    greeting: String, 
+    userName: String,
+    searchQuery: String,
+    onSearchChange: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .background(brush = AppMainGradient)
     ) {
         // Imagen de fondo temática (perros y gatos) con opacidad baja
@@ -158,17 +171,6 @@ fun HeaderSection(greeting: String, userName: String) {
             contentDescription = null,
             modifier = Modifier.fillMaxSize().alpha(0.3f),
             contentScale = ContentScale.Crop
-        )
-
-        // Overlay sutil para mejorar el contraste
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.2f))
-                    )
-                )
         )
 
         Column(
@@ -197,7 +199,6 @@ fun HeaderSection(greeting: String, userName: String) {
                         lineHeight = 34.sp
                     )
                 }
-                // Icono decorativo de patita
                 Icon(
                     imageVector = Icons.Default.Pets,
                     contentDescription = null,
@@ -208,25 +209,38 @@ fun HeaderSection(greeting: String, userName: String) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Surface(
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = Color.White.copy(alpha = 0.25f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(12.dp))
+            // BARRA DE BÚSQUEDA ACTIVA
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                placeholder = { 
                     Text(
                         "Buscar por raza, nombre, ciudad...", 
-                        color = Color.White.copy(alpha = 0.8f), 
-                        fontSize = 14.sp
-                    )
-                }
-            }
+                        color = Color.Gray, 
+                        fontSize = 14.sp 
+                    ) 
+                },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF673AB7)) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onSearchChange("") }) {
+                            Icon(Icons.Default.Close, null, tint = Color.Gray)
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(27.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White.copy(alpha = 0.9f),
+                    disabledContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+                singleLine = true
+            )
         }
     }
 }
