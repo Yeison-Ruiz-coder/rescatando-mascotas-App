@@ -3,7 +3,6 @@ package com.example.rescatando_mascotas_forever.presentation.adopciones
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -15,14 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
@@ -32,23 +30,19 @@ import com.example.rescatando_mascotas_forever.presentation.common.components.Ma
 import com.example.rescatando_mascotas_forever.presentation.common.components.GradientHeader
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdopcionListScreen(navController: NavHostController) {
+fun AdopcionListScreen(
+    navController: NavHostController,
+    viewModel: AdopcionViewModel = viewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    // Datos de prueba para la cuadrícula
-    val mascotasPrueba = listOf(
-        Mascota(1, "Boby", "Perro", 2, "Macho", "Disponible", "Lomas de granada", "Descripción de Boby", "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop", true, true, 1),
-        Mascota(2, "Moly", "Perro", 1, "Hembra", "Disponible", "Lomas de granada", "Descripción de Moly", "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop", true, true, 1),
-        Mascota(3, "Nala", "Perro", 3, "Hembra", "Disponible", "Lomas de granada", "Descripción de Nala", "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=1000&auto=format&fit=crop", true, true, 1),
-        Mascota(4, "Felix", "Gato", 2, "Macho", "Disponible", "Lomas de granada", "Descripción de Felix", "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop", true, true, 1),
-        Mascota(5, "Misifu", "Gato", 1, "Macho", "Disponible", "Lomas de granada", "Descripción de Misifu", "https://www.besame.fm/wp-content/uploads/2025/01/07012025-significado-de-encontrar-un-gato-negro-en-la-calle.png", true, true, 1),
-        Mascota(6, "Luna", "Gato", 2, "Hembra", "Disponible", "Lomas de granada", "Descripción de Luna", "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?q=80&w=1000&auto=format&fit=crop", true, true, 1)
-    )
+    
+    val mascotas by viewModel.mascotas.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
 
     AppDrawer(
         navController = navController,
@@ -66,12 +60,10 @@ fun AdopcionListScreen(navController: NavHostController) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding).background(Color.White)
             ) {
-                // 1. Header Unificado
                 item {
-                    GradientHeader("Adopciones")
+                    GradientHeader(stringResource(R.string.adopt_title))
                 }
 
-                // 2. Buscador Moderno
                 item {
                     Box(
                         modifier = Modifier
@@ -82,7 +74,7 @@ fun AdopcionListScreen(navController: NavHostController) {
                             value = "",
                             onValueChange = {},
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("Buscar por raza, edad o ciudad...") },
+                            placeholder = { Text(stringResource(R.string.adopt_search_hint)) },
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF2E1A7A)) },
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -93,10 +85,9 @@ fun AdopcionListScreen(navController: NavHostController) {
                     }
                 }
 
-                // 3. Título de Sección
                 item {
                     Text(
-                        "Encuentra a tu nuevo mejor amigo",
+                        stringResource(R.string.adopt_subtitle),
                         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -104,34 +95,51 @@ fun AdopcionListScreen(navController: NavHostController) {
                     )
                 }
 
-                // 4. Grilla de Mascotas (2 columnas)
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        val chunks = mascotasPrueba.chunked(2)
-                        chunks.forEach { rowMascotas ->
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                rowMascotas.forEach { mascota ->
-                                    ModernPetCard(mascota, Modifier.weight(1f))
+                if (isLoading) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = Color(0xFF2E1A7A))
+                        }
+                    }
+                } else if (error != null) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
+                            Text(text = error!!, color = Color.Red, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
+                    }
+                } else if (mascotas.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            Text("No hay mascotas disponibles para adopción", color = Color.Gray)
+                        }
+                    }
+                } else {
+                    item {
+                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            val chunks = mascotas.chunked(2)
+                            chunks.forEach { rowMascotas ->
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    rowMascotas.forEach { mascota ->
+                                        ModernPetCard(mascota, navController, Modifier.weight(1f))
+                                    }
+                                    if (rowMascotas.size < 2) {
+                                        repeat(2 - rowMascotas.size) { Spacer(modifier = Modifier.weight(1f)) }
+                                    }
                                 }
-                                if (rowMascotas.size < 2) {
-                                    repeat(2 - rowMascotas.size) { Spacer(modifier = Modifier.weight(1f)) }
-                                }
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
                 }
 
-                // 5. Botón Ver más
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
-                        TextButton(onClick = { }) {
-                            Text("Ver más mascotas rescatadas →", color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
+                        TextButton(onClick = { viewModel.cargarMascotas() }) {
+                            Text(stringResource(R.string.adopt_btn_more), color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
 
-                // 6. Sección Informativa Destacada
                 item {
                     Box(
                         modifier = Modifier
@@ -144,14 +152,14 @@ fun AdopcionListScreen(navController: NavHostController) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "¿Sabías que...?",
+                                    stringResource(R.string.adopt_fact_title),
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    "Adoptar salva dos vidas: la del animal que llevas a casa y la del siguiente que puede ocupar su lugar.",
+                                    stringResource(R.string.adopt_fact_desc),
                                     color = Color.White.copy(alpha = 0.9f),
                                     fontSize = 13.sp,
                                     lineHeight = 18.sp
@@ -168,21 +176,20 @@ fun AdopcionListScreen(navController: NavHostController) {
                     }
                 }
 
-                // 7. Gestión y Requisitos
                 item {
                     Column(modifier = Modifier.padding(24.dp)) {
                         Text(
-                            "Pasos para adoptar",
+                            stringResource(R.string.adopt_steps_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2E1A7A)
                         )
                         Spacer(Modifier.height(16.dp))
                         
-                        AdoptionStepItem(1, "Elige a tu mascota ideal de nuestra lista.")
-                        AdoptionStepItem(2, "Completa el formulario de solicitud oficial.")
-                        AdoptionStepItem(3, "Realizaremos una pequeña entrevista y visita.")
-                        AdoptionStepItem(4, "¡Firma el acta y llévalo a su nuevo hogar!")
+                        AdoptionStepItem(1, stringResource(R.string.adopt_step_1))
+                        AdoptionStepItem(2, stringResource(R.string.adopt_step_2))
+                        AdoptionStepItem(3, stringResource(R.string.adopt_step_3))
+                        AdoptionStepItem(4, stringResource(R.string.adopt_step_4))
                         
                         Spacer(Modifier.height(24.dp))
                         
@@ -192,7 +199,7 @@ fun AdopcionListScreen(navController: NavHostController) {
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Text("Ir al Formulario de Adopción", fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.adopt_btn_form), fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
@@ -204,7 +211,13 @@ fun AdopcionListScreen(navController: NavHostController) {
 }
 
 @Composable
-fun ModernPetCard(mascota: Mascota, modifier: Modifier = Modifier) {
+fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: Modifier = Modifier) {
+    val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
+        mascota.fotoPrincipal
+    } else {
+        "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/${mascota.fotoPrincipal}"
+    }
+
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
@@ -214,7 +227,7 @@ fun ModernPetCard(mascota: Mascota, modifier: Modifier = Modifier) {
         Column {
             Box {
                 Image(
-                    painter = rememberAsyncImagePainter(mascota.fotoPrincipal),
+                    painter = rememberAsyncImagePainter(fullImageUrl),
                     contentDescription = null,
                     modifier = Modifier.fillMaxWidth().height(150.dp),
                     contentScale = ContentScale.Crop
@@ -240,16 +253,31 @@ fun ModernPetCard(mascota: Mascota, modifier: Modifier = Modifier) {
                     fontSize = 16.sp, 
                     color = Color(0xFF2E1A7A)
                 )
+                val ageSuffix = if (mascota.edadAprox == 1.0) stringResource(R.string.pet_age_singular) else stringResource(R.string.pet_age_suffix)
                 Text(
-                    "${mascota.especie} • ${mascota.edadAprox} años", 
+                    "${mascota.especie} • ${mascota.edadAprox ?: 0} $ageSuffix",
                     fontSize = 12.sp, 
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.LocationOn, null, tint = Color.Red.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text(mascota.ubicacion, fontSize = 11.sp, color = Color.Gray)
+                    Text(mascota.ubicacion ?: "Sin ubicación", fontSize = 11.sp, color = Color.Gray)
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Button(
+                    onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                ) {
+                    Icon(Icons.Default.Favorite, null, modifier = Modifier.size(14.dp), tint = Color.White)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Apadrinar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

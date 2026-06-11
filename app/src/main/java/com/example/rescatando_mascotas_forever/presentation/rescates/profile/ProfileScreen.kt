@@ -1,5 +1,9 @@
 package com.example.rescatando_mascotas_forever.presentation.rescates.profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,10 +22,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
@@ -30,8 +40,20 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    val user = remember { sessionManager.getUser() }
+    
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+        // Aquí se llamaría al ViewModel para subir la imagen al servidor
+    }
 
     AppDrawer(
         navController = navController,
@@ -50,7 +72,12 @@ fun ProfileScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 item {
-                    ProfileHeader()
+                    ProfileHeader(
+                        name = user?.nombre ?: "Usuario",
+                        email = user?.email ?: "Sin correo",
+                        avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
+                        onEditClick = { launcher.launch("image/*") }
+                    )
                 }
 
                 item {
@@ -60,7 +87,7 @@ fun ProfileScreen(navController: NavHostController) {
 
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
-                    LogoutButton(navController)
+                    LogoutButton(navController, sessionManager)
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
@@ -69,13 +96,13 @@ fun ProfileScreen(navController: NavHostController) {
 }
 
 @Composable
-fun ProfileHeader() {
+fun ProfileHeader(name: String, email: String, avatarUrl: String?, onEditClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF9C27B0), Color(0xFF3F51B5))
+                    colors = listOf(Color(0xFF7B5EE1), Color(0xFF4C35A3))
                 ),
                 shape = RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp)
             )
@@ -83,30 +110,63 @@ fun ProfileHeader() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Surface(
-                modifier = Modifier.size(120.dp),
-                shape = CircleShape,
-                color = Color.White,
-                shadowElevation = 8.dp
-            ) {
-                Box(contentAlignment = Alignment.Center) {
+            Box(contentAlignment = Alignment.BottomEnd) {
+                Surface(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clickable { onEditClick() },
+                    shape = CircleShape,
+                    color = Color.White,
+                    shadowElevation = 8.dp
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        if (!avatarUrl.isNullOrEmpty()) {
+                            Image(
+                                painter = rememberAsyncImagePainter(avatarUrl),
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(80.dp),
+                                tint = Color(0xFF673AB7)
+                            )
+                        }
+                    }
+                }
+                
+                // Botón flotante para editar foto
+                Surface(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .offset(x = (-4).dp, y = (-4).dp)
+                        .clickable { onEditClick() },
+                    shape = CircleShape,
+                    color = Color(0xFF673AB7),
+                    shadowElevation = 4.dp,
+                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White)
+                ) {
                     Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = Color(0xFF673AB7)
+                        Icons.Default.CameraAlt,
+                        contentDescription = "Cambiar foto",
+                        modifier = Modifier.padding(8.dp),
+                        tint = Color.White
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Yeison",
+                text = name,
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "yeison@example.com",
+                text = email,
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 14.sp
             )
@@ -125,29 +185,29 @@ fun ProfileMenuSection(navController: NavHostController) {
     ) {
         ProfileMenuItem(
             icon = Icons.Default.Favorite,
-            title = "Mis adopciones",
-            subtitle = "Seguimiento de tus solicitudes",
-            onClick = { navController.navigate("proceso_adopcion") }
+            title = stringResource(R.string.profile_my_adoptions),
+            subtitle = stringResource(R.string.profile_adoptions_desc),
+            onClick = { navController.navigate("formulario_adopcion") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
-            icon = Icons.Default.Warning,
-            title = "Mis rescates",
-            subtitle = "Historial de reportes realizados",
+            icon = Icons.Default.List,
+            title = stringResource(R.string.profile_my_rescues),
+            subtitle = stringResource(R.string.profile_rescues_desc),
             onClick = { navController.navigate("ultimos_rescates") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
             icon = Icons.Default.Settings,
-            title = "Configuración",
-            subtitle = "Privacidad y ajustes de la cuenta",
+            title = stringResource(R.string.profile_settings),
+            subtitle = stringResource(R.string.profile_settings_desc),
             onClick = { navController.navigate("configuracion") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
             icon = Icons.Default.Info,
-            title = "Ayuda y Soporte",
-            subtitle = "Contáctanos si tienes dudas",
+            title = stringResource(R.string.profile_support),
+            subtitle = stringResource(R.string.profile_support_desc),
             onClick = { }
         )
     }
@@ -186,9 +246,14 @@ fun ProfileMenuItem(
 }
 
 @Composable
-fun LogoutButton(navController: NavHostController) {
+fun LogoutButton(navController: NavHostController, sessionManager: SessionManager) {
     Button(
+<<<<<<< HEAD:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/rescates/profile/ProfileScreen.kt
         onClick = {
+=======
+        onClick = { 
+            sessionManager.logout()
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/profile/ProfileScreen.kt
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
             }
@@ -202,6 +267,6 @@ fun LogoutButton(navController: NavHostController) {
     ) {
         Icon(Icons.AutoMirrored.Filled.ExitToApp, null, tint = Color.White)
         Spacer(modifier = Modifier.width(12.dp))
-        Text("Cerrar Sesión", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
+        Text(stringResource(R.string.profile_logout), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
     }
 }

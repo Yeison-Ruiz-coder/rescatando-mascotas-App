@@ -1,12 +1,18 @@
 package com.example.rescatando_mascotas_forever.presentation.common.navigation
 
 import androidx.compose.runtime.Composable
+<<<<<<< HEAD
+=======
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
+import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
@@ -15,6 +21,8 @@ import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRes
 import com.example.rescatando_mascotas_forever.presentation.rescates.FormularioRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.FormularioAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoDetalleScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
 import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
@@ -28,11 +36,18 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminEventosSc
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+<<<<<<< HEAD
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
 import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
+=======
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
 
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -46,6 +61,9 @@ fun AppNavigation() {
         }
         composable("login") {
             LoginScreen(navController = navController)
+        }
+        composable("register") {
+            RegisterScreen(navController = navController)
         }
         composable("home") {
             HomeScreen(navController = navController)
@@ -87,14 +105,48 @@ fun AppNavigation() {
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }
-        composable("eventos") {
-            EventoScreen(navController = navController)
+        composable("suscripciones") {
+            SubscriptionScreen(navController = navController)
         }
+        composable(
+            route = "suscripcion_form/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId")
+            SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+        }
+
+        // --- BLOQUE EVENTOS ---
+        composable("eventos") { backStackEntry ->
+            // Obtenemos el ViewModel aquí
+            val viewModel: EventoViewModel = viewModel(backStackEntry)
+            EventoScreen(navController = navController, viewModel = viewModel)
+        }
+        
+        composable(
+            route = "eventos/{eventoId}",
+            arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
+            
+            // BUSCAMOS EL VIEWMODEL DE LA PANTALLA ANTERIOR ("eventos")
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("eventos")
+            }
+            val viewModel: EventoViewModel = viewModel(parentEntry)
+            
+            EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
+        }
+        // ----------------------
+
         composable("rescatista_contactos") {
             RescatistaContactosScreen(navController = navController)
         }
         composable("encuesta_rescate") {
             EncuestaRescateScreen(navController = navController)
+        }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
         }
         composable("perfil") {
             ProfileScreen(navController = navController)
@@ -103,6 +155,7 @@ fun AppNavigation() {
             SettingsScreen(navController = navController)
         }
         composable("veterinarias") {
+<<<<<<< HEAD
             VeterinariaScreen(navController = navController)
         }
         composable("proceso_adopcion") {
@@ -110,6 +163,9 @@ fun AppNavigation() {
         }
         composable("nosotros") {
             NosotrosScreen(navController = navController)
+=======
+           // VeterinariaScreen(navController = navController)
+>>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
         }
 
         // RUTAS EXCLUSIVAS ADMIN
@@ -139,6 +195,9 @@ fun AppNavigation() {
         }
         composable("admin_reportes_rescate") {
             AdminReportesRescateScreen(navController = navController)
+        }
+        composable("admin_suscripciones") {
+            AdminSuscripcionesScreen(navController = navController)
         }
     }
 }

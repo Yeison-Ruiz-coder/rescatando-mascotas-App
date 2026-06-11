@@ -1,6 +1,8 @@
 package com.example.rescatando_mascotas_forever.presentation.settings
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,12 +15,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
@@ -37,10 +43,10 @@ fun SettingsScreen(navController: NavHostController) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Configuración", fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.settings_back))
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -58,37 +64,101 @@ fun SettingsScreen(navController: NavHostController) {
                 item { Spacer(modifier = Modifier.height(20.dp)) }
 
                 item {
-                    SettingsSectionTitle("Cuenta")
+                    SettingsSectionTitle(stringResource(R.string.settings_section_account))
                     SettingsGroup {
-                        SettingsItem(Icons.Default.Person, "Editar Perfil", "Nombre, correo y foto") { }
+                        SettingsItem(Icons.Default.Person, stringResource(R.string.settings_edit_profile), stringResource(R.string.settings_edit_profile_desc)) { }
                         SettingsDivider()
-                        SettingsItem(Icons.Default.Lock, "Seguridad", "Cambiar contraseña") { }
+                        SettingsItem(Icons.Default.Lock, stringResource(R.string.settings_security), stringResource(R.string.settings_security_desc)) { }
                         SettingsDivider()
-                        SettingsItem(Icons.Default.Notifications, "Notificaciones", "Alertas de rescates y eventos") { }
+                        SettingsItem(Icons.Default.Notifications, stringResource(R.string.settings_notifications), stringResource(R.string.settings_notifications_desc)) { }
                     }
                 }
 
                 item {
-                    SettingsSectionTitle("Preferencias")
+                    SettingsSectionTitle(stringResource(R.string.settings_section_preferences))
                     SettingsGroup {
-                        SettingsToggleItem(Icons.Default.Face, "Modo Oscuro", "Tema visual de la app")
+                        // Selector de Idioma
+                        LanguageSelectorItem()
                         SettingsDivider()
-                        SettingsItem(Icons.Default.LocationOn, "Ubicación", "Permisos de ciudad actual") { }
+                        SettingsToggleItem(Icons.Default.Face, stringResource(R.string.settings_dark_mode), stringResource(R.string.settings_dark_mode_desc))
+                        SettingsDivider()
+                        SettingsItem(Icons.Default.LocationOn, stringResource(R.string.settings_location), stringResource(R.string.settings_location_desc)) { }
                     }
                 }
 
                 item {
-                    SettingsSectionTitle("Legal")
+                    SettingsSectionTitle(stringResource(R.string.settings_section_legal))
                     SettingsGroup {
-                        SettingsItem(Icons.Default.Info, "Términos y Condiciones", "Uso de la plataforma") { }
+                        SettingsItem(Icons.Default.Info, stringResource(R.string.settings_terms), stringResource(R.string.settings_terms_desc)) { }
                         SettingsDivider()
-                        SettingsItem(Icons.Default.Build, "Política de Privacidad", "Protección de datos") { }
+                        SettingsItem(Icons.Default.Build, stringResource(R.string.settings_privacy), stringResource(R.string.settings_privacy_desc)) { }
                     }
                 }
 
                 item { Spacer(modifier = Modifier.height(40.dp)) }
             }
         }
+    }
+}
+
+@Composable
+fun LanguageSelectorItem() {
+    val currentLanguage = AppCompatDelegate.getApplicationLocales()[0]?.language ?: "es"
+    
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Language, null, tint = Color(0xFF673AB7), modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.settings_language), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
+                Text(stringResource(R.string.settings_language_desc), fontSize = 12.sp, color = Color.Gray)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            LanguageButton(
+                text = stringResource(R.string.lang_spanish),
+                isSelected = currentLanguage == "es",
+                onClick = { 
+                    val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("es")
+                    AppCompatDelegate.setApplicationLocales(appLocale)
+                },
+                modifier = Modifier.weight(1f)
+            )
+            LanguageButton(
+                text = stringResource(R.string.lang_english),
+                isSelected = currentLanguage == "en",
+                onClick = { 
+                    val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("en")
+                    AppCompatDelegate.setApplicationLocales(appLocale)
+                },
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+fun LanguageButton(text: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val backgroundColor = if (isSelected) Color(0xFF673AB7) else Color.White
+    val contentColor = if (isSelected) Color.White else Color(0xFF673AB7)
+    val borderColor = Color(0xFF673AB7)
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(backgroundColor)
+            .border(1.dp, borderColor, RoundedCornerShape(10.dp))
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = text, color = contentColor, fontWeight = FontWeight.Bold, fontSize = 13.sp)
     }
 }
 
