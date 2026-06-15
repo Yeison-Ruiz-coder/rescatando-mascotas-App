@@ -13,10 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 
 data class DonacionRegistro(
@@ -62,7 +64,7 @@ fun AdminDonacionesScreen(navController: NavHostController) {
                     .padding(padding)
                     .background(Color(0xFFF8F9FA))
             ) {
-                // Header Admin
+                // Header Admin Traducido
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -70,28 +72,49 @@ fun AdminDonacionesScreen(navController: NavHostController) {
                         .padding(24.dp)
                 ) {
                     Column {
-                        Text("Registro de Donaciones", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text("Monitorea los aportes de la comunidad", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text(
+                            text = stringResource(R.string.admin_donations_title),
+                            color = Color.White,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(R.string.admin_donations_subtitle),
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp
+                        )
                     }
                 }
 
-                // Resumen rápido
+                // Resumen rápido con StatCard (con texto oscuro corregido)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    StatCard("Total Mes", "$1.2M", Icons.Default.TrendingUp, Color(0xFF4CAF50), Modifier.weight(1f))
-                    StatCard("Donantes", "42", Icons.Default.Groups, Color(0xFF2196F3), Modifier.weight(1f))
+                    StatCard(
+                        title = stringResource(R.string.admin_donations_stat_total),
+                        value = "$1.2M",
+                        icon = Icons.Default.TrendingUp,
+                        color = Color(0xFF4CAF50),
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        title = stringResource(R.string.admin_donations_stat_donors),
+                        value = "42",
+                        icon = Icons.Default.Groups,
+                        color = Color(0xFF2196F3),
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 Text(
-                    "ÚLTIMOS APORTES",
+                    text = stringResource(R.string.admin_donations_latest),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Gray
+                    color = Color(0xFF333333) // Color oscuro para visibilidad
                 )
 
                 LazyColumn(
@@ -110,6 +133,14 @@ fun AdminDonacionesScreen(navController: NavHostController) {
 
 @Composable
 fun DonacionRegistroCard(registro: DonacionRegistro) {
+    // Mapeo de tipos para traducción
+    val tipoTraducido = when(registro.tipo) {
+        "Económica" -> stringResource(R.string.admin_donations_type_money)
+        "Alimento" -> stringResource(R.string.admin_donations_type_food)
+        "Insumos" -> stringResource(R.string.admin_donations_type_supplies)
+        else -> registro.tipo
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -146,18 +177,18 @@ fun DonacionRegistroCard(registro: DonacionRegistro) {
                     )
                 }
             }
-            
+
             Spacer(Modifier.width(16.dp))
-            
+
             Column(Modifier.weight(1f)) {
-                Text(registro.donante, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text(registro.fecha, color = Color.Gray, fontSize = 12.sp)
+                Text(text = registro.donante, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
+                Text(text = "${registro.fecha} • $tipoTraducido", color = Color(0xFF555555), fontSize = 12.sp)
             }
-            
+
             Text(
-                registro.monto,
+                text = registro.monto,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF333333),
+                color = Color(0xFF222222),
                 fontSize = 15.sp
             )
         }

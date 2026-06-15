@@ -404,6 +404,16 @@
     <string name="donations_btn_copy">Copiar Datos</string>
     <string name="donations_foundation_name">Fundación Rescatando Mascotas</string>
 
+    <!-- Admin Donations -->
+    <string name="admin_donations_title">Registro de Donaciones</string>
+    <string name="admin_donations_subtitle">Monitorea los aportes de la comunidad</string>
+    <string name="admin_donations_stat_total">Total Mes</string>
+    <string name="admin_donations_stat_donors">Donantes</string>
+    <string name="admin_donations_latest">ÚLTIMOS APORTES</string>
+    <string name="admin_donations_type_money">Económica</string>
+    <string name="admin_donations_type_food">Alimento</string>
+    <string name="admin_donations_type_supplies">Insumos</string>
+
     <!-- Nosotros Screen -->
     <string name="about_title">Sobre Nosotros</string>
     <string name="about_hero_title">Dedicados a darles\nuna segunda oportunidad</string>
