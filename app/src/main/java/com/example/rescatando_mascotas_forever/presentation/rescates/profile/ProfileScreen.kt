@@ -13,12 +13,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,7 +35,6 @@ import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +51,6 @@ fun ProfileScreen(navController: NavHostController) {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         selectedImageUri = uri
-        // Aquí se llamaría al ViewModel para subir la imagen al servidor
     }
 
     AppDrawer(
@@ -138,7 +136,6 @@ fun ProfileHeader(name: String, email: String, avatarUrl: String?, onEditClick: 
                     }
                 }
                 
-                // Botón flotante para editar foto
                 Surface(
                     modifier = Modifier
                         .size(36.dp)
@@ -191,7 +188,7 @@ fun ProfileMenuSection(navController: NavHostController) {
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
         ProfileMenuItem(
-            icon = Icons.Default.List,
+            icon = Icons.AutoMirrored.Filled.List,
             title = stringResource(R.string.profile_my_rescues),
             subtitle = stringResource(R.string.profile_rescues_desc),
             onClick = { navController.navigate("ultimos_rescates") }
@@ -248,12 +245,8 @@ fun ProfileMenuItem(
 @Composable
 fun LogoutButton(navController: NavHostController, sessionManager: SessionManager) {
     Button(
-<<<<<<< HEAD:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/rescates/profile/ProfileScreen.kt
-        onClick = {
-=======
         onClick = { 
             sessionManager.logout()
->>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc:app/src/main/java/com/example/rescatando_mascotas_forever/presentation/profile/ProfileScreen.kt
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
             }

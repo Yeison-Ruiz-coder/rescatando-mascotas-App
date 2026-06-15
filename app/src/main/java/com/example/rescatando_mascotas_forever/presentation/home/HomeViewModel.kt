@@ -5,7 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-<<<<<<< HEAD
+import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
+import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -17,19 +18,10 @@ data class Foundation(
     val isVerified: Boolean = true
 )
 
-class HomeViewModel : ViewModel() {
-=======
-import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
-import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-
 class HomeViewModel(
     private val eventoRepository: EventoRepository = EventoRepository(RetrofitClient.eventoApi),
     private val mascotaRepository: MascotaRepository = MascotaRepository()
 ) : ViewModel() {
->>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
 
     private val _mascotas = MutableStateFlow<List<Mascota>>(emptyList())
     val mascotas: StateFlow<List<Mascota>> = _mascotas
@@ -40,10 +32,19 @@ class HomeViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // --- ESTADOS DE FUNDACIONES ---
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
+    // --- ESTADOS DE BÚSQUEDA Y CATEGORÍAS ---
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
+    private val _selectedCategoria = MutableStateFlow("Todos")
+    val selectedCategoria: StateFlow<String> = _selectedCategoria
+
+    private var todasLasMascotasList: List<Mascota> = emptyList()
+
+    // --- ESTADOS DE FUNDACIONES ---
     private val _selectedCity = MutableStateFlow("Todas las ciudades")
     val selectedCity: StateFlow<String> = _selectedCity
 
@@ -73,8 +74,18 @@ class HomeViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    init {
+        cargarDatosHome()
+    }
+
+    fun selectCategoria(categoria: String) {
+        _selectedCategoria.value = categoria
+        filtrarMascotasLocalmente(categoria, _searchQuery.value)
+    }
+
     fun onSearchQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
+        filtrarMascotasLocalmente(_selectedCategoria.value, newQuery)
     }
 
     fun onCitySelected(city: String) {
@@ -84,32 +95,6 @@ class HomeViewModel(
     fun clearFilters() {
         _searchQuery.value = ""
         _selectedCity.value = "Todas las ciudades"
-    }
-
-    private val _selectedCategoria = MutableStateFlow("Todos")
-    val selectedCategoria: StateFlow<String> = _selectedCategoria
-
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery: StateFlow<String> = _searchQuery
-
-    private var todasLasMascotasList: List<Mascota> = emptyList()
-
-    init {
-        cargarDatosHome()
-    }
-
-<<<<<<< HEAD
-    fun cargarMascotas() {
-        // Lógica de carga de mascotas si es necesaria
-=======
-    fun selectCategoria(categoria: String) {
-        _selectedCategoria.value = categoria
-        filtrarMascotasLocalmente(categoria, _searchQuery.value)
-    }
-
-    fun onSearchQueryChange(query: String) {
-        _searchQuery.value = query
-        filtrarMascotasLocalmente(_selectedCategoria.value, query)
     }
 
     private fun filtrarMascotasLocalmente(categoria: String, query: String) {
@@ -143,26 +128,26 @@ class HomeViewModel(
             _isLoading.value = true
             _error.value = null
             
-            // 1. Cargamos mascotas desde Railway
+            // 1. Cargamos mascotas
             mascotaRepository.getMascotas().collect { result ->
                 result.onSuccess { response ->
                     todasLasMascotasList = response.data.data
                     filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
                 }.onFailure { e ->
-                    _error.value = "Error al conectar con la base de datos: ${e.message}"
+                    _error.value = "Error al cargar mascotas: ${e.message}"
                 }
             }
             
-            // 2. Cargamos eventos reales
+            // 2. Cargamos eventos
             eventoRepository.getEventos().collect { result ->
                 result.onSuccess {
                     _eventos.value = it.take(3) 
                 }.onFailure {
+                    // Silently fail or log for events
                 }
             }
             
             _isLoading.value = false
         }
->>>>>>> 5bd816f6f897ad38f7e94b1cad096ff5e47b8ffc
     }
 }
