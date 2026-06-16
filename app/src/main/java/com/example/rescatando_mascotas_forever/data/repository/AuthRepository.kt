@@ -12,7 +12,7 @@ class AuthRepository {
         return authApi.login(LoginRequest(email, password))
     }
 
-    suspend fun register(nombre: String, email: String, password: String, passwordConfirmation: String): AuthResponse {
-        return authApi.register(RegisterRequest(nombre = nombre, email = email, password = password, passwordConfirmation = passwordConfirmation))
+    suspend fun register(request: RegisterRequest): AuthResponse {
+        return authApi.register(request)
     }
 }

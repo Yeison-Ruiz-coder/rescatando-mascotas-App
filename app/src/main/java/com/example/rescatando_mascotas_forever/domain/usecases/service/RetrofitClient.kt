@@ -1,6 +1,7 @@
 package com.example.rescatando_mascotas_forever.data.service
 
 import android.content.Context
+import com.example.rescatando_mascotas_forever.utils.Constants
 import com.example.rescatando_mascotas_forever.utils.TokenManager
 import okhttp3.OkHttpClient
 import okhttp3.Interceptor
@@ -30,7 +31,7 @@ class AuthInterceptor(
 
 object RetrofitClient {
 
-    private const val BASE_URL ="https://rescatando-mascotas-backend-final-production.up.railway.app/"
+    private val BASE_URL = Constants.BASE_URL
 
     fun create(context: Context): ApiService {
 
