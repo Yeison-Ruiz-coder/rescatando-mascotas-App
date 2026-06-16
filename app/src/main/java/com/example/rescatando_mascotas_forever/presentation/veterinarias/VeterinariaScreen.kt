@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.example.rescatando_mascotas_forever.data.network.models.Veterinaria
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +45,9 @@ fun VeterinariaScreen(
         Scaffold(
             topBar = {
                 MainTopBar(drawerState = drawerState, scope = scope)
+            },
+            bottomBar = {
+                AppBottomBar(navController = navController)
             }
         ) { padding ->
             Column(
@@ -52,7 +56,7 @@ fun VeterinariaScreen(
                     .padding(padding)
                     .background(Color(0xFFF6EEE9))
             ) {
-                // Cabecera con degradado igual a Inicio
+                // Cabecera con degradado
                 HeaderVeterinarias()
 
                 when (val state = uiState) {

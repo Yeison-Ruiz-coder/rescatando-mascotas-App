@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
@@ -46,6 +47,8 @@ fun HomeScreen(
     val mascotas by viewModel.mascotas.collectAsState()
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val selectedCategoria by viewModel.selectedCategoria.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
     
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
@@ -84,16 +87,25 @@ fun HomeScreen(
                     .padding(padding)
                     .background(Color(0xFFF6EEE9))
             ) {
-                item { HeaderSection(greeting, firstName) }
+                item { 
+                    HeaderSection(
+                        greeting = greeting, 
+                        userName = firstName,
+                        searchQuery = searchQuery,
+                        onSearchChange = { viewModel.onSearchQueryChange(it) }
+                    ) 
+                }
                 
-                // Nueva sección de Acciones Rápidas
                 item {
                     QuickActionsRow(navController)
                 }
 
                 item {
                     SectionTitle("Explorar por categoría")
-                    CategoryRow()
+                    CategoryRow(
+                        selectedCategoria = selectedCategoria,
+                        onCategoriaSelected = { viewModel.selectCategoria(it) }
+                    )
                 }
 
                 item {
@@ -141,30 +153,23 @@ fun HomeScreen(
 }
 
 @Composable
-fun HeaderSection(greeting: String, userName: String) {
+fun HeaderSection(
+    greeting: String, 
+    userName: String,
+    searchQuery: String,
+    onSearchChange: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .background(brush = AppMainGradient)
     ) {
-        // Imagen de fondo temática (perros y gatos) con opacidad baja
         Image(
             painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1548199973-03c40e556566?auto=format&fit=crop&w=800&q=80"),
             contentDescription = null,
             modifier = Modifier.fillMaxSize().alpha(0.3f),
             contentScale = ContentScale.Crop
-        )
-
-        // Overlay sutil para mejorar el contraste
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.2f))
-                    )
-                )
         )
 
         Column(
@@ -193,7 +198,6 @@ fun HeaderSection(greeting: String, userName: String) {
                         lineHeight = 34.sp
                     )
                 }
-                // Icono decorativo de patita
                 Icon(
                     imageVector = Icons.Default.Pets,
                     contentDescription = null,
@@ -204,25 +208,37 @@ fun HeaderSection(greeting: String, userName: String) {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Surface(
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(24.dp),
-                color = Color.White.copy(alpha = 0.25f),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f))
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(12.dp))
+            TextField(
+                value = searchQuery,
+                onValueChange = onSearchChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                placeholder = { 
                     Text(
                         "Buscar por raza, nombre, ciudad...", 
-                        color = Color.White.copy(alpha = 0.8f), 
-                        fontSize = 14.sp
-                    )
-                }
-            }
+                        color = Color.Gray, 
+                        fontSize = 14.sp 
+                    ) 
+                },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF673AB7)) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onSearchChange("") }) {
+                            Icon(Icons.Default.Close, null, tint = Color.Gray)
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(27.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White.copy(alpha = 0.9f),
+                    disabledContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+                singleLine = true
+            )
         }
     }
 }
@@ -307,23 +323,30 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun CategoryRow() {
+fun CategoryRow(
+    selectedCategoria: String,
+    onCategoriaSelected: (String) -> Unit
+) {
     val categories = listOf(
-        CategoryItem("Perros", Icons.Default.Pets, Color(0xFF5E49BF), true),
-        CategoryItem("Gatos", Icons.Default.Pets, Color.White, false),
-        CategoryItem("Conejos", Icons.Default.Pets, Color.White, false),
-        CategoryItem("Aves", Icons.Default.Pets, Color.White, false)
+        CategoryItem("Todos", Icons.Default.Apps, Color(0xFF5E49BF)),
+        CategoryItem("Perros", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Gatos", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Conejos", Icons.Default.Pets, Color(0xFF5E49BF)),
+        CategoryItem("Aves", Icons.Default.Pets, Color(0xFF5E49BF))
     )
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(categories) { cat ->
+            val isSelected = cat.name == selectedCategoria
             Surface(
                 shape = RoundedCornerShape(20.dp),
-                color = cat.bgColor,
+                color = if (isSelected) Color(0xFF5E49BF) else Color.White,
                 shadowElevation = 2.dp,
-                modifier = Modifier.height(40.dp)
+                modifier = Modifier
+                    .height(40.dp)
+                    .clickable { onCategoriaSelected(cat.name) }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -333,12 +356,12 @@ fun CategoryRow() {
                         cat.icon, 
                         contentDescription = null, 
                         modifier = Modifier.size(16.dp),
-                        tint = if (cat.isSelected) Color.White else Color.Gray
+                        tint = if (isSelected) Color.White else Color.Gray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         cat.name, 
-                        color = if (cat.isSelected) Color.White else Color.Black,
+                        color = if (isSelected) Color.White else Color.Black,
                         fontSize = 14.sp
                     )
                 }
@@ -371,7 +394,6 @@ fun MascotaCardVertical(mascota: Mascota) {
                     modifier = Modifier.fillMaxWidth().height(160.dp),
                     contentScale = ContentScale.Crop
                 )
-                // Badge de estado
                 Surface(
                     modifier = Modifier.padding(12.dp).align(Alignment.TopStart),
                     shape = RoundedCornerShape(8.dp),
@@ -385,7 +407,6 @@ fun MascotaCardVertical(mascota: Mascota) {
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
-                // Botón favorito
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp)
@@ -452,7 +473,6 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
                     modifier = Modifier.padding(12.dp), 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Contenedor de Fecha
                     Box(
                         modifier = Modifier
                             .size(64.dp)
@@ -461,7 +481,6 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            // Intentamos extraer día y mes
                             val parts = evento.fecha.split(" ")
                             val dia = if (parts.isNotEmpty()) parts[0] else "00"
                             val mes = if (parts.size > 1) parts[1].take(3).uppercase() else "MES"
@@ -502,7 +521,6 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
                             )
                         }
                     }
-                    // Etiqueta de Tipo (Ej: Gratis, Concurso)
                     Surface(
                         color = Color(0xFF673AB7).copy(alpha = 0.1f),
                         shape = RoundedCornerShape(8.dp)
@@ -521,5 +539,4 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
     }
 }
 
-data class CategoryItem(val name: String, val icon: ImageVector, val bgColor: Color, val isSelected: Boolean)
-data class EventData(val date: String, val title: String, val location: String, val price: String, val statusColor: Color)
+data class CategoryItem(val name: String, val icon: ImageVector, val bgColor: Color)

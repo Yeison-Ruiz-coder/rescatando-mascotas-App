@@ -24,7 +24,7 @@ import com.example.rescatando_mascotas_forever.presentation.rescatistas.Rescatis
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen
-import com.example.rescatando_mascotas_forever.presentation.profile.ProfileScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.profile.ProfileScreen
 import com.example.rescatando_mascotas_forever.presentation.settings.SettingsScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminHomeScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminFormularioAdopcionScreen
@@ -33,8 +33,14 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminEventosSc
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -58,7 +64,21 @@ fun AppNavigation() {
         composable("admin_home") {
             AdminHomeScreen(navController = navController)
         }
-        
+
+        // --- RUTA LISTA DE FUNDACIONES ---
+        composable("fundaciones") {
+            FoundationListScreen(navController = navController)
+        }
+
+        // --- RUTA DETALLE FUNDACIÓN ---
+        composable(
+            route = "foundation_detail/{foundationName}",
+            arguments = listOf(navArgument("foundationName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("foundationName") ?: ""
+            FoundationDetailScreen(foundationName = name, navController = navController)
+        }
+
         // RUTAS PÚBLICAS
         composable("adopciones") {
             AdopcionListScreen(navController = navController)
@@ -78,10 +98,19 @@ fun AppNavigation() {
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }
-        
+        composable("suscripciones") {
+            SubscriptionScreen(navController = navController)
+        }
+        composable(
+            route = "suscripcion_form/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId")
+            SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+        }
+
         // --- BLOQUE EVENTOS ---
         composable("eventos") { backStackEntry ->
-            // Obtenemos el ViewModel aquí
             val viewModel: EventoViewModel = viewModel(backStackEntry)
             EventoScreen(navController = navController, viewModel = viewModel)
         }
@@ -91,16 +120,12 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
         ) { backStackEntry ->
             val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
-            
-            // BUSCAMOS EL VIEWMODEL DE LA PANTALLA ANTERIOR ("eventos")
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry("eventos")
             }
             val viewModel: EventoViewModel = viewModel(parentEntry)
-            
             EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
         }
-        // ----------------------
 
         composable("rescatista_contactos") {
             RescatistaContactosScreen(navController = navController)
@@ -119,6 +144,9 @@ fun AppNavigation() {
         }
         composable("veterinarias") {
             VeterinariaScreen(navController = navController)
+        }
+        composable("proceso_adopcion") {
+            ProcesoAdopcionScreen(navController = navController)
         }
 
         // RUTAS EXCLUSIVAS ADMIN
@@ -148,6 +176,9 @@ fun AppNavigation() {
         }
         composable("admin_reportes_rescate") {
             AdminReportesRescateScreen(navController = navController)
+        }
+        composable("admin_suscripciones") {
+            AdminSuscripcionesScreen(navController = navController)
         }
     }
 }

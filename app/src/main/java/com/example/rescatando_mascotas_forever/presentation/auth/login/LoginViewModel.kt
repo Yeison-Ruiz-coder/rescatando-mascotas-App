@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.data.network.models.User
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +48,7 @@ class LoginViewModel(
                 
                 if (user != null && token != null) {
                     sessionManager.saveSession(token, user)
+                    RetrofitClient.setToken(token)
                     _state.value = LoginState.Success(user)
                 } else {
                     _state.value = LoginState.Error("Error: El servidor no devolvió el token o el usuario correctamente.")
