@@ -27,7 +27,7 @@ class LoginViewModel(
 
     fun login(email: String, password: String, sessionManager: SessionManager) {
         val cleanEmail = email.trim()
-        val cleanPassword = password.trim()
+        val cleanPassword = password // No trim en contraseña
 
         if (cleanEmail.isBlank() || cleanPassword.isBlank()) {
             _state.value = LoginState.Error("Por favor completa todos los campos")
@@ -43,8 +43,8 @@ class LoginViewModel(
             _state.value = LoginState.Loading
             try {
                 val response = repository.login(cleanEmail, cleanPassword)
-                val user = response.data?.user
-                val token = response.data?.token
+                val user = response.data?.user ?: response.user
+                val token = response.data?.token ?: response.token
                 
                 if (user != null && token != null) {
                     sessionManager.saveSession(token, user)

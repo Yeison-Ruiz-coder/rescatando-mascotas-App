@@ -17,9 +17,13 @@ data class User(
 )
 
 data class AuthResponse(
-    val success: Boolean,
-    val message: String?,
-    val data: AuthData?
+    val success: Boolean = true,
+    val message: String? = null,
+    val data: AuthData? = null,
+    @SerializedName(value = "token", alternate = ["access_token", "accessToken"])
+    val token: String? = null,
+    @SerializedName(value = "user", alternate = ["usuario"])
+    val user: User? = null
 )
 
 data class AuthData(
@@ -35,10 +39,16 @@ data class LoginRequest(
 )
 
 data class RegisterRequest(
+    @SerializedName("nombre")
     val nombre: String,
+    @SerializedName("apellidos")
+    val apellidos: String = "",
+    @SerializedName("email")
     val email: String,
+    @SerializedName("password")
     val password: String,
     @SerializedName("password_confirmation")
     val passwordConfirmation: String,
+    @SerializedName("tipo")
     val tipo: String = "user"
 )
