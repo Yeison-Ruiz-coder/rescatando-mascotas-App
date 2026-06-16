@@ -3,7 +3,6 @@ package com.example.rescatando_mascotas_forever.presentation.auth.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
-import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,7 +56,6 @@ class RegisterViewModel(
                     val token = response.data?.token ?: response.token
                     if (user != null && token != null) {
                         sessionManager.saveSession(token, user)
-                        RetrofitClient.setToken(token)
                     }
                     _state.value = RegisterState.Success
                 } else {

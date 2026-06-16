@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,8 @@ fun RegisterScreen(
 
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
 
     LaunchedEffect(state) {
         if (state is RegisterState.Success) {
@@ -215,7 +219,7 @@ fun RegisterScreen(
                         Spacer(modifier = Modifier.height(30.dp))
 
                         Button(
-                            onClick = { viewModel.register(name, email, password, confirmPassword) },
+                            onClick = { viewModel.register(name, email, password, confirmPassword, sessionManager) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp),
