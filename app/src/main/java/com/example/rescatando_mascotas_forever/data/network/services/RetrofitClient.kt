@@ -4,7 +4,6 @@ import com.example.rescatando_mascotas_forever.data.network.api.*
 import com.example.rescatando_mascotas_forever.utils.Constants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -18,9 +17,10 @@ object RetrofitClient {
     }
 
     private val authInterceptor = Interceptor { chain ->
-        val requestBuilder = chain.request().newBuilder()
-        requestBuilder.addHeader("Accept", "application/json") // Forzar respuesta JSON
-        requestBuilder.addHeader("Content-Type", "application/json")
+        val original = chain.request()
+        val requestBuilder = original.newBuilder()
+            .addHeader("Accept", "application/json")
+            .addHeader("Content-Type", "application/json")
 
         authToken?.let {
             requestBuilder.addHeader("Authorization", "Bearer $it")
@@ -48,7 +48,6 @@ object RetrofitClient {
             .build()
     }
 
-    // Instancias de API centralizadas
     val authApi: AuthApi by lazy { retrofit.create(AuthApi::class.java) }
     val mascotaApi: MascotaApi by lazy { retrofit.create(MascotaApi::class.java) }
     val eventoApi: EventoApi by lazy { retrofit.create(EventoApi::class.java) }
@@ -56,8 +55,4 @@ object RetrofitClient {
     val adopcionApi: AdopcionApi by lazy { retrofit.create(AdopcionApi::class.java) }
     val veterinariaApi: VeterinariaApi by lazy { retrofit.create(VeterinariaApi::class.java) }
     val suscripcionApi: SuscripcionApi by lazy { retrofit.create(SuscripcionApi::class.java) }
-
-    fun <T> createService(serviceClass: Class<T>): T {
-        return retrofit.create(serviceClass)
-    }
 }

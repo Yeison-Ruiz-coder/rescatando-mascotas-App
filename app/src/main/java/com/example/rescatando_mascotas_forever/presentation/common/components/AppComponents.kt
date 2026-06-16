@@ -190,24 +190,38 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
             Column {
                 Icon(Icons.Default.AccountCircle, null, tint = Color.White, modifier = Modifier.size(64.dp))
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(R.string.drawer_hello, "Yeison"), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("usuario@ejemplo.com", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text(stringResource(R.string.drawer_hello, "Usuario"), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text("Bienvenido a Rescatando Mascotas", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
             }
         }
         Spacer(Modifier.height(16.dp))
-        // TEXTO EN GRIS OSCURO (#333333)
+        
         DrawerMenuItem(stringResource(R.string.nav_home), Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
         DrawerMenuItem(stringResource(R.string.nav_profile), Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
         
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
-        DrawerSectionHeader(stringResource(R.string.drawer_section_management))
+        DrawerSectionHeader("COMUNIDAD Y APOYO")
         
-        DrawerMenuItem(stringResource(R.string.nav_adopt), Icons.Default.Favorite, currentRoute == "adopciones") { navigateAndClose("adopciones") }
-        DrawerMenuItem(stringResource(R.string.home_section_report), Icons.Default.AddCircle, currentRoute == "formulario_rescate", Color.Red) { navigateAndClose("formulario_rescate") }
+        DrawerMenuItem("Solicitud Adopción", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
+        DrawerMenuItem("Suscripciones", Icons.Default.CardMembership, currentRoute == "suscripciones") { navigateAndClose("suscripciones") }
+        DrawerMenuItem("Donaciones", Icons.Default.VolunteerActivism, currentRoute == "donaciones") { navigateAndClose("donaciones") }
+        DrawerMenuItem("Últimos Rescates", Icons.Default.History, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
+        
+        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+        DrawerSectionHeader("SERVICIOS")
+        
+        DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
+        DrawerMenuItem("Voluntarios", Icons.Default.Groups, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
+        
+        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+        DrawerSectionHeader("INFORMACIÓN")
+        DrawerMenuItem("Nosotros", Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
+        DrawerMenuItem("Configuración", Icons.Default.Settings, currentRoute == "configuracion") { navigateAndClose("configuracion") }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(24.dp))
         DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { navigateAndClose("login") }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

@@ -42,7 +42,7 @@ data class RegisterRequest(
     @SerializedName("nombre")
     val nombre: String,
     @SerializedName("apellidos")
-    val apellidos: String = "",
+    val apellidos: String? = null,
     @SerializedName("email")
     val email: String,
     @SerializedName("password")
@@ -50,5 +50,35 @@ data class RegisterRequest(
     @SerializedName("password_confirmation")
     val passwordConfirmation: String,
     @SerializedName("tipo")
-    val tipo: String = "user"
+    val tipo: String = "user",
+    @SerializedName("telefono")
+    val telefono: String? = null,
+    @SerializedName("tipo_documento")
+    val tipoDocumento: String? = null,
+    @SerializedName("numero_documento")
+    val numeroDocumento: String? = null,
+    @SerializedName("fecha_nacimiento")
+    val fechaNacimiento: String? = null,
+    @SerializedName("direccion")
+    val direccion: String? = null,
+    @SerializedName("pais")
+    val pais: String? = null,
+    @SerializedName("ciudad")
+    val ciudad: String? = null,
+    @SerializedName("nombre_entidad")
+    val nombreEntidad: String? = null,
+    @SerializedName("descripcion")
+    val descripcion: String? = null,
+    @SerializedName("horario_atencion")
+    val horarioAtencion: String? = null,
+    @SerializedName("registro_sanitario")
+    val registroSanitario: String? = null,
+    @SerializedName("capacidad")
+    val capacidad: Int? = null,
+    @SerializedName("servicios")
+    val servicios: List<String>? = null,
+    @SerializedName("lat")
+    val lat: Double? = null,
+    @SerializedName("lng")
+    val lng: Double? = null
 )
