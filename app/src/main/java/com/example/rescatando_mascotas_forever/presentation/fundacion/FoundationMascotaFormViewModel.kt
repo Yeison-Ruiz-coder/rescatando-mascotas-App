@@ -39,9 +39,16 @@ class FoundationMascotaFormViewModel(
         viewModelScope.launch {
             _state.value = FormState.Loading
             repository.getMascotaById(id).collect { result ->
-                result.onSuccess {
-                    _mascota.value = it
-                    _state.value = FormState.Idle
+                result.onSuccess { response ->
+                    if (response.success && response.data != null) {
+                        val gson = com.google.gson.Gson()
+                        val json = gson.toJson(response.data)
+                        val mascotaObj = gson.fromJson(json, Mascota::class.java)
+                        _mascota.value = mascotaObj
+                        _state.value = FormState.Idle
+                    } else {
+                        _state.value = FormState.Error(response.message ?: "Error al cargar la mascota")
+                    }
                 }.onFailure {
                     _state.value = FormState.Error("Error al cargar la mascota")
                 }

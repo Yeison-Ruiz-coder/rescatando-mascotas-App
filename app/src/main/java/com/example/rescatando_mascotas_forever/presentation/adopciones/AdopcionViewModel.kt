@@ -2,7 +2,7 @@ package com.example.rescatando_mascotas_forever.presentation.adopciones
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rescatando_mascotas_forever.data.network.api.RetrofitClient
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
 import com.google.gson.Gson
@@ -31,8 +31,8 @@ class AdopcionViewModel : ViewModel() {
             _error.value = null
             
             try {
-                // Filtramos por estado "En adopcion" según tu requerimiento
-                val response = RetrofitClient.mascotaApi.getMascotas(especie = especie, estado = "En adopcion")
+                // Quitamos el filtro de estado explícito por si el backend usa otro término
+                val response = RetrofitClient.mascotaApi.getMascotas(especie = especie)
                 if (response.success) {
                     // Convertimos response.data (Any?) a MascotaDataWrapper para acceder a la lista
                     val gson = Gson()

@@ -24,7 +24,7 @@ class MascotaRepository {
         }
     }
 
-    fun getMascotaById(id: Int): Flow<Result<Mascota>> = flow {
+    fun getMascotaById(id: Int): Flow<Result<MascotaResponse>> = flow {
         try {
             val response = api.getMascotaById(id)
             emit(Result.success(response))
