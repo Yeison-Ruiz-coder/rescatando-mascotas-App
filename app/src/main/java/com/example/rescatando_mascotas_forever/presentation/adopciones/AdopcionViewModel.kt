@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.api.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
+import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,7 +34,11 @@ class AdopcionViewModel : ViewModel() {
                 // Filtramos por estado "En adopcion" según tu requerimiento
                 val response = RetrofitClient.mascotaApi.getMascotas(especie = especie, estado = "En adopcion")
                 if (response.success) {
-                    _mascotas.value = response.data.data
+                    // Convertimos response.data (Any?) a MascotaDataWrapper para acceder a la lista
+                    val gson = Gson()
+                    val json = gson.toJson(response.data)
+                    val wrapper = gson.fromJson(json, MascotaDataWrapper::class.java)
+                    _mascotas.value = wrapper.data
                 } else {
                     _error.value = response.message ?: "Error al obtener mascotas para adopción"
                 }

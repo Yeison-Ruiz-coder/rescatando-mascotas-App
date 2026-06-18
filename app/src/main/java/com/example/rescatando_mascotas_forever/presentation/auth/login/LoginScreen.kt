@@ -54,13 +54,21 @@ fun LoginScreen(
         if (state is LoginState.Success) {
             val user = (state as LoginState.Success).user
             // Navegación basada en el tipo de usuario del backend
-            if (user.tipo == "admin") {
-                navController.navigate("admin_home") {
-                    popUpTo("login") { inclusive = true }
+            when (user.tipo) {
+                "admin" -> {
+                    navController.navigate("admin_home") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
-            } else {
-                navController.navigate("home") {
-                    popUpTo("login") { inclusive = true }
+                "fundacion" -> {
+                    navController.navigate("foundation_home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+                else -> {
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
                 }
             }
         } else if (state is LoginState.Error) {
