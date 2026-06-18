@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -173,6 +176,16 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
     val scrollState = rememberScrollState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    val user = remember { sessionManager.getUser() }
+    val userName = user?.nombre ?: "Usuario"
+    
+    val avatarUrl = user?.avatar?.let {
+        if (it.startsWith("http")) it 
+        else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/$it"
+    }
 
     val navigateAndClose: (String) -> Unit = { route ->
         scope.launch {
@@ -188,10 +201,31 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
     Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).background(Color.White)) {
         Box(modifier = Modifier.fillMaxWidth().background(AppMainGradient).padding(24.dp).padding(top = 24.dp)) {
             Column {
-                Icon(Icons.Default.AccountCircle, null, tint = Color.White, modifier = Modifier.size(64.dp))
+                if (avatarUrl != null) {
+                    Image(
+                        painter = rememberAsyncImagePainter(avatarUrl),
+                        contentDescription = "Avatar",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Default.AccountCircle, 
+                        null, 
+                        tint = Color.White, 
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(stringResource(R.string.drawer_hello, "Usuario"), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                Text("Bienvenido a Rescatando Mascotas", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                Text(
+                    stringResource(R.string.drawer_hello, userName), 
+                    color = Color.White, 
+                    fontWeight = FontWeight.Bold, 
+                    fontSize = 20.sp
+                )
+                Text(user?.email ?: "Bienvenido a Rescatando Mascotas", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -220,7 +254,19 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         DrawerMenuItem("Configuración", Icons.Default.Settings, currentRoute == "configuracion") { navigateAndClose("configuracion") }
 
         Spacer(modifier = Modifier.height(24.dp))
-        DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { navigateAndClose("login") }
+        if (user == null) {
+            DrawerMenuItem("Iniciar Sesión", Icons.AutoMirrored.Filled.Login, false, Color(0xFF673AB7)) { navigateAndClose("login") }
+        } else {
+            DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { 
+                scope.launch {
+                    sessionManager.logout()
+                    drawerState.close()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
     }
 }

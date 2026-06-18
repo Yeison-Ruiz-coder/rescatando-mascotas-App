@@ -103,10 +103,10 @@ fun RegisterScreen(
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
 
-                        // Selector de Tipo de Usuario (Nuevo)
+                        // Selector de Tipo de Usuario
                         Text("Tipo de perfil:", color = Color.White, fontSize = 14.sp)
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            listOf("user" to "Usuario", "fundacion" to "Fundación", "veterinaria" to "Vet").forEach { (value, label) ->
+                            listOf("user" to "Usuario", "fundacion" to "Fundación", "admin" to "Admin").forEach { (value, label) ->
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     RadioButton(
                                         selected = tipo == value,

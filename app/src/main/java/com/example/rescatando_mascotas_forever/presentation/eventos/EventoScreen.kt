@@ -73,17 +73,28 @@ fun EventoScreen(
                 // Encabezado
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        stringResource(R.string.event_title),
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF2E1A7A)
-                    )
-                    Text(
-                        stringResource(R.string.event_subtitle),
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                stringResource(R.string.event_title),
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color(0xFF2E1A7A)
+                            )
+                            Text(
+                                stringResource(R.string.event_subtitle),
+                                fontSize = 14.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        IconButton(onClick = { viewModel.getEventos() }) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = Color(0xFF673AB7))
+                        }
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 

@@ -66,7 +66,8 @@ fun SplashScreen(navController: NavHostController) {
                 }
             }
         } else {
-            navController.navigate("login") {
+            // Ir directamente a Home como invitado
+            navController.navigate("home") {
                 popUpTo("splash") { inclusive = true }
             }
         }

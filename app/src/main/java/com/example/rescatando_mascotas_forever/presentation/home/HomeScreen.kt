@@ -144,7 +144,7 @@ fun HomeScreen(
                             Text("Ver todos →", fontSize = 12.sp, color = Color.Gray)
                         }
                     }
-                    EventList(eventos)
+                    EventList(eventos, navController)
                 }
                 item { Spacer(modifier = Modifier.height(20.dp)) }
             }
@@ -453,7 +453,10 @@ fun MascotaCardVertical(mascota: Mascota) {
 }
 
 @Composable
-fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network.models.Evento>) {
+fun EventList(
+    eventos: List<com.example.rescatando_mascotas_forever.data.network.models.Evento>,
+    navController: NavHostController
+) {
     if (eventos.isEmpty()) {
         Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
             Text("No hay eventos programados", color = Color.Gray, fontSize = 14.sp)
@@ -462,9 +465,11 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
     }
 
     Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        eventos.forEach { evento ->
+        eventos.take(3).forEach { evento -> 
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate("eventos/${evento.id}") },
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(2.dp)
@@ -473,33 +478,20 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
                     modifier = Modifier.padding(12.dp), 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
+                    // Imagen del evento sin el cuadro morado sólido
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            model = if (!evento.imagenUrl.isNullOrEmpty()) evento.imagenUrl else "https://via.placeholder.com/300x300?text=Evento"
+                        ),
+                        contentDescription = null,
                         modifier = Modifier
-                            .size(64.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(AppMainGradient),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            val parts = evento.fecha.split(" ")
-                            val dia = if (parts.isNotEmpty()) parts[0] else "00"
-                            val mes = if (parts.size > 1) parts[1].take(3).uppercase() else "MES"
-                            
-                            Text(
-                                dia, 
-                                color = Color.White, 
-                                fontSize = 18.sp, 
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                            Text(
-                                mes, 
-                                color = Color.White.copy(alpha = 0.8f), 
-                                fontSize = 10.sp, 
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                            .size(75.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+
                     Spacer(modifier = Modifier.width(16.dp))
+
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = evento.nombre, 
@@ -509,27 +501,86 @@ fun EventList(eventos: List<com.example.rescatando_mascotas_forever.data.network
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Spacer(modifier = Modifier.height(6.dp))
+                        
+                        // Diseño de Etiquetas Separadas para Fecha y Hora
+                        val fechaParts = evento.fecha.split(" ")
+                        val soloFecha = if (fechaParts.size >= 2) "${fechaParts[0]} ${fechaParts[1]}" else evento.fecha
+                        val soloHora = if (fechaParts.size > 2) fechaParts.drop(2).joinToString(" ") else ""
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Chip de Fecha
+                            Surface(
+                                color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Event, null, modifier = Modifier.size(12.dp), tint = Color(0xFF673AB7))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = soloFecha,
+                                        color = Color(0xFF673AB7),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            
+                            // Chip de Hora
+                            if (soloHora.isNotEmpty()) {
+                                Surface(
+                                    color = Color.Gray.copy(alpha = 0.08f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.Schedule, null, modifier = Modifier.size(12.dp), tint = Color.Gray)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = soloHora,
+                                            color = Color.Gray,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Gray.copy(alpha = 0.5f))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 evento.lugar, 
-                                fontSize = 12.sp, 
+                                fontSize = 11.sp,
                                 color = Color.Gray,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
+
+                    // Badge de tipo más discreto
                     Surface(
-                        color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                        color = Color(0xFF673AB7).copy(alpha = 0.08f),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
                             evento.tipo ?: "Evento", 
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             color = Color(0xFF673AB7),
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }

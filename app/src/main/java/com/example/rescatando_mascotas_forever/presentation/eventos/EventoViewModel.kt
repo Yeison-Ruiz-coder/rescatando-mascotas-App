@@ -2,7 +2,7 @@ package com.example.rescatando_mascotas_forever.presentation.eventos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rescatando_mascotas_forever.data.network.api.RetrofitClient
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,9 @@ sealed class EventoState {
 }
 
 class EventoViewModel(
-    private val repository: EventoRepository = EventoRepository(RetrofitClient.eventoApi)
+    private val repository: EventoRepository = EventoRepository(
+        com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.eventoApi
+    )
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<EventoState>(EventoState.Loading)
@@ -45,14 +47,16 @@ class EventoViewModel(
     ) { state, query, category ->
         if (state is EventoState.Success) {
             state.eventos.filter { evento ->
-                val matchesCat = when (category) {
-                    "Todos" -> true
-                    "Gratis" -> evento.tipo?.contains("Gratis", ignoreCase = true) == true
-                    else -> evento.tipo?.contains(category, ignoreCase = true) == true
+                // Si la categoría es "Todos", aceptamos cualquier evento aunque el tipo sea null
+                val matchesCat = if (category == "Todos" || category == "All") {
+                    true
+                } else {
+                    evento.tipo?.contains(category, ignoreCase = true) == true
                 }
+
                 val matchesSearch = query.isEmpty() ||
                         evento.nombre.contains(query, ignoreCase = true) ||
-                        (evento.lugar?.contains(query, ignoreCase = true) == true)
+                        evento.lugar.contains(query, ignoreCase = true)
                 
                 matchesCat && matchesSearch
             }
@@ -77,10 +81,12 @@ class EventoViewModel(
         viewModelScope.launch {
             _state.value = EventoState.Loading
             repository.getEventos().collect { result ->
-                result.onSuccess {
-                    _state.value = EventoState.Success(it)
-                }.onFailure {
-                    _state.value = EventoState.Error(it.message ?: "Error desconocido")
+                result.onSuccess { eventos ->
+                    println("DEBUG_EVENTOS: Se cargaron ${eventos.size} eventos")
+                    _state.value = EventoState.Success(eventos)
+                }.onFailure { error ->
+                    println("DEBUG_EVENTOS: Error al cargar: ${error.message}")
+                    _state.value = EventoState.Error(error.message ?: "Error desconocido")
                 }
             }
         }
