@@ -9,6 +9,7 @@ import com.example.rescatando_mascotas_forever.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import retrofit2.HttpException
 import kotlinx.coroutines.launch
 
 sealed class LoginState {
@@ -53,8 +54,14 @@ class LoginViewModel(
                 } else {
                     _state.value = LoginState.Error("Error: El servidor no devolvió el token o el usuario correctamente.")
                 }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _state.value = LoginState.Error("Correo o contraseña incorrectos. Verifica tus datos.")
+                } else {
+                    _state.value = LoginState.Error("Error del servidor (${e.code()}). Inténtalo más tarde.")
+                }
             } catch (e: Exception) {
-                _state.value = LoginState.Error(e.message ?: "Error al iniciar sesión. Verifica tus credenciales.")
+                _state.value = LoginState.Error("Error de conexión. Verifica tu internet.")
             }
         }
     }

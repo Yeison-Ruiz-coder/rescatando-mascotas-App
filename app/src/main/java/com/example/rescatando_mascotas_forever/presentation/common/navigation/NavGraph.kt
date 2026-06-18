@@ -1,13 +1,28 @@
 package com.example.rescatando_mascotas_forever.presentation.common.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
 import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
@@ -42,8 +57,55 @@ import com.example.rescatando_mascotas_forever.presentation.suscripciones.Subscr
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
 
 @Composable
+fun LoginRequiredScreen(navController: NavHostController) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF6EEE9))
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                Icons.Default.Lock,
+                contentDescription = null,
+                modifier = Modifier.size(80.dp),
+                tint = Color(0xFF673AB7)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                "Función exclusiva",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF2E1A7A)
+            )
+            Text(
+                "Para realizar esta acción debes tener una cuenta.",
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = Color.Gray,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = { navController.navigate("login") },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("INICIAR SESIÓN", fontWeight = FontWeight.Bold)
+            }
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text("Volver atrás", color = Color.Gray)
+            }
+        }
+    }
+}
+
+@Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
 
     NavHost(
         navController = navController,
@@ -87,13 +149,25 @@ fun AppNavigation() {
             RescateScreen(navController = navController)
         }
         composable("registro_rescatista") {
-            RegistroRescatistaScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                RegistroRescatistaScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
         composable("formulario_rescate") {
-            FormularioRescateScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                FormularioRescateScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
         composable("formulario_adopcion") {
-            FormularioAdopcionScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                FormularioAdopcionScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
         composable("donaciones") {
             DonacionesScreen(navController = navController)
@@ -106,7 +180,11 @@ fun AppNavigation() {
             arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
         ) { backStackEntry ->
             val mascotaId = backStackEntry.arguments?.getInt("mascotaId")
-            SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+            if (sessionManager.isLoggedIn()) {
+                SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
 
         // --- BLOQUE EVENTOS ---
@@ -120,10 +198,23 @@ fun AppNavigation() {
             arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
         ) { backStackEntry ->
             val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
+            
+            // Buscamos si existe la pantalla de "eventos" en el historial
             val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("eventos")
+                try {
+                    navController.getBackStackEntry("eventos")
+                } catch (e: Exception) {
+                    null
+                }
             }
-            val viewModel: EventoViewModel = viewModel(parentEntry)
+
+            // Si existe la pantalla previa, compartimos el ViewModel. Si no (venimos del Home), creamos uno nuevo.
+            val viewModel: EventoViewModel = if (parentEntry != null) {
+                viewModel(parentEntry)
+            } else {
+                viewModel()
+            }
+
             EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
         }
 
@@ -131,13 +222,21 @@ fun AppNavigation() {
             RescatistaContactosScreen(navController = navController)
         }
         composable("encuesta_rescate") {
-            EncuestaRescateScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                EncuestaRescateScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
         composable("nosotros") {
             NosotrosScreen(navController = navController)
         }
         composable("perfil") {
-            ProfileScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                ProfileScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
         composable("configuracion") {
             SettingsScreen(navController = navController)
@@ -146,7 +245,11 @@ fun AppNavigation() {
             VeterinariaScreen(navController = navController)
         }
         composable("proceso_adopcion") {
-            ProcesoAdopcionScreen(navController = navController)
+            if (sessionManager.isLoggedIn()) {
+                ProcesoAdopcionScreen(navController = navController)
+            } else {
+                LoginRequiredScreen(navController)
+            }
         }
 
         // RUTAS EXCLUSIVAS ADMIN

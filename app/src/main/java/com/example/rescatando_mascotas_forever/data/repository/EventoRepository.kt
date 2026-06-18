@@ -10,12 +10,14 @@ class EventoRepository(private val api: EventoApi) {
     fun getEventos(): Flow<Result<List<Evento>>> = flow {
         try {
             val response = api.getEventos()
-            if (response.success) {
-                emit(Result.success(response.data))
+            if (response.success && response.data != null) {
+                // Sacamos la lista del objeto de paginación
+                emit(Result.success(response.data.data))
             } else {
-                emit(Result.failure(Exception("Error al obtener eventos")))
+                emit(Result.failure(Exception("El servidor no devolvió eventos validos")))
             }
         } catch (e: Exception) {
+            println("DEBUG_REPOSITORY: Error en repo: ${e.message}")
             emit(Result.failure(e))
         }
     }
