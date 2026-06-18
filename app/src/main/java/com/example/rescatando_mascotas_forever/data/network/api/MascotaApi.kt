@@ -19,7 +19,7 @@ interface MascotaApi {
     @GET("api/mascotas/{id}")
     suspend fun getMascotaById(
         @Path("id") id: Int
-    ): Mascota
+    ): MascotaResponse
 
     // --- RUTAS DE ENTIDAD (FUNDACIÓN/VETERINARIA) ---
     @GET("api/entity/mascotas")

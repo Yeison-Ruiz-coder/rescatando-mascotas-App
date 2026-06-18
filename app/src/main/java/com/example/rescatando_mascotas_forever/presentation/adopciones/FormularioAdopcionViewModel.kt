@@ -12,30 +12,44 @@ import kotlinx.coroutines.launch
 class FormularioAdopcionViewModel : ViewModel() {
 
     var currentPage by mutableIntStateOf(1)
-    val totalPages = 3
+    val totalPages = 4
 
-    // Step 1: Información Personal
-    var nombreCompleto by mutableStateOf("")
-    var edad by mutableStateOf("")
-    var direccion by mutableStateOf("")
+    // Paso 1: Datos Personales
+    var nombre by mutableStateOf("")
+    var apellido by mutableStateOf("")
+    var documentoIdentidad by mutableStateOf("")
+    var email by mutableStateOf("")
     var telefono by mutableStateOf("")
+    var fechaNacimiento by mutableStateOf("")
+    var ocupacion by mutableStateOf("")
 
-    // Step 2: Entorno y Motivo
-    var tieneOtrasMascotas by mutableStateOf(false)
-    var motivo by mutableStateOf("")
-    var tiempoDisponible by mutableStateOf("")
+    // Paso 2: Información de Vivienda
+    var direccion by mutableStateOf("")
+    var ciudad by mutableStateOf("")
+    var departamento by mutableStateOf("")
+    var codigoPostal by mutableStateOf("")
+    var estadoCivil by mutableStateOf("")
+    var cantidadHijos by mutableStateOf("0")
+    var tipoVivienda by mutableStateOf("")
+    var esPropietario by mutableStateOf("")
 
-    // Step 3: Compromiso
-    var aceptaTerminos by mutableStateOf(false)
+    // Paso 3: Compromisos
+    var experienciaMascotas by mutableStateOf("")
+    var motivoAdopcion by mutableStateOf("")
+    var compromisoCuidado by mutableStateOf(false)
+    var compromisoEsterilizacion by mutableStateOf(false)
+    var compromisoSeguimiento by mutableStateOf(false)
 
     var isSaving by mutableStateOf(false)
     var saveSuccess by mutableStateOf(false)
 
     fun isStepValid(step: Int): Boolean {
         return when (step) {
-            1 -> nombreCompleto.isNotBlank() && edad.isNotBlank() && direccion.isNotBlank() && telefono.isNotBlank()
-            2 -> motivo.isNotBlank() && tiempoDisponible.isNotBlank()
-            3 -> aceptaTerminos
+            1 -> nombre.isNotBlank() && apellido.isNotBlank() && documentoIdentidad.isNotBlank() && 
+                 email.isNotBlank() && telefono.isNotBlank()
+            2 -> direccion.isNotBlank() && ciudad.isNotBlank()
+            3 -> experienciaMascotas.isNotBlank() && motivoAdopcion.isNotBlank() && 
+                 compromisoCuidado && compromisoEsterilizacion && compromisoSeguimiento
             else -> true
         }
     }
@@ -55,7 +69,7 @@ class FormularioAdopcionViewModel : ViewModel() {
     fun enviarSolicitud(onSuccess: () -> Unit) {
         viewModelScope.launch {
             isSaving = true
-            // Simulación de envío
+            // Aquí se conectará con el repositorio en el futuro
             delay(2000)
             isSaving = false
             saveSuccess = true
