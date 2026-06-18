@@ -238,7 +238,7 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                     color = Color.White.copy(alpha = 0.9f)
                 ) {
                     Text(
-                        text = mascota.estado.uppercase(),
+                        text = mascota.estado?.uppercase() ?: "",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 9.sp,
                         fontWeight = FontWeight.ExtraBold,

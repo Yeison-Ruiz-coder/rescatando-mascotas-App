@@ -400,10 +400,10 @@ fun MascotaCardVertical(mascota: Mascota) {
                     color = Color.White.copy(alpha = 0.9f)
                 ) {
                     Text(
-                        text = if (mascota.id % 2 == 0) "NUEVO" else "URGENTE",
+                        text = if ((mascota.id ?: 0) % 2 == 0) "NUEVO" else "URGENTE",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 9.sp,
-                        color = if (mascota.id % 2 == 0) Color(0xFF4C86F9) else Color(0xFFF44336),
+                        color = if ((mascota.id ?: 0) % 2 == 0) Color(0xFF4C86F9) else Color(0xFFF44336),
                         fontWeight = FontWeight.ExtraBold
                     )
                 }

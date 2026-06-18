@@ -55,6 +55,9 @@ import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetai
 import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationHomeScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationMascotasScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationMascotaFormScreen
 
 @Composable
 fun LoginRequiredScreen(navController: NavHostController) {
@@ -125,6 +128,25 @@ fun AppNavigation() {
         }
         composable("admin_home") {
             AdminHomeScreen(navController = navController)
+        }
+        composable("foundation_home") {
+            FoundationHomeScreen(navController = navController)
+        }
+
+        // --- RUTAS GESTIÓN FUNDACIÓN ---
+        composable("foundation_pets") {
+            FoundationMascotasScreen(navController = navController)
+        }
+        composable(
+            route = "foundation_mascota_form?mascotaId={mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { 
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            })
+        ) { backStackEntry ->
+            val idStr = backStackEntry.arguments?.getString("mascotaId")
+            FoundationMascotaFormScreen(navController = navController, mascotaId = idStr?.toIntOrNull())
         }
 
         // --- RUTA LISTA DE FUNDACIONES ---
