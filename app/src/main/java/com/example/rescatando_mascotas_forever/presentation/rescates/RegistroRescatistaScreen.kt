@@ -25,7 +25,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
-import com.example.rescatando_mascotas_forever.presentation.admin.AdminDrawerContent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +64,7 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                 if (isAdminMode) {
                     AdminDrawerContent(navController, drawerState, scope)
                 } else {
-                    com.example.rescatando_mascotas_forever.presentation.common.components.DrawerContent(navController, drawerState, scope)
+                    DrawerContent(navController, drawerState, scope)
                 }
             }
         }
