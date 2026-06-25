@@ -129,7 +129,6 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
 
                             when (currentStep) {
                                 1 -> {
-                                    // 1. DATOS PERSONALES
                                     SectionHeader(Icons.Default.Person, stringResource(R.string.rescuer_reg_sec_personal))
                                     FormField(stringResource(R.string.rescuer_reg_label_name), nombre) { nombre = it }
                                     Row(Modifier.fillMaxWidth()) {
@@ -144,7 +143,6 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                     }
                                 }
                                 2 -> {
-                                    // 2. INFORMACIÓN DE RESCATE
                                     SectionHeader(Icons.Default.Pets, stringResource(R.string.rescuer_reg_sec_logistic))
                                     FormField(stringResource(R.string.rescuer_reg_label_capacity), capacidadAnimales) { capacidadAnimales = it }
 
@@ -165,7 +163,6 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
                                     }
                                 }
                                 3 -> {
-                                    // 3. MOTIVACIÓN Y TÉRMINOS
                                     SectionHeader(Icons.Default.Favorite, stringResource(R.string.rescuer_reg_sec_exp))
                                     Text(stringResource(R.string.rescuer_reg_label_motivation), color = Color.Black, fontSize = 13.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
                                     SimpleTextField(motivacion, Modifier.height(120.dp), singleLine = false) { motivacion = it }
@@ -185,7 +182,6 @@ fun RegistroRescatistaScreen(navController: NavHostController) {
 
                             Spacer(Modifier.height(30.dp))
 
-                            // BOTONES DE NAVEGACIÓN
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
