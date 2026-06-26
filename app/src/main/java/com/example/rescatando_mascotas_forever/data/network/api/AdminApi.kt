@@ -13,6 +13,7 @@ data class AdminStatsResponse(
     val rescatesTrend: String,
     val totalAdopciones: Int,
     val adopcionesTrend: String,
+    val totalUsuarios: Int, // Verificamos que este campo exista
     val adoptionsHistory: List<MonthlyData>,
     val rescueHistory: List<MonthlyData>,
     val speciesDistribution: List<SpeciesDistribution>
