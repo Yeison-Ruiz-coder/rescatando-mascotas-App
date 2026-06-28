@@ -60,18 +60,18 @@ fun AdminReportesRescateScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Header Admin
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF673AB7))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(24.dp)
                 ) {
                     Column {
-                        Text("Reportes de Rescate", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text("Monitorea las emergencias reportadas", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text("Reportes de Rescate", color = MaterialTheme.colorScheme.onPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text("Monitorea las emergencias reportadas", color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
@@ -94,7 +94,7 @@ fun ReporteRescateCard(reporte: ReporteRescateAdmin) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -125,8 +125,8 @@ fun ReporteRescateCard(reporte: ReporteRescateAdmin) {
                 Spacer(Modifier.width(12.dp))
                 
                 Column(Modifier.weight(1f)) {
-                    Text(reporte.mascota, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text("${reporte.especie} • ${reporte.fecha}", color = Color.Gray, fontSize = 12.sp)
+                    Text(reporte.mascota, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text("${reporte.especie} • ${reporte.fecha}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
                 
                 Surface(
@@ -154,9 +154,9 @@ fun ReporteRescateCard(reporte: ReporteRescateAdmin) {
             Spacer(Modifier.height(12.dp))
             
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
-                Text(reporte.ubicacion, fontSize = 13.sp, color = Color.DarkGray)
+                Text(reporte.ubicacion, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
             }
             
             Spacer(Modifier.height(16.dp))
@@ -165,18 +165,18 @@ fun ReporteRescateCard(reporte: ReporteRescateAdmin) {
                 Button(
                     onClick = { },
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Ver Detalles", fontSize = 12.sp , color = Color(0xFFF8F9FA))
+                    Text("Ver Detalles", fontSize = 12.sp , color = MaterialTheme.colorScheme.onPrimary)
                 }
                 OutlinedButton(
                     onClick = { },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF673AB7))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Cambiar Estado", fontSize = 12.sp, color = Color(0xFF673AB7))
+                    Text("Cambiar Estado", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

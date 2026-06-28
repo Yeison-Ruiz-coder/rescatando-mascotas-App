@@ -54,7 +54,7 @@ fun VeterinariaScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF6EEE9))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Cabecera con degradado
                 HeaderVeterinarias()
@@ -62,7 +62,7 @@ fun VeterinariaScreen(
                 when (val state = uiState) {
                     is VeterinariaState.Loading -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color(0xFF5E49BF))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                     is VeterinariaState.Success -> {
@@ -122,7 +122,7 @@ fun VeterinariaItem(veterinaria: Veterinaria) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
@@ -146,15 +146,15 @@ fun VeterinariaItem(veterinaria: Veterinaria) {
                     text = veterinaria.nombreVet,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color(0xFF5E49BF)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+                    Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         text = "${veterinaria.ciudad ?: "N/A"}, ${veterinaria.direccion ?: ""}",
                         fontSize = 12.sp,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1
                     )
                 }

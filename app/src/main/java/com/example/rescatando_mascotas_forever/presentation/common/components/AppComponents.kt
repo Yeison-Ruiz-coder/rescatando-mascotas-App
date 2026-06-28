@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -56,7 +57,7 @@ fun GradientHeader(title: String) {
     ) {
         Text(
             text = title,
-            color = Color.White,
+            color = Color.White, // Siempre blanco sobre el degradado oscuro de la marca
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold
         )
@@ -68,7 +69,7 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -77,8 +78,8 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
         ) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = Color.Black)
-            Text(text = title, fontSize = 11.sp, color = Color(0xFF555555), fontWeight = FontWeight.Bold)
+            Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = title, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -86,16 +87,25 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
-    val brandPurple = Color(0xFF673AB7)
+    val brandPurple = MaterialTheme.colorScheme.primary
     CenterAlignedTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = R.mipmap.logo_foreground),
-                    contentDescription = null,
-                    modifier = Modifier.size(36.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
+                // Contenedor blanco para el logo (siempre claro)
+                Surface(
+                    modifier = Modifier.size(32.dp),
+                    shape = CircleShape,
+                    color = Color.White,
+                    shadowElevation = 2.dp
+                ) {
+                    Image(
+                        painter = painterResource(id = R.mipmap.logo_foreground),
+                        contentDescription = null,
+                        modifier = Modifier.padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = stringResource(R.string.app_name),
                     fontWeight = FontWeight.ExtraBold,
@@ -113,17 +123,17 @@ fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
     )
 }
 
 @Composable
 fun AppBottomBar(navController: NavHostController) {
-    val brandPurple = Color(0xFF673AB7)
+    val brandPurple = MaterialTheme.colorScheme.primary
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 8.dp) {
         val items = listOf(
             Triple("home", Icons.Default.Home, stringResource(R.string.nav_home)),
             Triple("adopciones", Icons.Default.Pets, stringResource(R.string.nav_adopt)),
@@ -145,9 +155,25 @@ fun AppBottomBar(navController: NavHostController) {
                         }
                     }
                 },
-                icon = { Icon(icon, null, tint = if (route == "formulario_rescate") Color.Red else if (isSelected) brandPurple else Color.Gray) },
-                label = { Text(label, fontSize = 10.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium) },
-                colors = NavigationBarItemDefaults.colors(selectedTextColor = brandPurple, indicatorColor = Color(0xFFD1C4E9).copy(alpha = 0.3f))
+                icon = {
+                    Icon(
+                        icon,
+                        null,
+                        tint = if (route == "formulario_rescate") Color.Red else if (isSelected) brandPurple else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                label = {
+                    Text(
+                        label,
+                        fontSize = 10.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedTextColor = brandPurple,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = brandPurple.copy(alpha = 0.1f)
+                )
             )
         }
     }
@@ -179,12 +205,13 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
     
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val user = remember { sessionManager.getUser() }
+    // Observamos el flow global del usuario para actualizaciones en tiempo real
+    val user by SessionManager.userFlow.collectAsState()
     val userName = user?.nombre ?: "Usuario"
     
     val avatarUrl = user?.avatar?.let {
-        if (it.startsWith("http")) it 
-        else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/$it"
+        if (it.startsWith("http") || it.startsWith("content://") || it.startsWith("file://") || it.startsWith("/")) it
+        else "${com.example.rescatando_mascotas_forever.utils.Constants.BASE_URL}storage/$it"
     }
 
     val navigateAndClose: (String) -> Unit = { route ->
@@ -198,7 +225,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).background(Color.White)) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).background(MaterialTheme.colorScheme.surface)) {
         Box(modifier = Modifier.fillMaxWidth().background(AppMainGradient).padding(24.dp).padding(top = 24.dp)) {
             Column {
                 if (avatarUrl != null) {
@@ -233,7 +260,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         DrawerMenuItem(stringResource(R.string.nav_home), Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
         DrawerMenuItem(stringResource(R.string.nav_profile), Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
         
-        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("COMUNIDAD Y APOYO")
         
         DrawerMenuItem("Solicitud Adopción", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
@@ -241,21 +268,21 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         DrawerMenuItem("Donaciones", Icons.Default.VolunteerActivism, currentRoute == "donaciones") { navigateAndClose("donaciones") }
         DrawerMenuItem("Últimos Rescates", Icons.Default.History, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
         
-        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("SERVICIOS")
         
         DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
         DrawerMenuItem("Voluntarios", Icons.Default.Groups, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
         
-        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+        HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("INFORMACIÓN")
         DrawerMenuItem("Nosotros", Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
         DrawerMenuItem("Configuración", Icons.Default.Settings, currentRoute == "configuracion") { navigateAndClose("configuracion") }
 
         Spacer(modifier = Modifier.height(24.dp))
         if (user == null) {
-            DrawerMenuItem("Iniciar Sesión", Icons.AutoMirrored.Filled.Login, false, Color(0xFF673AB7)) { navigateAndClose("login") }
+            DrawerMenuItem("Iniciar Sesión", Icons.AutoMirrored.Filled.Login, false, MaterialTheme.colorScheme.primary) { navigateAndClose("login") }
         } else {
             DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { 
                 scope.launch {
@@ -282,7 +309,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
             navController.navigate(route) { launchSingleTop = true }
         }
     }
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).background(MaterialTheme.colorScheme.surface)) {
         Box(modifier = Modifier.fillMaxWidth().background(Color(0xFF333333)).padding(24.dp).padding(top = 24.dp)) {
             Text(stringResource(R.string.admin_drawer_mode), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
@@ -297,8 +324,8 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
 }
 
 @Composable
-fun DrawerMenuItem(text: String, icon: ImageVector, isSelected: Boolean, color: Color = Color(0xFF333333), onClick: () -> Unit) {
-    val brandPurple = Color(0xFF673AB7)
+fun DrawerMenuItem(text: String, icon: ImageVector, isSelected: Boolean, color: Color = MaterialTheme.colorScheme.onSurface, onClick: () -> Unit) {
+    val brandPurple = MaterialTheme.colorScheme.primary
     val contentColor = if (isSelected) brandPurple else color
     val backgroundColor = if (isSelected) brandPurple.copy(alpha = 0.08f) else Color.Transparent
 
@@ -321,6 +348,6 @@ fun DrawerSectionHeader(title: String) {
         modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = Color.Gray
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

@@ -71,8 +71,8 @@ fun AdminMascotasScreen(navController: NavHostController) {
                         mascotaEditando = null
                         showDialog = true
                     },
-                    containerColor = Color(0xFF673AB7),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.admin_pets_add))
                 }
@@ -82,17 +82,17 @@ fun AdminMascotasScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF673AB7))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(20.dp)
                 ) {
                     Column {
-                        Text(stringResource(R.string.admin_pets_title), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text(stringResource(R.string.admin_pets_subtitle), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text(stringResource(R.string.admin_pets_title), color = MaterialTheme.colorScheme.onPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.admin_pets_subtitle), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
@@ -142,25 +142,25 @@ fun MascotaDialogStepByStep(mascota: MascotaAdmin?, onDismiss: () -> Unit, onCon
     var edad by remember { mutableStateOf(mascota?.edadValor ?: "") }
     var url by remember { mutableStateOf(mascota?.imagenUrl ?: "https://") }
 
-    // Configuración de colores para que el texto sea BLANCO
+    // Configuración de colores dinámica
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = Color.White,
-        unfocusedTextColor = Color.White,
-        focusedLabelColor = Color.White,
-        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-        focusedBorderColor = Color.White,
-        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-        cursorColor = Color.White
+        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+        focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+        cursorColor = MaterialTheme.colorScheme.onPrimary
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF673AB7), // Fondo púrpura para que el texto blanco resalte
+        containerColor = MaterialTheme.colorScheme.primary, // Fondo dinámico
         title = {
             Text(
                 if (mascota == null) stringResource(R.string.admin_pets_new_title) else stringResource(R.string.admin_pets_edit_title),
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onPrimary
             )
         },
         text = {
@@ -197,14 +197,17 @@ fun MascotaDialogStepByStep(mascota: MascotaAdmin?, onDismiss: () -> Unit, onCon
                     if (currentStep == 1) currentStep = 2 
                     else onConfirm(MascotaAdmin(mascota?.id ?: 0, nombre, R.string.species_dog, edad, R.string.status_available, url)) 
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF673AB7))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
             ) {
-                Text(if (currentStep == 1) stringResource(R.string.btn_next) else stringResource(R.string.btn_save_upper))
+                Text(if (currentStep == 1) stringResource(R.string.btn_next) else stringResource(R.string.btn_save_upper), fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { 
-                Text(stringResource(R.string.btn_cancel_upper), color = Color.White.copy(alpha = 0.8f)) 
+                Text(stringResource(R.string.btn_cancel_upper), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
             }
         }
     )
@@ -215,7 +218,7 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -232,18 +235,18 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
             Spacer(Modifier.width(16.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-                Text("${stringResource(mascota.especieRes)} • ${mascota.edadValor} ${stringResource(R.string.pet_age_suffix)}", fontSize = 13.sp, color = Color.DarkGray)
+                Text(mascota.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text("${stringResource(mascota.especieRes)} • ${mascota.edadValor} ${stringResource(R.string.pet_age_suffix)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                 Spacer(Modifier.height(4.dp))
 
                 Surface(
-                    color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = stringResource(mascota.estadoRes),
-                        color = Color(0xFF673AB7),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 11.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                         fontWeight = FontWeight.Bold
@@ -252,7 +255,7 @@ fun MascotaAdminCard(mascota: MascotaAdmin, onEdit: () -> Unit, onDelete: () -> 
             }
 
             Row {
-                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = Color(0xFF673AB7)) }
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.primary) }
                 IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, null, tint = Color.Red) }
             }
         }

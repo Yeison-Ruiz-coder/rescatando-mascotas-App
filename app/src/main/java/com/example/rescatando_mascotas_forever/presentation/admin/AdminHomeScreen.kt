@@ -35,14 +35,14 @@ fun AdminHomeScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     val adminGradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF673AB7), Color(0xFF512DA8))
+        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
-                drawerContainerColor = Color.White,
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.width(300.dp)
             ) {
                 AdminDrawerContent(navController, drawerState, scope)
@@ -53,7 +53,7 @@ fun AdminHomeScreen(navController: NavHostController) {
             topBar = {
                 MainTopBar(drawerState = drawerState, scope = scope)
             },
-            containerColor = Color(0xFFF8F9FE)
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -93,7 +93,7 @@ fun AdminHomeScreen(navController: NavHostController) {
                         text = stringResource(R.string.admin_home_stat_title),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF444444), // Gris oscuro para mejor contraste
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         letterSpacing = 1.sp,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
@@ -114,7 +114,7 @@ fun AdminHomeScreen(navController: NavHostController) {
                         text = stringResource(R.string.admin_home_actions_title),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF444444),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         letterSpacing = 1.sp,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -150,11 +150,11 @@ fun AdminHomeScreen(navController: NavHostController) {
                         onClick = { navController.navigate("home") },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF673AB7))
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                     ) {
-                        Icon(Icons.Default.RemoveRedEye, null, tint = Color(0xFF673AB7))
+                        Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.admin_home_btn_preview), color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -168,7 +168,7 @@ fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClic
         modifier = modifier
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -179,14 +179,14 @@ fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClic
         ) {
             Surface(
                 shape = RoundedCornerShape(12.dp),
-                color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 modifier = Modifier.size(45.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = action.icon,
                         contentDescription = null,
-                        tint = Color(0xFF673AB7),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
                 }
@@ -196,12 +196,12 @@ fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClic
                 text = action.title,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 14.sp,
-                color = Color(0xFF222222) // Negro mucho más legible
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = action.description ?: "",
                 fontSize = 11.sp,
-                color = Color(0xFF555555), // Gris fuerte legible
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 14.sp
             )
         }
@@ -229,13 +229,13 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState)
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         // HEADER ADMIN MODERNO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Brush.horizontalGradient(listOf(Color(0xFF673AB7), Color(0xFF512DA8))))
+                .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.7f))))
                 .padding(horizontal = 24.dp, vertical = 40.dp)
         ) {
             Column {
@@ -292,7 +292,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
         
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 24.dp), 
-            color = Color.LightGray.copy(alpha = 0.4f)
+            color = MaterialTheme.colorScheme.outlineVariant
         )
 
         DrawerMenuItem(stringResource(R.string.admin_drawer_exit), Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color(0xFFD32F2F)) {
@@ -313,7 +313,7 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -322,8 +322,8 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
         ) {
             Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = Color.Black)
-            Text(text = title, fontSize = 12.sp, color = Color(0xFF555555)) // Gris más oscuro que Color.Gray
+            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

@@ -44,13 +44,13 @@ fun AdopcionSolicitudScreen(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(stringResource(R.string.adop_form_title), fontSize = 18.sp, fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.adop_form_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.primary)
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
             }
         ) { padding ->
@@ -58,7 +58,7 @@ fun AdopcionSolicitudScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Cabecera con Info de la Mascota
                 item {
@@ -118,9 +118,9 @@ fun AdopcionSolicitudScreen(
                             Checkbox(
                                 checked = tieneMascotas,
                                 onCheckedChange = { tieneMascotas = it },
-                                colors = CheckboxDefaults.colors(checkedColor = Color(0xFF673AB7))
+                                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
                             )
-                            Text(stringResource(R.string.adop_label_others_convive), fontSize = 14.sp)
+                            Text(stringResource(R.string.adop_label_others_convive), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -144,9 +144,9 @@ fun AdopcionSolicitudScreen(
                             },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text(stringResource(R.string.adop_btn_send_full), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.adop_btn_send_full), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary)
                         }
                         
                         Spacer(modifier = Modifier.height(40.dp))
@@ -200,7 +200,7 @@ fun FormSectionLabel(text: String) {
         text = text.uppercase(),
         fontSize = 12.sp,
         fontWeight = FontWeight.Black,
-        color = Color(0xFF673AB7),
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(bottom = 12.dp)
     )
 }
