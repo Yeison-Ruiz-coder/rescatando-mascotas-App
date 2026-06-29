@@ -146,7 +146,7 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
                     }
                 ) {
                     Text(
-                        text = suscripcion.estado.uppercase(),
+                        text = (suscripcion.estado ?:"pendiente").uppercase(),
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.ExtraBold,

@@ -53,7 +53,7 @@ fun AdminHomeScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Dashboard Senior", color = Color.White, fontWeight = FontWeight.Bold) },
+                    title = { Text("Dashboard Administrador", color = Color.White, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -111,6 +111,7 @@ fun AdminHomeScreen(
                                         MetricCardSenior("Mascotas", stats.mascotas.total.toString(), "${stats.mascotas.enAdopcion} libres", Icons.Default.Pets, Color(0xFF10B981), Modifier.weight(1f))
                                         MetricCardSenior("Rescates", stats.rescates.completados.toString(), null, Icons.Default.Warning, Color(0xFFF43F5E), Modifier.weight(1f))
                                         MetricCardSenior("Adopciones", stats.adopciones.totales.toString(), null, Icons.Default.CheckCircle, Color(0xFF3B82F6), Modifier.weight(1f))
+
                                     }
 
                                     Spacer(Modifier.height(12.dp))

@@ -11,7 +11,7 @@ data class Suscripcion(
     @SerializedName("fecha_inicio") val fechaInicio: String,
     @SerializedName("fecha_fin") val fechaFin: String? = null,
     @SerializedName("mensaje_apoyo") val mensajeApoyo: String? = null,
-    val estado: String, // activo, pausado, cancelado, finalizado
+    val estado: String?="pendiente",
     val mascota: Mascota? = null,
     val user: User? = null
 )
