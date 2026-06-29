@@ -3,8 +3,11 @@ package com.example.rescatando_mascotas_forever.presentation.adopciones
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,10 +17,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,9 +32,8 @@ import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
-import com.example.rescatando_mascotas_forever.presentation.common.components.GradientHeader
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
-import com.example.rescatando_mascotas_forever.presentation.common.components.AppMainGradient
+import com.example.rescatando_mascotas_forever.utils.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +48,11 @@ fun AdopcionListScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedEspecie by remember { mutableStateOf("Todas") }
+
+    val especies = listOf("Todas", "Perro", "Gato", "Ave", "Otro")
+
     AppDrawer(
         navController = navController,
         drawerState = drawerState,
@@ -55,35 +64,90 @@ fun AdopcionListScreen(
             },
             bottomBar = {
                 AppBottomBar(navController)
-            }
+            },
+            containerColor = Color(0xFF0F0E17)
         ) { padding ->
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background)
             ) {
                 item {
-                    GradientHeader(stringResource(R.string.adopt_title))
-                }
-
-                item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(24.dp)
+                            .height(200.dp)
                     ) {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text(stringResource(R.string.adopt_search_hint)) },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFF2E1A7A)) },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color(0xFF2E1A7A),
-                                unfocusedBorderColor = Color.LightGray
-                            )
+                        Image(
+                            painter = painterResource(id = R.mipmap.logo_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            alpha = 0.05f
                         )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "adopción",
+                                color = Color(0xFF7B5EE1).copy(alpha = 0.9f),
+                                fontSize = 64.sp,
+                                fontWeight = FontWeight.Black,
+                                modifier = Modifier.offset(y = 15.dp)
+                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = Color.White.copy(alpha = 0.1f),
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(Icons.Default.Favorite, null, tint = Color.White, modifier = Modifier.padding(6.dp))
+                                }
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    "Tenemos ${mascotas.size} mascotas esperando un hogar",
+                                    color = Color.White,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
                     }
                 }
+
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            "FILTRAR MASCOTAS",
+                            color = Color.White.copy(alpha = 0.5f),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        
+                        OutlinedTextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Buscar por nombre...", color = Color.White.copy(alpha = 0.4f), fontSize = 14.sp) },
+                            leadingIcon = { Icon(Icons.Default.Search, null, tint = Color(0xFF7B5EE1)) },
+                            shape = RoundedCornerShape(16.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF7B5EE1),
+                                unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedContainerColor = Color(0xFF1B1A23),
+                                unfocusedContainerColor = Color(0xFF1B1A23)
+                            )
+                        )
 
                 item {
                     Text(
@@ -116,98 +180,55 @@ fun AdopcionListScreen(
                 }
 else {
                     item {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                            val chunks = mascotas.chunked(2)
-                            chunks.forEach { rowMascotas ->
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    rowMascotas.forEach { mascota ->
-                                        ModernPetCard(mascota, navController, Modifier.weight(1f))
+                        val filteredMascotas = mascotas.filter { 
+                            (selectedEspecie == "Todas" || it.especie?.contains(selectedEspecie, ignoreCase = true) == true) &&
+                            (it.nombre.contains(searchQuery, ignoreCase = true))
+                        }
+
+                        if (filteredMascotas.isEmpty()) {
+                            Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                                Text("No se encontraron mascotas", color = Color.White.copy(alpha = 0.5f))
+                            }
+                        } else {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                val chunks = filteredMascotas.chunked(2)
+                                chunks.forEach { rowMascotas ->
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        rowMascotas.forEach { mascota ->
+                                            ModernPetCard(mascota, navController, Modifier.weight(1f))
+                                        }
+                                        if (rowMascotas.size < 2) {
+                                            repeat(2 - rowMascotas.size) { Spacer(modifier = Modifier.weight(1f)) }
+                                        }
                                     }
-                                    if (rowMascotas.size < 2) {
-                                        repeat(2 - rowMascotas.size) { Spacer(modifier = Modifier.weight(1f)) }
-                                    }
+                                    Spacer(modifier = Modifier.height(12.dp))
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
                     }
                 }
 
-                item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
-                        TextButton(onClick = { viewModel.cargarMascotas() }) {
-                            Text(stringResource(R.string.adopt_btn_more), color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-
-                item {
-                    Box(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(brush = AppMainGradient)
-                            .padding(24.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    stringResource(R.string.adopt_fact_title),
-                                    color = Color.White,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                Text(
-                                    stringResource(R.string.adopt_fact_desc),
-                                    color = Color.White.copy(alpha = 0.9f),
-                                    fontSize = 13.sp,
-                                    lineHeight = 18.sp
-                                )
-                            }
-                            Spacer(Modifier.width(16.dp))
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = null,
-                                tint = Color.White.copy(alpha = 0.3f),
-                                modifier = Modifier.size(60.dp)
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Column(modifier = Modifier.padding(24.dp)) {
-                        Text(
-                            stringResource(R.string.adopt_steps_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2E1A7A)
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        
-                        AdoptionStepItem(1, stringResource(R.string.adopt_step_1))
-                        AdoptionStepItem(2, stringResource(R.string.adopt_step_2))
-                        AdoptionStepItem(3, stringResource(R.string.adopt_step_3))
-                        AdoptionStepItem(4, stringResource(R.string.adopt_step_4))
-                        
-                        Spacer(Modifier.height(24.dp))
-                        
-                        Button(
-                            onClick = { navController.navigate("formulario_adopcion") },
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text(stringResource(R.string.adopt_btn_form), fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                    }
-                }
-                
-                item { Spacer(Modifier.height(32.dp)) }
+                item { Spacer(Modifier.height(100.dp)) }
             }
         }
+    }
+}
+
+@Composable
+fun CustomChipItem(text: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(10.dp),
+        color = if (selected) Color(0xFF7B5EE1) else Color(0xFF1B1A23),
+        border = BorderStroke(1.dp, if (selected) Color(0xFF7B5EE1) else Color.White.copy(alpha = 0.1f))
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            color = if (selected) Color.White else Color.White.copy(alpha = 0.7f),
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium
+        )
     }
 }
 
@@ -227,13 +248,25 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
-            Box {
+            Box(modifier = Modifier.height(150.dp).fillMaxWidth()) {
                 Image(
                     painter = rememberAsyncImagePainter(fullImageUrl),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().height(150.dp),
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
+                                startY = 200f
+                            )
+                        )
+                )
+
                 Surface(
                     modifier = Modifier.padding(8.dp).align(Alignment.TopStart),
                     shape = RoundedCornerShape(8.dp),

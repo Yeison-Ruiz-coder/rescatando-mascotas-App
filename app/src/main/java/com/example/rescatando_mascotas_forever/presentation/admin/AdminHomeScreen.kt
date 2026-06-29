@@ -1,38 +1,49 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.widget.Toast
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.rescatando_mascotas_forever.R
+import com.example.rescatando_mascotas_forever.data.network.api.MonthlyData
+import com.example.rescatando_mascotas_forever.data.network.api.SpeciesDistribution
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import com.example.rescatando_mascotas_forever.utils.ReportGenerator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdminHomeScreen(navController: NavHostController) {
+fun AdminHomeScreen(
+    navController: NavHostController,
+    viewModel: AdminHomeViewModel = viewModel()
+) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     val adminGradient = Brush.verticalGradient(
         colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
@@ -119,27 +130,42 @@ fun AdminHomeScreen(navController: NavHostController) {
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    val adminActions = listOf(
-                        AdminAction(stringResource(R.string.admin_action_pets_title), Icons.Default.Favorite, "admin_mascotas", stringResource(R.string.admin_action_pets_desc)),
-                        AdminAction(stringResource(R.string.admin_action_adop_title), Icons.Default.Description, "admin_formulario_adopcion", stringResource(R.string.admin_action_adop_desc)),
-                        AdminAction(stringResource(R.string.admin_action_reports_title), Icons.Default.LocationOn, "admin_reportes_rescate", stringResource(R.string.admin_action_reports_desc)),
-                        AdminAction(stringResource(R.string.admin_action_events_title), Icons.Default.Event, "admin_eventos", stringResource(R.string.admin_action_events_desc)),
-                        AdminAction(stringResource(R.string.admin_action_users_title), Icons.Default.Group, "admin_usuarios", stringResource(R.string.admin_action_users_desc)),
-                        AdminAction(stringResource(R.string.admin_action_donations_title), Icons.Default.Payments, "admin_donaciones", stringResource(R.string.admin_action_donations_desc)),
-                        AdminAction(stringResource(R.string.admin_action_subscriptions_title), Icons.Default.Star, "admin_suscripciones", stringResource(R.string.admin_action_subscriptions_desc))
-                    )
-
-                    adminActions.chunked(2).forEach { rowActions ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            rowActions.forEach { action ->
-                                EnhancedAdminCard(action, Modifier.weight(1f)) {
-                                    if (action.route != "") navController.navigate(action.route)
+                            // --- 3. GRÁFICA DE TENDENCIA (RESCATES) ---
+                            item {
+                                AnalyticsSectionCard("Impacto Semanal (Rescates)", Icons.AutoMirrored.Filled.ShowChart) {
+                                    SeniorAreaChart(state.stats.rescueHistory)
                                 }
                             }
-                            if (rowActions.size < 2) Spacer(modifier = Modifier.weight(1f))
+
+                            // --- 4. DISTRIBUCIÓN Y REPORTES ---
+                            item {
+                                Row(
+                                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                ) {
+                                    Card(
+                                        modifier = Modifier.weight(1.2f).height(200.dp),
+                                        shape = RoundedCornerShape(28.dp),
+                                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                                        elevation = CardDefaults.cardElevation(2.dp)
+                                    ) {
+                                        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text("Especies", fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
+                                            Spacer(Modifier.weight(1f))
+                                            SeniorDonutChart(state.stats.speciesDistribution)
+                                            Spacer(Modifier.weight(1f))
+                                        }
+                                    }
+                                    
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        ActionCardPro("Mascotas", Icons.Default.Edit, Color(0xFF673AB7)) { navController.navigate("admin_mascotas") }
+                                        ActionCardPro("Usuarios", Icons.Default.Group, Color(0xFF3B82F6)) { navController.navigate("admin_usuarios") }
+                                        ActionCardPro("Reporte", Icons.Default.PictureAsPdf, Color(0xFF10B981)) { 
+                                            ReportGenerator.generateStatsPdf(context, state.stats.totalMascotas, state.stats.totalRescates, state.stats.totalAdopciones) 
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     
@@ -163,7 +189,23 @@ fun AdminHomeScreen(navController: NavHostController) {
 }
 
 @Composable
-fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun StatusLiveBadge() {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.5f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse), label = "alpha"
+    )
+    Surface(color = Color.White.copy(0.15f), shape = RoundedCornerShape(100.dp)) {
+        Row(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(8.dp).alpha(alpha).background(Color(0xFF10B981), CircleShape))
+            Spacer(Modifier.width(8.dp))
+            Text("LIVE RAILWAY DATABASE", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+@Composable
+fun MetricCardSenior(title: String, value: String, trend: String, icon: ImageVector, color: Color, modifier: Modifier) {
     Card(
         modifier = modifier
             .clickable { onClick() },
@@ -209,21 +251,24 @@ fun EnhancedAdminCard(action: AdminAction, modifier: Modifier = Modifier, onClic
 }
 
 @Composable
-fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope) {
-    val scrollState = rememberScrollState()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    
-    val navigateAndClose: (String) -> Unit = { route ->
-        scope.launch {
-            drawerState.close()
-            if (currentRoute != route) {
-                navController.navigate(route) {
-                    launchSingleTop = true
-                }
+fun AnalyticsSectionCard(title: String, icon: ImageVector, content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(Modifier.padding(24.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, null, tint = Color(0xFF673AB7), modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(12.dp))
+                Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E293B))
             }
+            Spacer(Modifier.height(20.dp))
+            content()
         }
     }
+}
 
     Column(
         modifier = Modifier
@@ -269,42 +314,28 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        DrawerSectionHeader(stringResource(R.string.admin_drawer_nav))
-        DrawerMenuItem(stringResource(R.string.admin_drawer_dashboard), Icons.Default.Dashboard, isSelected = currentRoute == "admin_home") { navigateAndClose("admin_home") }
         
-        DrawerSectionHeader(stringResource(R.string.admin_drawer_forms))
-        DrawerMenuItem(stringResource(R.string.admin_drawer_adop_form), Icons.Default.Description, isSelected = currentRoute == "admin_formulario_adopcion") { navigateAndClose("admin_formulario_adopcion") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescuer_reg), Icons.Default.Badge, isSelected = currentRoute == "admin_registro_rescatista") { navigateAndClose("admin_registro_rescatista") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_enc), Icons.Default.Quiz, isSelected = currentRoute == "admin_encuesta_rescate") { navigateAndClose("admin_encuesta_rescate") }
-
-        DrawerSectionHeader(stringResource(R.string.admin_drawer_management))
-        DrawerMenuItem(stringResource(R.string.admin_action_pets_title), Icons.Default.Pets, isSelected = currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_events), Icons.Default.Event, isSelected = currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_rescue_reports), Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_donations), Icons.Default.Payments, isSelected = currentRoute == "admin_donaciones") { navigateAndClose("admin_donaciones") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_users), Icons.Default.Group, isSelected = currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_subscriptions), Icons.Default.Star, isSelected = currentRoute == "admin_suscripciones") { navigateAndClose("admin_suscripciones") }
-
-        Spacer(modifier = Modifier.weight(1f))
+        drawPath(path, color = Color(0xFF673AB7), style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
         
         HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 24.dp), 
             color = MaterialTheme.colorScheme.outlineVariant
         )
 
-        DrawerMenuItem(stringResource(R.string.admin_drawer_exit), Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color(0xFFD32F2F)) {
-            scope.launch {
-                drawerState.close()
-                com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.setToken(null)
-                navController.navigate("login") {
-                    popUpTo(0) { inclusive = true }
-                }
-            }
+@Composable
+fun SeniorDonutChart(data: List<SpeciesDistribution>) {
+    Canvas(modifier = Modifier.size(90.dp)) {
+        var startAngle = -90f
+        val total = data.sumOf { it.count }.coerceAtLeast(1)
+        data.forEach { species ->
+            val sweepAngle = (species.count.toFloat() / total) * 360f
+            drawArc(
+                color = try { Color(android.graphics.Color.parseColor(species.color)) } catch(e:Exception) { Color.Gray },
+                startAngle = startAngle, sweepAngle = sweepAngle, useCenter = false,
+                style = Stroke(width = 25f, cap = StrokeCap.Round)
+            )
+            startAngle += sweepAngle
         }
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -328,4 +359,11 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
     }
 }
 
-data class AdminAction(val title: String, val icon: ImageVector, val route: String, val description: String? = null)
+@Composable
+fun ErrorLayout(msg: String, onRetry: () -> Unit) {
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Icon(Icons.Default.CloudOff, null, Modifier.size(48.dp), tint = Color.Gray)
+        Text("Fallo en sincronización Railway", fontWeight = FontWeight.Bold)
+        Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Reintentar") }
+    }
+}

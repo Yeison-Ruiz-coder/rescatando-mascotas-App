@@ -306,20 +306,38 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
     val navigateAndClose: (String) -> Unit = { route ->
         scope.launch {
             drawerState.close()
-            navController.navigate(route) { launchSingleTop = true }
+            if (currentRoute != route) {
+                navController.navigate(route) {
+                    launchSingleTop = true
+                }
+            }
         }
     }
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).background(MaterialTheme.colorScheme.surface)) {
         Box(modifier = Modifier.fillMaxWidth().background(Color(0xFF333333)).padding(24.dp).padding(top = 24.dp)) {
             Text(stringResource(R.string.admin_drawer_mode), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
         }
-        Spacer(Modifier.height(16.dp))
-        DrawerMenuItem(stringResource(R.string.admin_drawer_dashboard), Icons.Default.Dashboard, currentRoute == "admin_home") { navigateAndClose("admin_home") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_pets), Icons.Default.Pets, currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_events), Icons.Default.Event, currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
-        DrawerMenuItem(stringResource(R.string.admin_drawer_donations), Icons.Default.Payments, currentRoute == "admin_donaciones") { navigateAndClose("admin_donaciones") }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        DrawerMenuItem("Dashboard", Icons.Default.Dashboard, isSelected = currentRoute == "admin_home") { navigateAndClose("admin_home") }
+        DrawerMenuItem("Usuarios", Icons.Default.Group, isSelected = currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
+        DrawerMenuItem("Mascotas", Icons.Default.Pets, isSelected = currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
+        DrawerMenuItem("Reportes Rescate", Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
+        DrawerMenuItem("Eventos", Icons.Default.Event, isSelected = currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
+
         Spacer(modifier = Modifier.weight(1f))
-        DrawerMenuItem("Salir Modo Admin", Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { navigateAndClose("home") }
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+        DrawerMenuItem("Cerrar Sesión", Icons.AutoMirrored.Filled.ExitToApp, isSelected = false, color = Color.Red) {
+            scope.launch {
+                drawerState.close()
+                com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.setToken(null)
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 

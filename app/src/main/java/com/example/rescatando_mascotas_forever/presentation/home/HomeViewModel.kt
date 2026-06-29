@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
+import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 data class Foundation(
     val id: Int,
@@ -35,7 +38,6 @@ class HomeViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // --- ESTADOS DE BÚSQUEDA Y CATEGORÍAS ---
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
@@ -44,7 +46,6 @@ class HomeViewModel(
 
     private var todasLasMascotasList: List<Mascota> = emptyList()
 
-    // --- ESTADOS DE FUNDACIONES ---
     private val _selectedCity = MutableStateFlow("Todas las ciudades")
     val selectedCity: StateFlow<String> = _selectedCity
 
@@ -109,13 +110,13 @@ class HomeViewModel(
         var filtradas = todasLasMascotasList
         
         if (especieBuscada != null) {
-            filtradas = filtradas.filter { it.especie.equals(especieBuscada, ignoreCase = true) }
+            filtradas = filtradas.filter { it.especie?.equals(especieBuscada, ignoreCase = true) == true }
         }
         
         if (query.isNotBlank()) {
             filtradas = filtradas.filter { 
                 it.nombre.contains(query, ignoreCase = true) || 
-                it.especie.contains(query, ignoreCase = true) ||
+                (it.especie?.contains(query, ignoreCase = true) ?: false) ||
                 (it.ubicacion?.contains(query, ignoreCase = true) ?: false)
             }
         }
@@ -128,17 +129,26 @@ class HomeViewModel(
             _isLoading.value = true
             _error.value = null
             
-            // 1. Cargamos mascotas
             mascotaRepository.getMascotas().collect { result ->
                 result.onSuccess { response ->
-                    todasLasMascotasList = response.data.data
-                    filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
+                    try {
+                        // Al haber comentado galeria_fotos en el modelo Mascota,
+                        // el parseo de response.data a MascotaDataWrapper ya no fallará.
+                        val gson = Gson()
+                        val json = gson.toJson(response.data)
+                        val wrapper = gson.fromJson(json, MascotaDataWrapper::class.java)
+                        
+                        todasLasMascotasList = wrapper?.data ?: emptyList()
+                        filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
+                    } catch (e: Exception) {
+                        todasLasMascotasList = emptyList()
+                    }
                 }.onFailure { e ->
                     _error.value = "Error al cargar mascotas: ${e.message}"
                 }
+                _isLoading.value = false
             }
             
-            // 2. Cargamos eventos
             eventoRepository.getEventos().collect { result ->
                 result.onSuccess {
                     // Tomamos solo los últimos 3 eventos subidos (ordenados por ID descendente)
@@ -147,8 +157,6 @@ class HomeViewModel(
                     // Silently fail or log for events
                 }
             }
-            
-            _isLoading.value = false
         }
     }
 }
