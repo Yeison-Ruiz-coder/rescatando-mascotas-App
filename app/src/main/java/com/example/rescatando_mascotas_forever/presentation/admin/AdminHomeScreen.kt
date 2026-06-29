@@ -81,16 +81,16 @@ fun AdminHomeScreen(
                                     modifier = Modifier.padding(20.dp).fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    MetricCardSenior("Pets", state.stats.totalMascotas.toString(), state.stats.mascotasTrend, Icons.Default.Pets, Color(0xFF10B981), Modifier.weight(1f))
-                                    MetricCardSenior("Rescues", state.stats.totalRescates.toString(), state.stats.rescatesTrend, Icons.Default.Warning, Color(0xFFF43F5E), Modifier.weight(1f))
-                                    MetricCardSenior("Adoptions", state.stats.totalAdopciones.toString(), state.stats.adopcionesTrend, Icons.Default.CheckCircle, Color(0xFF3B82F6), Modifier.weight(1f))
+                                    MetricCardSenior("Pets", state.stats.totalMascotas.toString(), state.stats.mascotasTrend ?: "0%", Icons.Default.Pets, Color(0xFF10B981), Modifier.weight(1f))
+                                    MetricCardSenior("Rescues", state.stats.totalRescates.toString(), state.stats.rescatesTrend ?: "0%", Icons.Default.Warning, Color(0xFFF43F5E), Modifier.weight(1f))
+                                    MetricCardSenior("Adoptions", state.stats.totalAdopciones.toString(), state.stats.adopcionesTrend ?: "0%", Icons.Default.CheckCircle, Color(0xFF3B82F6), Modifier.weight(1f))
                                 }
                             }
 
                             // --- 3. GRÁFICA DE TENDENCIA (RESCATES) ---
                             item {
                                 AnalyticsSectionCard("Impacto Semanal (Rescates)", Icons.AutoMirrored.Filled.ShowChart) {
-                                    SeniorAreaChart(state.stats.rescueHistory)
+                                    SeniorAreaChart(state.stats.rescueHistory ?: emptyList())
                                 }
                             }
 
@@ -109,7 +109,7 @@ fun AdminHomeScreen(
                                         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                             Text("Especies", fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
                                             Spacer(Modifier.weight(1f))
-                                            SeniorDonutChart(state.stats.speciesDistribution)
+                                            SeniorDonutChart(state.stats.speciesDistribution ?: emptyList())
                                             Spacer(Modifier.weight(1f))
                                         }
                                     }
