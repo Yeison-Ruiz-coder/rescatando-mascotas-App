@@ -77,7 +77,8 @@ class AdminMascotaFormViewModel : ViewModel() {
         requisitos: String,
         hogarRecomendado: String,
         videoUrl: String,
-        fotoPrincipalUri: Uri?
+        fotoPrincipalUri: Uri?,
+        fundacionId: String
     ) {
         viewModelScope.launch {
             _state.value = AdminFormState.Loading
@@ -97,13 +98,11 @@ class AdminMascotaFormViewModel : ViewModel() {
                 partMap["descripcion"] = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["condiciones_especiales"] = condiciones.toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["salud_general"] = salud.toRequestBody("text/plain".toMediaTypeOrNull())
-                partMap["enfermedades_cronicas"] = enfermedades.toRequestBody("text/plain".toMediaTypeOrNull())
-                partMap["medicamentos"] = medicamentos.toRequestBody("text/plain".toMediaTypeOrNull())
-                partMap["requisitos_adopcion"] = requisitos.toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["hogar_recomendado"] = hogarRecomendado.toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["video_url"] = videoUrl.toRequestBody("text/plain".toMediaTypeOrNull())
+                partMap["fundacion_id"] = fundacionId.toRequestBody("text/plain".toMediaTypeOrNull())
                 
-                // Booleanos
+                // Booleanos como 1 o 0
                 partMap["esterilizado"] = (if (esterilizado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["desparasitado"] = (if (desparasitado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["vacunado"] = (if (vacunado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
@@ -111,6 +110,17 @@ class AdminMascotaFormViewModel : ViewModel() {
                 partMap["apto_con_otros_animales"] = (if (aptoAnimales) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["necesita_hogar_temporal"] = (if (hogarTemporal) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
                 partMap["destacada"] = (if (destacada) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // Convertir strings con comas a arreglos para Laravel
+                fun String.toPartList(key: String) {
+                    this.split(",").map { it.trim() }.filter { it.isNotBlank() }.forEachIndexed { index, s ->
+                        partMap["$key[$index]"] = s.toRequestBody("text/plain".toMediaTypeOrNull())
+                    }
+                }
+
+                enfermedades.toPartList("enfermedades_cronicas")
+                medicamentos.toPartList("medicamentos")
+                requisitos.toPartList("requisitos_adopcion")
 
                 var imagePart: MultipartBody.Part? = null
                 fotoPrincipalUri?.let { uri ->
