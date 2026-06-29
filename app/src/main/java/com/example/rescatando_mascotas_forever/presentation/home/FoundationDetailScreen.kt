@@ -28,47 +28,46 @@ import androidx.navigation.NavHostController
 @Composable
 fun FoundationDetailScreen(foundationName: String, navController: NavHostController) {
     val context = LocalContext.current
-    val WebDarkBg = Color(0xFF0A0E14)
-    val AccentPurple = Color(0xFF9575CD)
-    val PurpleGradient = Brush.verticalGradient(listOf(Color(0xFF9575CD), Color(0xFF7E57C2)))
+    val accentPurple = MaterialTheme.colorScheme.primary
+    val purpleGradient = Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)))
     val direccion = "Carrera 25 # 10-05, Bucaramanga"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(foundationName, color = Color.White, fontSize = 18.sp) },
+                title = { Text(foundationName, color = MaterialTheme.colorScheme.onPrimary, fontSize = 18.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = WebDarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).background(WebDarkBg).padding(horizontal = 20.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background).padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(12.dp)).background(PurpleGradient), contentAlignment = Alignment.Center) {
-                    Text(foundationName, color = Color.White.copy(alpha = 0.1f), fontSize = 32.sp, fontWeight = FontWeight.Black)
+                Box(modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(12.dp)).background(purpleGradient), contentAlignment = Alignment.Center) {
+                    Text(foundationName, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f), fontSize = 32.sp, fontWeight = FontWeight.Black)
                 }
             }
             item {
-                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color(0xFF161B22))) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                     Column(Modifier.padding(16.dp)) {
-                        Text("CONTACTO", color = AccentPurple, fontWeight = FontWeight.Bold)
-                        Text(direccion, color = Color.White)
+                        Text("CONTACTO", color = accentPurple, fontWeight = FontWeight.Bold)
+                        Text(direccion, color = MaterialTheme.colorScheme.onSurface)
                         Button(
                             onClick = {
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=${Uri.encode(direccion)}"))
                                 context.startActivity(intent)
                             },
                             modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = AccentPurple)
+                            colors = ButtonDefaults.buttonColors(containerColor = accentPurple)
                         ) {
-                            Text("Ver en Google Maps")
+                            Text("Ver en Google Maps", color = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
                 }

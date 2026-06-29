@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,7 +64,7 @@ fun LoginRequiredScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6EEE9))
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -74,32 +73,32 @@ fun LoginRequiredScreen(navController: NavHostController) {
                 Icons.Default.Lock,
                 contentDescription = null,
                 modifier = Modifier.size(80.dp),
-                tint = Color(0xFF673AB7)
+                tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 "Función exclusiva",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF2E1A7A)
+                color = MaterialTheme.colorScheme.primary
             )
             Text(
                 "Para realizar esta acción debes tener una cuenta.",
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(
                 onClick = { navController.navigate("login") },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("INICIAR SESIÓN", fontWeight = FontWeight.Bold)
+                Text("INICIAR SESIÓN", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
             }
             TextButton(onClick = { navController.popBackStack() }) {
-                Text("Volver atrás", color = Color.Gray)
+                Text("Volver atrás", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

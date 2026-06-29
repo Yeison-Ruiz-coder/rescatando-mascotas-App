@@ -42,17 +42,17 @@ fun SubscriptionScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis Apadrinamientos", fontWeight = FontWeight.Bold) },
+                title = { Text("Mis Apadrinamientos", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface),
                 actions = {
                     // Botón temporal para que veas el Panel Admin Senior rápidamente
                     TextButton(onClick = { navController.navigate("admin_suscripciones") }) {
-                        Text("Admin View", color = Color(0xFF673AB7), fontWeight = FontWeight.Bold)
+                        Text("Admin View", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     }
                 }
             )
@@ -62,8 +62,8 @@ fun SubscriptionScreen(
                 onClick = { navController.navigate("adopciones") },
                 icon = { Icon(Icons.Default.Add, null) },
                 text = { Text("Apadrinar más") },
-                containerColor = Color(0xFF673AB7),
-                contentColor = Color.White
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         }
     ) { padding ->
@@ -71,7 +71,7 @@ fun SubscriptionScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color(0xFFF8F9FE))
+                .background(MaterialTheme.colorScheme.background)
         ) {
             when (state) {
                 is SuscripcionState.Loading -> {
@@ -121,10 +121,10 @@ fun EmptySubscriptionsView() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(80.dp), tint = Color(0xFFE91E63).copy(alpha = 0.2f))
+        Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
         Spacer(Modifier.height(16.dp))
-        Text("Aún no tienes apadrinamientos", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        Text("Puedes apoyar a una mascota con una donación mensual.", color = Color.Gray, fontSize = 14.sp)
+        Text("Aún no tienes apadrinamientos", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+        Text("Puedes apoyar a una mascota con una donación mensual.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
     }
 }
 
@@ -133,14 +133,16 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // Imagen de la mascota
                 val fotoUrl = suscripcion.mascota?.fotoPrincipal ?: ""
-                val fullImageUrl = if (fotoUrl.startsWith("http")) fotoUrl else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/$fotoUrl"
+                val baseUrl = com.example.rescatando_mascotas_forever.utils.Constants.BASE_URL
+                val fullImageUrl = if (fotoUrl.startsWith("http")) fotoUrl 
+                else "${baseUrl}storage/$fotoUrl"
 
                 Image(
                     painter = rememberAsyncImagePainter(fullImageUrl),
@@ -156,19 +158,19 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
                         suscripcion.mascota?.nombre ?: "Mascota", 
                         fontWeight = FontWeight.ExtraBold, 
                         fontSize = 18.sp,
-                        color = Color(0xFF2E1A7A)
+                        color = MaterialTheme.colorScheme.primary
                     )
                     val capitalizedFrecuencia = suscripcion.frecuencia.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                     }
                     Text(
                         capitalizedFrecuencia,
-                        color = Color.Gray, 
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, 
                         fontSize = 14.sp
                     )
                     Text(
                         "$${suscripcion.montoMensual}", 
-                        color = Color(0xFF673AB7), 
+                        color = MaterialTheme.colorScheme.primary, 
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
@@ -185,14 +187,14 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF0EDFF))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         .padding(12.dp)
                 ) {
                     Text(
                         text = "\"${suscripcion.mensajeApoyo}\"",
                         fontSize = 13.sp,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        color = Color(0xFF4C35A3)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -207,7 +209,7 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
                 Text(
                     "Desde: ${suscripcion.fechaInicio}", 
                     fontSize = 11.sp, 
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Surface(

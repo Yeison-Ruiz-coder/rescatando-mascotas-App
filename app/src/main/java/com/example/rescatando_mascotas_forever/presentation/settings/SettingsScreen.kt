@@ -43,17 +43,17 @@ fun SettingsScreen(navController: NavHostController) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.settings_back))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.settings_back), tint = MaterialTheme.colorScheme.primary)
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
                 )
             },
             bottomBar = { AppBottomBar(navController = navController) },
-            containerColor = Color(0xFFFDF7F2)
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
@@ -107,11 +107,11 @@ fun LanguageSelectorItem() {
     
     Column(modifier = Modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Language, null, tint = Color(0xFF673AB7), modifier = Modifier.size(24.dp))
+            Icon(Icons.Default.Language, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.settings_language), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
-                Text(stringResource(R.string.settings_language_desc), fontSize = 12.sp, color = Color.Gray)
+                Text(stringResource(R.string.settings_language), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(stringResource(R.string.settings_language_desc), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -145,9 +145,9 @@ fun LanguageSelectorItem() {
 
 @Composable
 fun LanguageButton(text: String, isSelected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val backgroundColor = if (isSelected) Color(0xFF673AB7) else Color.White
-    val contentColor = if (isSelected) Color.White else Color(0xFF673AB7)
-    val borderColor = Color(0xFF673AB7)
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+    val borderColor = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = modifier
@@ -168,7 +168,7 @@ fun SettingsSectionTitle(title: String) {
         text = title,
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
-        color = Color(0xFF673AB7),
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(vertical = 12.dp, horizontal = 4.dp)
     )
 }
@@ -178,7 +178,7 @@ fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(content = content)
@@ -194,40 +194,53 @@ fun SettingsItem(icon: ImageVector, title: String, subtitle: String, onClick: ()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = Color(0xFF673AB7), modifier = Modifier.size(24.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
-            Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.LightGray)
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
 @Composable
 fun SettingsToggleItem(icon: ImageVector, title: String, subtitle: String) {
-    var checked by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val themeManager = remember { com.example.rescatando_mascotas_forever.data.local.ThemeManager(context) }
+    
+    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+    // El estado del switch depende de nuestro controlador
+    val isChecked = com.example.rescatando_mascotas_forever.ui.theme.ThemeController.isDarkOverride.value ?: isSystemDark
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, null, tint = Color(0xFF673AB7), modifier = Modifier.size(24.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
-            Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Switch(
-            checked = checked,
-            onCheckedChange = { checked = it },
-            colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFF673AB7))
+            checked = isChecked,
+            onCheckedChange = { nuevoValor ->
+                // Actualizamos el controlador global y guardamos en persistencia
+                com.example.rescatando_mascotas_forever.ui.theme.ThemeController.isDarkOverride.value = nuevoValor
+                themeManager.setDarkMode(nuevoValor)
+            },
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                checkedTrackColor = MaterialTheme.colorScheme.primary
+            )
         )
     }
 }
 
 @Composable
 fun SettingsDivider() {
-    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF5F5F5))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
 }

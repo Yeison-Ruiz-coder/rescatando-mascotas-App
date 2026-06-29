@@ -79,7 +79,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(mainGradient)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Column(
                     modifier = Modifier
@@ -92,19 +92,19 @@ fun FormularioRescateScreen(navController: NavHostController) {
                     Icon(
                         Icons.Default.Pets,
                         contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.8f),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Reportar un Rescate",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
                         text = "Tu reporte puede salvar una vida. Completa los detalles del animal en situación de emergencia.",
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 8.dp)
@@ -116,7 +116,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(32.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         elevation = CardDefaults.cardElevation(defaultElevation = 15.dp)
                     ) {
                         Column(
@@ -128,7 +128,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 "Foto de la mascota *",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF333333)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                             
@@ -136,14 +136,14 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 modifier = Modifier
                                     .size(160.dp)
                                     .clip(RoundedCornerShape(24.dp))
-                                    .background(Color(0xFFF3E5F5))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                                     .clickable { launcher.launch("image/*") },
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (imageUri == null) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(Icons.Default.AddAPhoto, null, tint = Color(0xFF673AB7), modifier = Modifier.size(40.dp))
-                                        Text("Subir foto", color = Color(0xFF673AB7), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.AddAPhoto, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp))
+                                        Text("Subir foto", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 } else {
                                     Image(
@@ -164,7 +164,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 "Descripción del estado del animal *",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF333333),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp
                             )
                             OutlinedTextField(
@@ -174,8 +174,8 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 modifier = Modifier.fillMaxWidth().height(120.dp).padding(vertical = 8.dp),
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Color(0xFF673AB7),
-                                    unfocusedBorderColor = Color.LightGray.copy(alpha = 0.5f)
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
 
@@ -186,7 +186,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 "Clasificar manualmente (opcional)",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF333333),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -204,7 +204,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 ClassificationChip("Abandonado", Icons.Default.Home, clasificacion == "Abandonado", Color(0xFF1E88E5)) { clasificacion = "Abandonado" }
-                                ClassificationChip("Otro", Icons.Default.Info, clasificacion == "Otro", Color(0xFF757575)) { clasificacion = "Otro" }
+                                ClassificationChip("Otro", Icons.Default.Info, clasificacion == "Otro", MaterialTheme.colorScheme.onSurfaceVariant) { clasificacion = "Otro" }
                             }
 
                             Spacer(modifier = Modifier.height(24.dp))
@@ -214,14 +214,14 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 "Fecha del rescate *",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF333333),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp
                             )
                             OutlinedTextField(
                                 value = fechaRescate,
                                 onValueChange = { },
                                 readOnly = true,
-                                leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = Color(0xFF673AB7)) },
+                                leadingIcon = { Icon(Icons.Default.CalendarToday, null, tint = MaterialTheme.colorScheme.primary) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
@@ -229,9 +229,9 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 enabled = false,
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    disabledBorderColor = Color.LightGray.copy(alpha = 0.5f),
-                                    disabledTextColor = Color.Black,
-                                    disabledLabelColor = Color.Gray
+                                    disabledBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             )
 
@@ -242,7 +242,7 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                 "Ubicación exacta en el mapa",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF333333),
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp
                             )
                             Spacer(modifier = Modifier.height(8.dp))
@@ -251,19 +251,19 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                     .fillMaxWidth()
                                     .height(180.dp)
                                     .clip(RoundedCornerShape(20.dp))
-                                    .background(Color(0xFFEEEEEE)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Icon(Icons.Default.LocationOn, null, tint = Color.Red, modifier = Modifier.size(32.dp))
-                                    Text("Simulación de Mapa", color = Color.Gray, fontSize = 12.sp)
+                                    Text("Simulación de Mapa", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                                     Button(
                                         onClick = { /* Lógica GPS */ },
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                         shape = RoundedCornerShape(12.dp),
                                         modifier = Modifier.padding(top = 8.dp)
                                     ) {
-                                        Text("Usar mi ubicación actual", fontSize = 12.sp)
+                                        Text("Usar mi ubicación actual", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary)
                                     }
                                 }
                             }
@@ -271,13 +271,13 @@ fun FormularioRescateScreen(navController: NavHostController) {
                             Spacer(modifier = Modifier.height(32.dp))
                             
                             // SECCIÓN 5: DATOS DEL REPORTANTE (Opcional)
-                            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
                                 "👤 Tus datos (opcionales para contacto)",
                                 modifier = Modifier.fillMaxWidth(),
                                 fontWeight = FontWeight.Bold,
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 13.sp,
                                 textAlign = TextAlign.Center
                             )
@@ -307,12 +307,12 @@ fun FormularioRescateScreen(navController: NavHostController) {
                                     onClick = { /* Lógica Railway */ },
                                     modifier = Modifier.weight(1.5f).height(56.dp),
                                     shape = RoundedCornerShape(16.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7)),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                                 ) {
-                                    Icon(Icons.Default.Send, null)
+                                    Icon(Icons.Default.Send, null, tint = MaterialTheme.colorScheme.onPrimary)
                                     Spacer(Modifier.width(8.dp))
-                                    Text("REPORTAR RESCATE", fontWeight = FontWeight.ExtraBold)
+                                    Text("REPORTAR RESCATE", fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimary)
                                 }
                             }
                         }
@@ -327,18 +327,18 @@ fun FormularioRescateScreen(navController: NavHostController) {
 @Composable
 fun RescueFormField(label: String, placeholder: String, value: String, onValueChange: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF333333))
+        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(6.dp))
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(placeholder, fontSize = 14.sp, color = Color.Gray.copy(alpha = 0.6f)) },
+            placeholder = { Text(placeholder, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF673AB7),
-                unfocusedBorderColor = Color.LightGray.copy(alpha = 0.5f)
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
             )
         )
     }
@@ -349,17 +349,17 @@ fun RowScope.ClassificationChip(label: String, icon: ImageVector, isSelected: Bo
     Surface(
         modifier = Modifier.weight(1f).height(50.dp).clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        color = if (isSelected) color.copy(alpha = 0.1f) else Color.White,
-        border = BorderStroke(1.dp, if (isSelected) color else Color.LightGray.copy(alpha = 0.4f))
+        color = if (isSelected) color.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, if (isSelected) color else MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(icon, null, tint = if (isSelected) color else Color.Gray, modifier = Modifier.size(18.dp))
+            Icon(icon, null, tint = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (isSelected) color else Color.Gray)
+            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (isSelected) color else MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

@@ -59,11 +59,11 @@ fun AdminFormularioAdopcionScreen(
     )
 
     Scaffold(
-        containerColor = Color(0xFFF4F6FA)
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         if (viewModel.isSaving) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF1A237E))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
 
@@ -91,7 +91,7 @@ fun AdminFormularioAdopcionScreen(
                     .padding(horizontal = 16.dp)
                     .offset(y = (-20).dp),
                 shape = RoundedCornerShape(30.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
             ) {
                 Box(
@@ -158,11 +158,11 @@ fun AdminFormularioAdopcionScreen(
                         onClick = { viewModel.previousStep() },
                         modifier = Modifier.weight(1f).height(56.dp),
                         shape = RoundedCornerShape(18.dp),
-                        border = BorderStroke(1.dp, Color(0xFF1A237E))
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                     ) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.Default.ArrowBack, null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(8.dp))
-                        Text("Anterior", fontWeight = FontWeight.Bold)
+                        Text("Anterior", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     }
                 }
 
@@ -179,16 +179,18 @@ fun AdminFormularioAdopcionScreen(
                     enabled = viewModel.isStepValid(viewModel.currentPage),
                     modifier = Modifier.weight(if (viewModel.currentPage > 1) 2f else 1f).height(56.dp),
                     shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1A237E))
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         if (viewModel.currentPage == viewModel.totalPages) "Finalizar" else "Siguiente",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(Modifier.width(8.dp))
                     Icon(
                         if (viewModel.currentPage == viewModel.totalPages) Icons.Default.Check else Icons.Default.ArrowForward,
-                        null
+                        null,
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -210,7 +212,7 @@ fun AdoptionFormHeader(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                Brush.verticalGradient(listOf(Color(0xFF1A237E), Color(0xFF3949AB)))
+                Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)))
             )
             .padding(top = 32.dp, start = 24.dp, end = 24.dp, bottom = 48.dp)
     ) {
@@ -299,14 +301,17 @@ fun AdopcionStep2(ocupacion: String, onOcupacion: (String) -> Unit, telefono: St
 fun AdopcionStep3(tipo: String, onTipo: (String) -> Unit, patio: Boolean, onPatio: (Boolean) -> Unit, prot: Boolean, onProt: (Boolean) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         FormSectionTitle(Icons.Default.Home, "Vivienda", "Condiciones del hogar")
-        Text("Tipo de vivienda", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+        Text("Tipo de vivienda", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.onSurface)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("Casa", "Apartamento", "Finca").forEach {
                 FilterChip(
                     selected = tipo == it,
                     onClick = { onTipo(it) },
                     label = { Text(it) },
-                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFF1A237E), selectedLabelColor = Color.White)
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
             }
         }
@@ -348,13 +353,13 @@ fun AdopcionStep5(otras: Boolean, onOtras: (Boolean) -> Unit, exp: String, onExp
 @Composable
 fun FormSectionTitle(icon: ImageVector, title: String, subtitle: String) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 28.dp)) {
-        Surface(shape = RoundedCornerShape(14.dp), color = Color(0xFF1A237E).copy(alpha = 0.1f)) {
-            Icon(icon, null, tint = Color(0xFF1A237E), modifier = Modifier.padding(14.dp))
+        Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) {
+            Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(14.dp))
         }
         Spacer(Modifier.width(16.dp))
         Column {
-            Text(title, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-            Text(subtitle, color = Color.Gray)
+            Text(title, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -365,10 +370,13 @@ fun ModernAdminField(value: String, onValue: (String) -> Unit, label: String, ic
         value = value, onValueChange = onValue,
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
         label = { Text(label) },
-        leadingIcon = { Icon(icon, null, tint = Color(0xFF1A237E)) },
+        leadingIcon = { Icon(icon, null, tint = MaterialTheme.colorScheme.primary) },
         shape = RoundedCornerShape(18.dp),
         singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF1A237E))
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+        )
     )
 }
 
@@ -377,18 +385,21 @@ fun ModernAdminSwitch(label: String, checked: Boolean, onChecked: (Boolean) -> U
     Surface(
         modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
         shape = RoundedCornerShape(18.dp),
-        color = Color(0xFFF8F9FC),
-        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.2f))
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, fontWeight = FontWeight.Medium)
+            Text(label, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
             Switch(
                 checked = checked, onCheckedChange = onChecked,
-                colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Color(0xFF1A237E))
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary
+                )
             )
         }
     }

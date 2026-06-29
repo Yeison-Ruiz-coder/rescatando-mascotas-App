@@ -11,7 +11,7 @@ data class Evento(
     val descripcion: String? = null,
     @SerializedName(value = "fecha_evento", alternate = ["fecha"])
     val fecha: String = "",
-    @SerializedName(value = "imagen_url", alternate = ["foto_principal", "imagen"])
+    @SerializedName(value = "imagen_url", alternate = ["foto_principal", "imagen", "foto", "url_imagen", "imagen_evento", "imagen_path", "foto_evento", "image", "url", "path", "archivo", "img", "imageUrl", "fotoPrincipal", "imagenUrl"])
     val imagenUrl: String? = null,
     @SerializedName("imagen_public_id")
     val imagenPublicId: String? = null,
