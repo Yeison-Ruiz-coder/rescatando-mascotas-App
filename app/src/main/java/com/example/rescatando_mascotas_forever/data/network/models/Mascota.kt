@@ -107,13 +107,13 @@ data class Mascota(
     val destacada: Boolean? = false,
 
     @SerializedName("vistas")
-    val vistas: Int? = 0,
+    val vistas: JsonElement? = null,
 
     @SerializedName("interesados")
-    val interesados: Int? = 0,
+    val interesados: JsonElement? = null,
 
     @SerializedName("padrinos")
-    val padrinos: Int? = 0,
+    val padrinos: JsonElement? = null,
 
     @SerializedName("created_by")
     val createdBy: Int? = null,
@@ -146,6 +146,22 @@ fun JsonElement?.toSafeString(): String {
         }
     } catch (e: Exception) {
         ""
+    }
+}
+
+// Extensión para manejar campos que pueden ser Int o Array de Objetos (padrinos, etc)
+fun JsonElement?.toSafeInt(): Int {
+    if (this == null || this.isJsonNull) return 0
+    return try {
+        if (this.isJsonPrimitive && this.asJsonPrimitive.isNumber) {
+            this.asInt
+        } else if (this.isJsonArray) {
+            this.asJsonArray.size()
+        } else {
+            0
+        }
+    } catch (e: Exception) {
+        0
     }
 }
 
