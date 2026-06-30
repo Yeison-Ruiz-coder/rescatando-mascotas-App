@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
+import com.example.rescatando_mascotas_forever.data.network.models.EventoPagination
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
@@ -156,7 +157,8 @@ class HomeViewModel(
                             else -> emptyList()
                         }
                         
-                        todasLasMascotasList = mascotas ?: emptyList()
+                        // En el Home solo mostramos una muestra (ej: 8), no todos los 100 para evitar listas infinitas
+                        todasLasMascotasList = mascotas?.take(8) ?: emptyList()
                         filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -169,11 +171,10 @@ class HomeViewModel(
             }
             
             eventoRepository.getEventos().collect { result ->
-                result.onSuccess {
+                val pagination = result.getOrNull()
+                if (pagination != null) {
                     // Tomamos solo los últimos 3 eventos subidos (ordenados por ID descendente)
-                    _eventos.value = it.sortedByDescending { evento -> evento.id }.take(3)
-                }.onFailure {
-                    // Silently fail or log for events
+                    _eventos.value = pagination.data.sortedByDescending { it.id }.take(3)
                 }
             }
         }

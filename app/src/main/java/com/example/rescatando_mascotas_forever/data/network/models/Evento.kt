@@ -23,6 +23,21 @@ data class Evento(
     val totalAsistentes: Int? = 0,
     @SerializedName("usuario_confirmado")
     val usuarioConfirmado: Boolean? = false,
+    
+    // Nuevos campos del JSON
+    @SerializedName("fecha_fin")
+    val fechaFin: String? = null,
+    @SerializedName("capacidad_maxima")
+    val capacidadMaxima: Int? = null,
+    val costo: String? = null,
+    val organizador: String? = null,
+    @SerializedName("telefono_contacto")
+    val telefonoContacto: String? = null,
+    @SerializedName("email_contacto")
+    val emailContacto: String? = null,
+    val categoria: String? = null,
+    val tags: String? = null,
+
     @SerializedName("created_at")
     val createdAt: String? = null,
     @SerializedName("updated_at")

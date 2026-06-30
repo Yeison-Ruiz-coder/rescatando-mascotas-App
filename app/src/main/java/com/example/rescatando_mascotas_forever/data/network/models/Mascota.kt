@@ -17,7 +17,7 @@ data class Mascota(
     val edadAprox: Double? = null,
 
     @SerializedName("peso_aprox")
-    val pesoAprox: Double? = null,
+    val pesoAprox: JsonElement? = null, // Puede ser String o Double en el JSON
 
     @SerializedName("tamano")
     val tamano: String? = null,
@@ -128,7 +128,19 @@ data class Mascota(
     val updatedAt: String? = null,
 
     @SerializedName("deleted_at")
-    val deletedAt: String? = null
+    val deletedAt: String? = null,
+
+    @SerializedName("fundacion")
+    val fundacion: Fundacion? = null
+)
+
+data class Fundacion(
+    val id: Int,
+    @SerializedName("Nombre_1")
+    val nombre: String,
+    @SerializedName("imagen_portada")
+    val imagenPortada: String? = null,
+    val ciudad: String? = null
 )
 
 // Extensión para manejar campos que pueden ser String o Array de Strings
