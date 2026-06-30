@@ -43,17 +43,18 @@ fun AdminSuscripcionesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gestión de Suscripciones", fontWeight = FontWeight.Bold) },
+                title = { Text("Gestión de Suscripciones", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.loadAllSuscripciones() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refrescar")
+                        Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { padding ->
@@ -153,7 +154,7 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
                         text = suscripcion.mascota?.nombre ?: "Sin Mascota",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFF2E1A7A)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -253,7 +254,7 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
 @Composable
 fun InfoIconText(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, modifier: Modifier = Modifier) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+        Icon(icon, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.width(6.dp))
         Text(text, fontSize = 12.sp, color = Color.DarkGray, maxLines = 1)
     }

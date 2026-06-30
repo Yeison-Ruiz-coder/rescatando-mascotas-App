@@ -1,10 +1,13 @@
 package com.example.rescatando_mascotas_forever.presentation.eventos
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -14,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -62,7 +66,7 @@ fun EventoScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
             bottomBar = { AppBottomBar(navController = navController) },
-            containerColor = Color(0xFFFDF7F2)
+            containerColor = MaterialTheme.colorScheme.background
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -83,16 +87,16 @@ fun EventoScreen(
                                 stringResource(R.string.event_title),
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF2E1A7A)
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Text(
                                 stringResource(R.string.event_subtitle),
                                 fontSize = 14.sp,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         IconButton(onClick = { viewModel.getEventos() }) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = Color(0xFF673AB7))
+                            Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -137,9 +141,9 @@ fun EventoScreen(
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF673AB7),
-                                    selectedLabelColor = Color.White,
-                                    selectedLeadingIconColor = Color.White
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             )
                         }
@@ -157,7 +161,7 @@ fun EventoScreen(
                                     .height(200.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                CircularProgressIndicator(color = Color(0xFF673AB7))
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -180,13 +184,13 @@ fun EventoScreen(
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
                                         "No se encontraron eventos",
-                                        color = Color.Gray,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Medium
                                     )
                                     Text(
                                         "Intenta con otros filtros o términos",
-                                        color = Color.Gray.copy(alpha = 0.7f),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 13.sp
                                     )
                                 }
@@ -240,185 +244,191 @@ fun EventCard(
     var isFavorite by remember { mutableStateOf(false) }
     var isConfirmed by remember { mutableStateOf(false) }
 
+    // Lógica de fallback ultra-robusta para diferentes campos de imagen
+    val imagePath = when {
+        !evento.imagenUrl.isNullOrEmpty() && evento.imagenUrl != "null" -> evento.imagenUrl
+        !evento.imagenPublicId.isNullOrEmpty() && evento.imagenPublicId != "null" -> evento.imagenPublicId
+        else -> null
+    }
+    val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(4.dp, RoundedCornerShape(20.dp)),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+            .clickable { onDetailsClick() }
+            .shadow(8.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
+            // --- PARTE SUPERIOR: IMAGEN Y BADGES ---
             Box {
-                val painter = if (!evento.imagenUrl.isNullOrEmpty()) {
-                    rememberAsyncImagePainter(evento.imagenUrl)
-                } else {
-                    rememberAsyncImagePainter("https://via.placeholder.com/400x200?text=Sin+Imagen")
-                }
-
                 Image(
-                    painter = painter,
+                    painter = rememberAsyncImagePainter(fullImageUrl),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp),
+                        .height(180.dp),
                     contentScale = ContentScale.Crop
                 )
+                
+                // Overlay oscuro inferior para legibilidad si fuera necesario
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f))
+                            )
+                        )
+                )
 
+                // Categoría (Badge Flotante)
                 Surface(
                     modifier = Modifier
-                        .padding(12.dp)
+                        .padding(16.dp)
                         .align(Alignment.TopStart),
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFF673AB7)
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primary
                 ) {
                     Text(
-                        evento.tipo ?: "EVENTO",
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        evento.tipo?.uppercase() ?: "EVENTO",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        letterSpacing = 1.sp
                     )
+                }
+                
+                // Botón de Like sobre la imagen
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = Color.White.copy(alpha = 0.9f),
+                        shadowElevation = 4.dp
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (isFavorite) Color.Red else Color.Gray,
+                            modifier = Modifier.padding(8.dp).size(20.dp)
+                        )
+                    }
                 }
             }
 
-            Column(modifier = Modifier.padding(16.dp)) {
+            // --- PARTE INFERIOR: INFORMACIÓN ---
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
-                    evento.nombre,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    text = evento.nombre,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 28.sp
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.Event,
-                        contentDescription = null,
-                        tint = Color(0xFF673AB7),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(evento.fecha, fontSize = 13.sp, color = Color.Gray)
-                }
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.Place,
-                        contentDescription = null,
-                        tint = Color.Red,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = evento.lugar,
-                        fontSize = 13.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = evento.tipo ?: "Gratis",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2E1A7A)
-                    )
+                // Fila de Fecha y Lugar con mejor diseño
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // Fecha
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.CalendarToday,
+                            null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = evento.fecha,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    // Lugar
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            null,
+                            tint = Color(0xFFF44336),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = evento.lugar,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    evento.descripcion ?: "Sin descripción",
-                    fontSize = 13.sp,
-                    color = Color.Gray,
-                    lineHeight = 18.sp,
-                    maxLines = 2
+                    text = evento.descripcion ?: "¡No te pierdas este increíble evento para ayudar a nuestros peluditos!",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    maxLines = 2,
+                    lineHeight = 20.sp,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
+                // Botones de Acción
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = onDetailsClick,
-                        modifier = Modifier
-                            .weight(1.3f)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp)
-                    ) {
-                        Icon(
-                            Icons.Outlined.Visibility,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(R.string.event_btn_details),
-                            fontSize = 11.sp,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
-
-                    OutlinedButton(
-                        onClick = { isFavorite = !isFavorite },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = if (isFavorite) Color.Red else Color.Gray
-                        ),
-                        contentPadding = PaddingValues(horizontal = 4.dp)
-                    ) {
-                        Icon(
-                            if (isFavorite) Icons.Default.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            stringResource(if (isFavorite) R.string.event_btn_liked else R.string.event_btn_like),
-                            fontSize = 11.sp,
-                            maxLines = 1,
-                            softWrap = false
-                        )
-                    }
-
                     Button(
                         onClick = {
                             isConfirmed = !isConfirmed
                             val msg = if (isConfirmed) "¡Asistencia confirmada!" else "Asistencia cancelada"
                             onActionClick(msg)
                         },
-                        modifier = Modifier
-                            .weight(1.3f)
-                            .height(40.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isConfirmed) Color(0xFF4CAF50) else Color(0xFF673AB7)
-                        ),
-                        contentPadding = PaddingValues(horizontal = 4.dp)
+                            containerColor = if (isConfirmed) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                        )
                     ) {
                         Icon(
-                            Icons.Outlined.EventAvailable,
+                            if (isConfirmed) Icons.Default.CheckCircle else Icons.Default.EventAvailable,
                             contentDescription = null,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(18.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            stringResource(if (isConfirmed) R.string.event_btn_confirmed else R.string.event_btn_attend),
-                            fontSize = 11.sp,
-                            maxLines = 1,
-                            softWrap = false
+                            if (isConfirmed) "CONFIRMADO" else "ASISTIRÉ",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
                         )
+                    }
+
+                    OutlinedButton(
+                        onClick = onDetailsClick,
+                        modifier = Modifier.height(48.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    ) {
+                        Icon(Icons.Default.Info, null, modifier = Modifier.size(18.dp))
                     }
                 }
             }

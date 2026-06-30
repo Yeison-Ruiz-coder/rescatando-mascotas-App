@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -87,7 +88,7 @@ fun SplashScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF9C27B0), Color(0xFF3F51B5))
+                    colors = listOf(primaryColor, secondaryColor)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -99,7 +100,7 @@ fun SplashScreen(navController: NavHostController) {
             Surface(
                 modifier = Modifier.size(180.dp),
                 shape = CircleShape,
-                color = Color.White,
+                color = Color.White, // Siempre blanco para que el logo se vea original
                 shadowElevation = 8.dp
             ) {
                 Image(
@@ -113,13 +114,13 @@ fun SplashScreen(navController: NavHostController) {
             
             Text(
                 text = "Rescatando Mascotas",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
                 text = "Forever",
-                color = Color.White.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Light
             )
@@ -128,7 +129,7 @@ fun SplashScreen(navController: NavHostController) {
             
             // Indicador de carga sutil
             androidx.compose.material3.CircularProgressIndicator(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(30.dp)
             )

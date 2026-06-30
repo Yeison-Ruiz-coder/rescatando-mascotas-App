@@ -51,7 +51,7 @@ fun FoundationListScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(WebDarkBg)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // 1. Hero Section (Banner Amarillo)
                 item {
@@ -68,29 +68,49 @@ fun FoundationListScreen(
 
                 // 2. Filtros
                 item {
-                    Column(modifier = Modifier.fillMaxWidth().background(Color(0xFF0A0C14)).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { viewModel.onSearchQueryChange(it) },
-                            placeholder = { Text("Buscar fundación...", color = Color.Gray) },
+                            placeholder = { Text("Buscar fundación...", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             modifier = Modifier.fillMaxWidth(),
-                            leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray) },
-                            colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = WebDarkBg, unfocusedContainerColor = WebDarkBg, focusedTextColor = Color.White, unfocusedTextColor = Color.White)
+                            leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.background,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                            )
                         )
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             Box(modifier = Modifier.weight(1f)) {
-                                Button(onClick = { showCityDropdown = true }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = WebCardDark)) {
-                                    Text(selectedCity, color = Color.White)
-                                    Icon(Icons.Default.ArrowDropDown, null)
+                                Button(
+                                    onClick = { showCityDropdown = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    Text(selectedCity, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Icon(Icons.Default.ArrowDropDown, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
-                                DropdownMenu(expanded = showCityDropdown, onDismissRequest = { showCityDropdown = false }, modifier = Modifier.background(WebCardDark)) {
+                                DropdownMenu(
+                                    expanded = showCityDropdown,
+                                    onDismissRequest = { showCityDropdown = false },
+                                    modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+                                    offset = androidx.compose.ui.unit.DpOffset(0.dp, 4.dp)
+                                ) {
                                     cities.forEach { city ->
-                                        DropdownMenuItem(text = { Text(city, color = Color.White) }, onClick = { viewModel.onCitySelected(city); showCityDropdown = false })
+                                        DropdownMenuItem(
+                                            text = { Text(city, color = MaterialTheme.colorScheme.onSurface) },
+                                            onClick = { viewModel.onCitySelected(city); showCityDropdown = false },
+                                            colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.onSurface)
+                                        )
                                     }
                                 }
                             }
-                            Button(onClick = { viewModel.clearFilters() }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7E57C2))) {
-                                Icon(Icons.Default.Refresh, null)
+                            Button(onClick = { viewModel.clearFilters() }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) {
+                                Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.onPrimary)
                             }
                         }
                     }
@@ -98,7 +118,7 @@ fun FoundationListScreen(
 
                 // 3. Resultados
                 item {
-                    Text("Mostrando ${foundations.size} resultados", color = Color.Gray, modifier = Modifier.padding(16.dp))
+                    Text("Mostrando ${foundations.size} resultados", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(16.dp))
                 }
 
                 items(foundations.size) { index ->
@@ -121,9 +141,9 @@ fun FoundationListScreen(
 fun FoundationCard(foundation: Foundation, navController: NavHostController) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = WebCardDark),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(0.05f))
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             Box(
@@ -145,11 +165,11 @@ fun FoundationCard(foundation: Foundation, navController: NavHostController) {
                 }
             }
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(foundation.name, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(foundation.name, color = MaterialTheme.colorScheme.onSurface, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(foundation.city, color = Color.Gray, fontSize = 14.sp)
+                    Text(foundation.city, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
@@ -171,10 +191,10 @@ fun FoundationCard(foundation: Foundation, navController: NavHostController) {
 @Composable
 fun SupportSection() {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 50.dp, horizontal = 30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Icon(Icons.Default.Pets, null, tint = Color(0xFF7E57C2), modifier = Modifier.size(40.dp))
+        Icon(Icons.Default.Pets, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp))
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Apoya a las fundaciones", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-        Text("Cada fundación trabaja incansablemente por los animales. Conoce su labor y súmate a su causa.", color = Color.Gray, fontSize = 14.sp, textAlign = TextAlign.Center)
+        Text("Apoya a las fundaciones", color = MaterialTheme.colorScheme.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+        Text("Cada fundación trabaja incansablemente por los animales. Conoce su labor y súmate a su causa.", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp, textAlign = TextAlign.Center)
     }
 }
 

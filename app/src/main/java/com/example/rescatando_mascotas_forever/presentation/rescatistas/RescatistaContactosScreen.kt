@@ -103,7 +103,7 @@ fun RescatistaContactosScreen(navController: NavHostController) {
         Scaffold(
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
             bottomBar = { AppBottomBar(navController = navController) },
-            containerColor = Color(0xFFFDF7F2)
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
@@ -184,12 +184,12 @@ fun RescatistaFilters() {
 @Composable
 fun FilterDropdown(label: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
+        Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(4.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            color = Color(0xFF7E57C2),
+            color = MaterialTheme.colorScheme.primary,
             shadowElevation = 2.dp
         ) {
             Row(
@@ -197,8 +197,8 @@ fun FilterDropdown(label: String, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = stringResource(R.string.rescuer_filter_all), color = Color.White, fontSize = 13.sp)
-                Icon(Icons.Default.KeyboardArrowDown, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                Text(text = stringResource(R.string.rescuer_filter_all), color = MaterialTheme.colorScheme.onPrimary, fontSize = 13.sp)
+                Icon(Icons.Default.KeyboardArrowDown, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
             }
         }
     }
@@ -212,7 +212,7 @@ fun RescatistaCard(rescatista: Rescatista) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -222,7 +222,7 @@ fun RescatistaCard(rescatista: Rescatista) {
                 textAlign = TextAlign.Center,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -237,22 +237,23 @@ fun RescatistaCard(rescatista: Rescatista) {
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape)
-                        .background(Color.LightGray),
+                        .background(MaterialTheme.colorScheme.outlineVariant),
                     contentScale = ContentScale.Crop
                 )
 
                 Spacer(modifier = Modifier.width(20.dp))
 
                 Column(modifier = Modifier.weight(1.3f)) {
-                    RescatistaDetail(stringResource(R.string.rescuer_detail_avail), rescatista.disponibilidad, Color(0xFF9575CD))
+                    val accent = MaterialTheme.colorScheme.primary
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_avail), rescatista.disponibilidad, accent)
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail(stringResource(R.string.rescuer_detail_city), rescatista.municipio, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_city), rescatista.municipio, accent)
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail(stringResource(R.string.rescuer_detail_hood), rescatista.barrio, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_hood), rescatista.barrio, accent)
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail(stringResource(R.string.rescuer_detail_spec), rescatista.especialidad, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_spec), rescatista.especialidad, accent)
                     Spacer(modifier = Modifier.height(4.dp))
-                    RescatistaDetail(stringResource(R.string.rescuer_detail_org), rescatista.organizacion, Color(0xFF9575CD))
+                    RescatistaDetail(stringResource(R.string.rescuer_detail_org), rescatista.organizacion, accent)
                 }
 
                 Column(
@@ -260,17 +261,17 @@ fun RescatistaCard(rescatista: Rescatista) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
-                    Text(stringResource(R.string.rescuer_label_status), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.rescuer_label_status), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(6.dp))
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (rescatista.estado == statusAvail) Color(0xFF7E57C2) else Color(0xFFF06292)
+                        color = if (rescatista.estado == statusAvail) MaterialTheme.colorScheme.primary else Color(0xFFF06292)
                     ) {
                         Text(
                             text = rescatista.estado,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             fontSize = 11.sp,
-                            color = Color.White,
+                            color = if (rescatista.estado == statusAvail) MaterialTheme.colorScheme.onPrimary else Color.White,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -302,14 +303,14 @@ fun RescatistaCard(rescatista: Rescatista) {
                             .size(40.dp)
                             .clickable { },
                         shape = CircleShape,
-                        color = Color(0xFF7E57C2),
+                        color = MaterialTheme.colorScheme.primary,
                         shadowElevation = 2.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 Icons.Default.Phone,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -323,7 +324,7 @@ fun RescatistaCard(rescatista: Rescatista) {
 @Composable
 fun RescatistaDetail(label: String, value: String, valueColor: Color) {
     Column(modifier = Modifier.padding(vertical = 2.dp)) {
-        Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        Text(text = label, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Text(
             text = value, 
             fontSize = 12.sp, 

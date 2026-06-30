@@ -62,13 +62,13 @@ fun AdminDonacionesScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Header Admin Traducido
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF673AB7))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(24.dp)
                 ) {
                     Column {
@@ -114,7 +114,7 @@ fun AdminDonacionesScreen(navController: NavHostController) {
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333) // Color oscuro para visibilidad
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 LazyColumn(
@@ -144,7 +144,7 @@ fun DonacionRegistroCard(registro: DonacionRegistro) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
@@ -181,14 +181,14 @@ fun DonacionRegistroCard(registro: DonacionRegistro) {
             Spacer(Modifier.width(16.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(text = registro.donante, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
-                Text(text = "${registro.fecha} • $tipoTraducido", color = Color(0xFF555555), fontSize = 12.sp)
+                Text(text = registro.donante, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = "${registro.fecha} • $tipoTraducido", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
 
             Text(
                 text = registro.monto,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF222222),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 15.sp
             )
         }

@@ -56,7 +56,7 @@ fun NosotrosScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // 1. Encabezado con degradado
                 item {
@@ -104,13 +104,13 @@ fun NosotrosScreen(navController: NavHostController) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Surface(
-                            color = Color(0xFF2E1A7A).copy(alpha = 0.1f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Text(
                                 stringResource(R.string.about_history_badge),
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                                color = Color(0xFF2E1A7A),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -121,7 +121,7 @@ fun NosotrosScreen(navController: NavHostController) {
                             style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Center,
                             lineHeight = 26.sp,
-                            color = Color.DarkGray
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -155,7 +155,7 @@ fun NosotrosScreen(navController: NavHostController) {
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
                     Spacer(modifier = Modifier.height(24.dp))
@@ -180,9 +180,9 @@ fun ModernInfoCard(title: String, text: String, icon: ImageVector) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFBFBFE)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
             modifier = Modifier.padding(24.dp),
@@ -203,13 +203,13 @@ fun ModernInfoCard(title: String, text: String, icon: ImageVector) {
                     text = title,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp,
-                    color = Color(0xFF2E1A7A)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = text,
                     fontSize = 14.sp,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 22.sp
                 )
             }
@@ -223,13 +223,13 @@ fun ValueItem(icon: ImageVector, label: String) {
         Surface(
             modifier = Modifier.size(56.dp),
             shape = CircleShape,
-            color = Color(0xFFF6EEE9)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(icon, contentDescription = null, tint = Color(0xFF2E1A7A), modifier = Modifier.size(28.dp))
+                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
+        Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
     }
 }

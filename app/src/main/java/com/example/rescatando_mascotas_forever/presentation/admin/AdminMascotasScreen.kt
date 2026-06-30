@@ -57,8 +57,8 @@ fun AdminMascotasScreen(
                         // Navega al formulario de creación administrativo
                         navController.navigate("admin_mascota_form")
                     },
-                    containerColor = Color(0xFF673AB7),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(Icons.Default.Add, "Agregar Mascota")
                 }
@@ -68,13 +68,13 @@ fun AdminMascotasScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Header Púrpura dinámico
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF673AB7))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(20.dp)
                 ) {
                     Column {
@@ -137,7 +137,7 @@ fun MascotaAdminCardReal(mascota: Mascota, onEdit: () -> Unit, onDelete: () -> U
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -160,7 +160,7 @@ fun MascotaAdminCardReal(mascota: Mascota, onEdit: () -> Unit, onDelete: () -> U
                 Spacer(Modifier.height(4.dp))
 
                 Surface(
-                    color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
@@ -174,7 +174,7 @@ fun MascotaAdminCardReal(mascota: Mascota, onEdit: () -> Unit, onDelete: () -> U
             }
 
             Row {
-                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = Color(0xFF673AB7)) }
+                IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.primary) }
                 IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, null, tint = Color.Red) }
             }
         }
