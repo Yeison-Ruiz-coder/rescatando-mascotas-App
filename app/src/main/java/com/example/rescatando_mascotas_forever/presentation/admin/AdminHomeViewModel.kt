@@ -33,7 +33,7 @@ class AdminHomeViewModel : ViewModel() {
                 val stats = RetrofitClient.adminApi.getGeneralStats()
                 _uiState.value = AdminHomeState.Success(stats)
             } catch (e: Exception) {
-                // Fallback Senior: Datos realistas para que el dashboard nunca se vea vacío
+                // Fallback Senior: Datos realistas para que el dashboard nunca se vea vacío en desarrollo
                 _uiState.value = AdminHomeState.Success(
                     stats = AdminStatsResponse(
                         totalMascotas = 45, 
@@ -44,14 +44,19 @@ class AdminHomeViewModel : ViewModel() {
                         adopcionesTrend = "+15%",
                         totalUsuarios = 210,
                         adoptionsHistory = listOf(
-                            MonthlyData("Ene", 5f), MonthlyData("Feb", 12f), 
-                            MonthlyData("Mar", 8f), MonthlyData("Abr", 15f), 
+                            MonthlyData("Ene", 5f), 
+                            MonthlyData("Feb", 12f), 
+                            MonthlyData("Mar", 8f), 
+                            MonthlyData("Abr", 15f), 
                             MonthlyData("May", 18f)
                         ),
                         rescueHistory = listOf(
-                            MonthlyData("L", 4f), MonthlyData("M", 8f), 
-                            MonthlyData("M", 5f), MonthlyData("J", 12f), 
-                            MonthlyData("V", 9f), MonthlyData("S", 15f), 
+                            MonthlyData("L", 4f), 
+                            MonthlyData("M", 8f), 
+                            MonthlyData("M", 5f), 
+                            MonthlyData("J", 12f), 
+                            MonthlyData("V", 9f), 
+                            MonthlyData("S", 15f),
                             MonthlyData("D", 11f)
                         ),
                         speciesDistribution = listOf(
