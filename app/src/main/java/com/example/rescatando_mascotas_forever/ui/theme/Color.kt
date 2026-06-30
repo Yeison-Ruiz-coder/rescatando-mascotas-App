@@ -37,3 +37,7 @@ val WebVerifiedGreen = Color(0xFF4CAF50)
 val WebPurpleGradient = Brush.verticalGradient(
     colors = listOf(Color(0xFF9575CD), Color(0xFF7E57C2))
 )
+
+val FoundationGradient = Brush.verticalGradient(
+    colors = listOf(Color(0xFFFF5722), Color(0xFFE64A19)) // Naranja Rojizo
+)

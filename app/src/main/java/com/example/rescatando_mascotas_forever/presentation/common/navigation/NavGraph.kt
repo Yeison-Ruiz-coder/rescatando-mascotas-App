@@ -26,6 +26,7 @@ import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScre
 import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.MascotaDetalleScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
 import com.example.rescatando_mascotas_forever.presentation.nosotros.NosotrosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRescatistaScreen
@@ -54,6 +55,9 @@ import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetai
 import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
 import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationHomeScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationMascotasScreen
+import com.example.rescatando_mascotas_forever.presentation.fundacion.FoundationMascotaFormScreen
 
 @Composable
 fun LoginRequiredScreen(navController: NavHostController) {
@@ -125,6 +129,25 @@ fun AppNavigation() {
         composable("admin_home") {
             AdminHomeScreen(navController = navController)
         }
+        composable("foundation_home") {
+            FoundationHomeScreen(navController = navController)
+        }
+
+        // --- RUTAS GESTIÓN FUNDACIÓN ---
+        composable("foundation_pets") {
+            FoundationMascotasScreen(navController = navController)
+        }
+        composable(
+            route = "foundation_mascota_form?mascotaId={mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { 
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            })
+        ) { backStackEntry ->
+            val idStr = backStackEntry.arguments?.getString("mascotaId")
+            FoundationMascotaFormScreen(navController = navController, mascotaId = idStr?.toIntOrNull())
+        }
 
         // --- RUTA LISTA DE FUNDACIONES ---
         composable("fundaciones") {
@@ -144,6 +167,13 @@ fun AppNavigation() {
         composable("adopciones") {
             AdopcionListScreen(navController = navController)
         }
+        composable(
+            route = "mascota_detalle/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId") ?: 0
+            MascotaDetalleScreen(navController = navController, mascotaId = mascotaId)
+        }
         composable("ultimos_rescates") {
             RescateScreen(navController = navController)
         }
@@ -161,9 +191,16 @@ fun AppNavigation() {
                 LoginRequiredScreen(navController)
             }
         }
-        composable("formulario_adopcion") {
+        composable(
+            route = "formulario_adopcion?mascotaId={mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { 
+                type = NavType.IntType
+                defaultValue = -1
+            })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId") ?: -1
             if (sessionManager.isLoggedIn()) {
-                FormularioAdopcionScreen(navController = navController)
+                FormularioAdopcionScreen(navController = navController, mascotaId = mascotaId)
             } else {
                 LoginRequiredScreen(navController)
             }
