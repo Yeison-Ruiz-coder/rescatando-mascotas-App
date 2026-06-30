@@ -49,10 +49,6 @@ fun AdminHomeScreen(
     val context = LocalContext.current
     val lastUpdated = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date()) }
 
-    val adminGradient = Brush.verticalGradient(
-        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
-    )
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -91,14 +87,13 @@ fun AdminHomeScreen(
                 when (val state = uiState) {
                     is AdminHomeState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center), color = Color(0xFF673AB7))
                     is AdminHomeState.Success -> {
-                        val stats = state.stats.stats // Nueva estructura de Railway
+                        val stats = state.stats.stats
                         val graficos = state.stats.graficos
 
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 32.dp)
                         ) {
-                            // --- 1. HEADER PÚRPURA PREMIUM ---
                             item {
                                 Box(
                                     modifier = Modifier
@@ -115,7 +110,6 @@ fun AdminHomeScreen(
                                 }
                             }
 
-                            // --- 2. KPI GRID (MÉTRICAS PRINCIPALES) ---
                             item {
                                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
                                     Row(
@@ -125,11 +119,8 @@ fun AdminHomeScreen(
                                         MetricCardSenior("Mascotas", stats.mascotas.total.toString(), "${stats.mascotas.enAdopcion} libres", Icons.Default.Pets, Color(0xFF10B981), Modifier.weight(1f))
                                         MetricCardSenior("Rescates", stats.rescates.completados.toString(), null, Icons.Default.Warning, Color(0xFFF43F5E), Modifier.weight(1f))
                                         MetricCardSenior("Adopciones", stats.adopciones.totales.toString(), null, Icons.Default.CheckCircle, Color(0xFF3B82F6), Modifier.weight(1f))
-
                                     }
-
                                     Spacer(Modifier.height(12.dp))
-
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -140,18 +131,12 @@ fun AdminHomeScreen(
                                 }
                             }
 
-                            // --- 3. GRÁFICA DE TENDENCIA DINÁMICA ---
                             item {
-                                AnalyticsSectionCard(
-                                    title = "Tendencia de Adopciones",
-                                    icon = Icons.AutoMirrored.Filled.ShowChart
-                                ) {
-                                    val graphData = graficos?.adoptionsHistory ?: emptyList()
-                                    SeniorAreaChart(graphData)
+                                AnalyticsSectionCard(title = "Tendencia de Adopciones", icon = Icons.AutoMirrored.Filled.ShowChart) {
+                                    SeniorAreaChart(graficos?.adoptionsHistory ?: emptyList())
                                 }
                             }
 
-                            // --- 4. DISTRIBUCIÓN Y ACCIONES ---
                             item {
                                 Row(
                                     modifier = Modifier.padding(20.dp).fillMaxWidth(),
@@ -166,7 +151,7 @@ fun AdminHomeScreen(
                                         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                             Text("Distribución Especies", fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
                                             Spacer(Modifier.weight(1f))
-                                            SeniorDonutChart(emptyList()) // API no envía distribución actualmente
+                                            SeniorDonutChart(emptyList())
                                             Spacer(Modifier.weight(1f))
                                         }
                                     }
@@ -180,22 +165,23 @@ fun AdminHomeScreen(
                                     }
                                 }
                             }
+
+                            item {
+                                Spacer(modifier = Modifier.height(24.dp))
+                                OutlinedButton(
+                                    onClick = { navController.navigate("home") },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Botón de Modo Usuario para Vista Previa
-                    OutlinedButton(
-                        onClick = { navController.navigate("home") },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    }
+                    is AdminHomeState.Error -> ErrorLayout(state.message) { viewModel.fetchDashboardData() }
                 }
             }
         }
@@ -238,19 +224,32 @@ fun MetricCardSenior(title: String, value: String, trend: String?, icon: ImageVe
                     Text(trend, fontSize = 10.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = action.title,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = action.description ?: "",
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 14.sp
-            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(36.dp).background(color.copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
+            }
+            Spacer(Modifier.width(12.dp))
+            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
         }
     }
 }
@@ -293,7 +292,6 @@ fun SeniorAreaChart(data: List<MonthlyData>) {
 
         drawPath(path, color = Color(0xFF673AB7), style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
 
-        // Fill Area
         val fillPath = Path().apply {
             addPath(path)
             lineTo(size.width, size.height)
@@ -323,26 +321,6 @@ fun SeniorDonutChart(data: List<SpeciesDistribution>) {
                 style = Stroke(width = 25f, cap = StrokeCap.Round)
             )
             startAngle += sweepAngle
-        }
-    }
-}
-
-@Composable
-fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
-            Text(text = title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

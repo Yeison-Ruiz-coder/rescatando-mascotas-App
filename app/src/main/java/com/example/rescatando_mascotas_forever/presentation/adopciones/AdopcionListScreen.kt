@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,7 +46,7 @@ fun AdopcionListScreen(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    
+
     val mascotas by viewModel.mascotas.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -130,7 +133,7 @@ fun AdopcionListScreen(
                             letterSpacing = 1.sp
                         )
                         Spacer(Modifier.height(8.dp))
-                        
+
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
@@ -148,6 +151,23 @@ fun AdopcionListScreen(
                                 unfocusedContainerColor = Color(0xFF1B1A23)
                             )
                         )
+
+                        Spacer(Modifier.height(12.dp))
+
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(especies) { especie ->
+                                CustomChipItem(
+                                    text = especie,
+                                    selected = selectedEspecie == especie,
+                                    onClick = { selectedEspecie = especie }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 item {
                     Text(
@@ -177,12 +197,11 @@ fun AdopcionListScreen(
                             Text("No hay mascotas disponibles para adopción", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
-                }
-else {
+                } else {
                     item {
-                        val filteredMascotas = mascotas.filter { 
+                        val filteredMascotas = mascotas.filter {
                             (selectedEspecie == "Todas" || it.especie?.contains(selectedEspecie, ignoreCase = true) == true) &&
-                            (it.nombre.contains(searchQuery, ignoreCase = true))
+                                    (it.nombre.contains(searchQuery, ignoreCase = true))
                         }
 
                         if (filteredMascotas.isEmpty()) {
@@ -255,7 +274,7 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                
+
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -273,7 +292,7 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 ) {
                     Text(
-                        text = mascota.estado.uppercase(),
+                        text = (mascota.estado ?: "EN ADOPCIÓN").uppercase(),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 9.sp,
                         fontWeight = FontWeight.ExtraBold,
@@ -283,15 +302,15 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
             }
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    mascota.nombre, 
-                    fontWeight = FontWeight.ExtraBold, 
-                    fontSize = 16.sp, 
+                    mascota.nombre,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
                 val ageSuffix = if (mascota.edadAprox == 1.0) stringResource(R.string.pet_age_singular) else stringResource(R.string.pet_age_suffix)
                 Text(
-                    "${mascota.especie} • ${mascota.edadAprox ?: 0} $ageSuffix",
-                    fontSize = 12.sp, 
+                    "${mascota.especie ?: "Desconocida"} • ${mascota.edadAprox ?: 0} $ageSuffix",
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -300,9 +319,9 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                     Spacer(Modifier.width(4.dp))
                     Text(mascota.ubicacion ?: "Sin ubicación", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                
+
                 Spacer(modifier = Modifier.height(12.dp))
-                
+
                 Button(
                     onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
                     modifier = Modifier.fillMaxWidth().height(36.dp),
