@@ -1,6 +1,5 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
-import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,10 +42,6 @@ fun AdminHomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val adminGradient = Brush.verticalGradient(
-        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
-    )
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -64,71 +57,79 @@ fun AdminHomeScreen(
             topBar = {
                 MainTopBar(drawerState = drawerState, scope = scope)
             },
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = Color(0xFFF8F9FE)
         ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                // Header Sección
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(adminGradient)
-                        .padding(horizontal = 24.dp, vertical = 32.dp)
-                ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = stringResource(R.string.admin_home_title),
-                                fontSize = 26.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color.White
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Icon(Icons.Default.VerifiedUser, null, tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
-                        }
-                        Text(
-                            text = stringResource(R.string.admin_home_subtitle),
-                            fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.8f)
+            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+                when (val state = uiState) {
+                    is AdminHomeState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
+                    is AdminHomeState.Success -> {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 32.dp)
+                        ) {
+                            // --- 1. HEADER PÚRPURA PREMIUM ---
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(Brush.verticalGradient(listOf(Color(0xFF673AB7), Color(0xFF4C35A3))))
+                                        .padding(horizontal = 24.dp, vertical = 32.dp)
+                                ) {
+                                    Column {
+                                        StatusLiveBadge()
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            text = stringResource(R.string.admin_home_title),
+                                            fontSize = 28.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.admin_home_subtitle),
+                                            fontSize = 14.sp,
+                                            color = Color.White.copy(alpha = 0.7f)
+                                        )
+                                    }
+                                }
+                            }
 
-                Column(modifier = Modifier.padding(20.dp)) {
-                    // Resumen de Estadísticas
-                    Text(
-                        text = stringResource(R.string.admin_home_stat_title),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        letterSpacing = 1.sp,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        StatCard(stringResource(R.string.admin_home_stat_pets), "24", Icons.Default.Pets, Color(0xFF4CAF50), Modifier.weight(1f))
-                        StatCard(stringResource(R.string.admin_home_stat_rescues), "12", Icons.Default.Warning, Color(0xFFF44336), Modifier.weight(1f))
-                        StatCard(stringResource(R.string.admin_home_stat_adoptions), "8", Icons.Default.CheckCircle, Color(0xFF2196F3), Modifier.weight(1f))
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    // Acciones Rápidas (Panel de Control)
-                    Text(
-                        text = stringResource(R.string.admin_home_actions_title),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        letterSpacing = 1.sp,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+                            // --- 2. KPI GRID (MÉTRICAS) ---
+                            item {
+                                Row(
+                                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    MetricCardSenior(
+                                        title = stringResource(R.string.admin_home_stat_pets),
+                                        value = state.stats.totalMascotas.toString(),
+                                        trend = state.stats.mascotasTrend,
+                                        icon = Icons.Default.Pets,
+                                        color = Color(0xFF10B981),
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    MetricCardSenior(
+                                        title = "Rescates",
+                                        value = state.stats.totalRescates.toString(),
+                                        trend = state.stats.rescatesTrend,
+                                        icon = Icons.Default.Warning,
+                                        color = Color(0xFFF43F5E),
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    MetricCardSenior(
+                                        title = stringResource(R.string.admin_home_stat_adoptions_short),
+                                        value = state.stats.totalAdopciones.toString(),
+                                        trend = state.stats.adopcionesTrend,
+                                        icon = Icons.Default.CheckCircle,
+                                        color = Color(0xFF3B82F6),
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
 
                             // --- 3. GRÁFICA DE TENDENCIA (RESCATES) ---
                             item {
@@ -140,7 +141,7 @@ fun AdminHomeScreen(
                             // --- 4. DISTRIBUCIÓN Y REPORTES ---
                             item {
                                 Row(
-                                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
                                     Card(
@@ -160,27 +161,31 @@ fun AdminHomeScreen(
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         ActionCardPro("Mascotas", Icons.Default.Edit, Color(0xFF673AB7)) { navController.navigate("admin_mascotas") }
                                         ActionCardPro("Usuarios", Icons.Default.Group, Color(0xFF3B82F6)) { navController.navigate("admin_usuarios") }
-                                        ActionCardPro("Reporte", Icons.Default.PictureAsPdf, Color(0xFF10B981)) { 
+                                        ActionCardPro("Reporte PDF", Icons.Default.PictureAsPdf, Color(0xFF10B981)) { 
                                             ReportGenerator.generateStatsPdf(context, state.stats.totalMascotas, state.stats.totalRescates, state.stats.totalAdopciones) 
                                         }
                                     }
                                 }
                             }
+                            
+                            item {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                // Botón de Modo Usuario para Vista Previa
+                                OutlinedButton(
+                                    onClick = { navController.navigate("home") },
+                                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(50.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                ) {
+                                    Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Botón de Modo Usuario para Vista Previa
-                    OutlinedButton(
-                        onClick = { navController.navigate("home") },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    is AdminHomeState.Error -> {
+                        ErrorLayout(state.message) { viewModel.fetchDashboardData() }
                     }
                 }
             }
@@ -207,45 +212,21 @@ fun StatusLiveBadge() {
 @Composable
 fun MetricCardSenior(title: String, value: String, trend: String, icon: ImageVector, color: Color, modifier: Modifier) {
     Card(
-        modifier = modifier
-            .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = modifier.height(130.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                modifier = Modifier.size(45.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = action.icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+        Column(Modifier.padding(16.dp)) {
+            Box(Modifier.size(36.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = action.title,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = action.description ?: "",
-                fontSize = 11.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 14.sp
-            )
+            Spacer(Modifier.weight(1f))
+            Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, fontSize = 11.sp, color = Color(0xFF64748B), modifier = Modifier.weight(1f))
+                Text(trend, fontSize = 10.sp, color = if(trend.startsWith("+")) Color(0xFF10B981) else Color.Red, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -270,57 +251,33 @@ fun AnalyticsSectionCard(title: String, icon: ImageVector, content: @Composable 
     }
 }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .background(MaterialTheme.colorScheme.surface)
-    ) {
-        // HEADER ADMIN MODERNO
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.7f))))
-                .padding(horizontal = 24.dp, vertical = 40.dp)
-        ) {
-            Column {
-                Surface(
-                    modifier = Modifier.size(72.dp),
-                    shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.25f),
-                    border = androidx.compose.foundation.BorderStroke(2.dp, Color.White.copy(alpha = 0.5f))
-                ) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                        Icon(
-                            imageVector = Icons.Default.AdminPanelSettings, 
-                            contentDescription = null, 
-                            tint = Color.White, 
-                            modifier = Modifier.size(44.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = stringResource(R.string.admin_drawer_mode), 
-                    color = Color.White, 
-                    fontWeight = FontWeight.ExtraBold, 
-                    fontSize = 20.sp
-                )
-                Text(
-                    text = "admin@rescatando.com", 
-                    color = Color.White.copy(alpha = 0.85f), 
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+@Composable
+fun SeniorAreaChart(data: List<MonthlyData>) {
+    val points = if(data.isEmpty()) listOf(MonthlyData("L", 10f), MonthlyData("M", 25f), MonthlyData("X", 15f), MonthlyData("J", 35f), MonthlyData("V", 28f)) else data
+    val maxValue = points.maxByOrNull { it.value }?.value ?: 1f
+    
+    Canvas(modifier = Modifier.fillMaxWidth().height(140.dp)) {
+        val path = Path()
+        val space = size.width / (points.size - 1).coerceAtLeast(1)
+        
+        points.forEachIndexed { i, item ->
+            val x = i * space
+            val y = size.height - (item.value / maxValue) * size.height
+            if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
         }
         
         drawPath(path, color = Color(0xFF673AB7), style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
         
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 24.dp), 
-            color = MaterialTheme.colorScheme.outlineVariant
-        )
+        // Fill Area
+        val fillPath = Path().apply {
+            addPath(path)
+            lineTo(size.width, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+        drawPath(fillPath, brush = Brush.verticalGradient(listOf(Color(0xFF673AB7).copy(0.2f), Color.Transparent)))
+    }
+}
 
 @Composable
 fun SeniorDonutChart(data: List<SpeciesDistribution>) {
@@ -340,21 +297,17 @@ fun SeniorDonutChart(data: List<SpeciesDistribution>) {
 }
 
 @Composable
-fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(52.dp).clickable { onClick() },
+        color = Color.White, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Color(0xFFF1F5F9))
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
-            Text(text = title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(32.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(16.dp))
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF334155))
         }
     }
 }
@@ -363,7 +316,7 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
 fun ErrorLayout(msg: String, onRetry: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(Icons.Default.CloudOff, null, Modifier.size(48.dp), tint = Color.Gray)
-        Text("Fallo en sincronización Railway", fontWeight = FontWeight.Bold)
+        Text(msg, fontWeight = FontWeight.Bold)
         Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Reintentar") }
     }
 }

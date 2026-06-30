@@ -16,11 +16,11 @@ import java.io.FileOutputStream
 
 class EventoRepository(private val api: EventoApi) {
 
-    fun getEventos(): Flow<Result<List<Evento>>> = flow {
+    fun getEventos(page: Int? = null): Flow<Result<com.example.rescatando_mascotas_forever.data.network.models.EventoPagination>> = flow {
         try {
-            val response = api.getEventos()
+            val response = api.getEventos(page)
             if (response.success && response.data != null) {
-                emit(Result.success(response.data.data))
+                emit(Result.success(response.data))
             } else {
                 emit(Result.failure(Exception("Error al cargar eventos")))
             }

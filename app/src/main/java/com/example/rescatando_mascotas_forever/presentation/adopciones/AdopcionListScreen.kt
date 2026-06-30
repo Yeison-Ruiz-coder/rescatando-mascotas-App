@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -148,6 +149,22 @@ fun AdopcionListScreen(
                                 unfocusedContainerColor = Color(0xFF1B1A23)
                             )
                         )
+                        
+                        Spacer(Modifier.height(16.dp))
+                        
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(especies) { especie ->
+                                CustomChipItem(
+                                    text = especie,
+                                    selected = selectedEspecie == especie,
+                                    onClick = { selectedEspecie = especie }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 item {
                     Text(
@@ -168,7 +185,7 @@ fun AdopcionListScreen(
                 } else if (error != null) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                            Text(text = error!!, color = Color.Red, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text(text = error!!, color = Color.Red, textAlign = TextAlign.Center)
                         }
                     }
                 } else if (mascotas.isEmpty()) {
@@ -234,7 +251,7 @@ fun CustomChipItem(text: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: Modifier = Modifier) {
-    val baseUrl = com.example.rescatando_mascotas_forever.utils.Constants.BASE_URL
+    val baseUrl = Constants.BASE_URL
     val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
         mascota.fotoPrincipal
     } else {
@@ -273,7 +290,7 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 ) {
                     Text(
-                        text = mascota.estado.uppercase(),
+                        text = (mascota.estado ?: "DISPONIBLE").uppercase(),
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 9.sp,
                         fontWeight = FontWeight.ExtraBold,

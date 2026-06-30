@@ -212,6 +212,24 @@ fun EventoScreen(
                                 }
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
+
+                            // Botón para cargar más si hay más páginas
+                            if (currentState.hasMore) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        if (currentState.isNextPageLoading) {
+                                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                        } else {
+                                            TextButton(onClick = { viewModel.loadNextPage() }) {
+                                                Text("Cargar más eventos", fontWeight = FontWeight.Bold)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
 

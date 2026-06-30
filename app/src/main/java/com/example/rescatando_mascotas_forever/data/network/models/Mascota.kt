@@ -82,7 +82,7 @@ data class MascotaResponse(
     val message: String?,
 
     @SerializedName("data")
-    val data: Any?
+    val data: MascotaDataWrapper?
 )
 
 data class MascotaDataWrapper(

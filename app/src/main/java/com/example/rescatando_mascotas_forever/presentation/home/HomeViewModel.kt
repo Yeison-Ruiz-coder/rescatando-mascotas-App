@@ -5,13 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 data class Foundation(
     val id: Int,
@@ -131,18 +128,9 @@ class HomeViewModel(
             
             mascotaRepository.getMascotas().collect { result ->
                 result.onSuccess { response ->
-                    try {
-                        // Al haber comentado galeria_fotos en el modelo Mascota,
-                        // el parseo de response.data a MascotaDataWrapper ya no fallará.
-                        val gson = Gson()
-                        val json = gson.toJson(response.data)
-                        val wrapper = gson.fromJson(json, MascotaDataWrapper::class.java)
-                        
-                        todasLasMascotasList = wrapper?.data ?: emptyList()
-                        filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
-                    } catch (e: Exception) {
-                        todasLasMascotasList = emptyList()
-                    }
+                    // Ahora que el modelo está tipado, el parseo es directo
+                    todasLasMascotasList = response.data?.data ?: emptyList()
+                    filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
                 }.onFailure { e ->
                     _error.value = "Error al cargar mascotas: ${e.message}"
                 }
@@ -150,9 +138,9 @@ class HomeViewModel(
             }
             
             eventoRepository.getEventos().collect { result ->
-                result.onSuccess {
-                    // Tomamos solo los últimos 3 eventos subidos (ordenados por ID descendente)
-                    _eventos.value = it.sortedByDescending { evento -> evento.id }.take(3)
+                result.onSuccess { pagination ->
+                    // Tomamos solo los últimos 3 eventos subidos de la lista 'data'
+                    _eventos.value = pagination.data.sortedByDescending { evento -> evento.id }.take(3)
                 }.onFailure {
                     // Silently fail or log for events
                 }
