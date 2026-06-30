@@ -1,6 +1,5 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,14 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
@@ -105,7 +102,7 @@ fun AdminEventosScreen(
                                         eventoEditando = evento
                                         showDialog = true
                                     },
-                                    onDelete = { /* Implementar lógica de eliminación si es necesario */ }
+                                    onDelete = { /* Implementar lógica de eliminación */ }
                                 )
                             }
                         }
@@ -114,7 +111,7 @@ fun AdminEventosScreen(
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Error: ${currentState.message}", color = Color.Red)
-                                Button(onClick = { viewModel.getEventos() }) {
+                                Button(onClick = { viewModel.getEventos(1) }) {
                                     Text("Reintentar")
                                 }
                             }
@@ -129,10 +126,40 @@ fun AdminEventosScreen(
         EventoDialogStepByStep(
             evento = eventoEditando,
             onDismiss = { showDialog = false },
-            onConfirm = { /* Implementar lógica para guardar o actualizar a través de la API */
+            onConfirm = { /* Implementar guardar/actualizar */
                 showDialog = false
             }
         )
+    }
+}
+
+@Composable
+fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(evento.lugar, fontSize = 12.sp, color = Color.Gray)
+                Text(evento.fecha, fontSize = 12.sp, color = Color.Gray)
+            }
+            Row {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = Color(0xFF2196F3))
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color(0xFFF44336))
+                }
+            }
+        }
     }
 }
 
@@ -239,7 +266,6 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                 } else {
                     Button(
                         onClick = {
-                            // Aquí se crearía el objeto Evento real para enviar a la API
                             onConfirm(Evento(
                                 id = evento?.id ?: 0,
                                 nombre = titulo,
@@ -271,68 +297,9 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.btn_cancel_upper), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_cancel_upper), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
                 }
             }
         }
     )
-}
-
-@Composable
-fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
-    // Lógica de fallback para imagenUrl o imagenPublicId
-    val imagePath = if (!evento.imagenUrl.isNullOrEmpty()) evento.imagenUrl else evento.imagenPublicId
-    val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(fullImageUrl),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(Modifier.width(16.dp))
-
-            Column(Modifier.weight(1f)) {
-                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
-                Text("${evento.fecha} • ${evento.lugar}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1)
-
-                Spacer(Modifier.height(4.dp))
-
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = evento.tipo ?: "EVENTO",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 10.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Row {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.primary)
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, null, tint = Color.Red)
-                }
-            }
-        }
-    }
 }

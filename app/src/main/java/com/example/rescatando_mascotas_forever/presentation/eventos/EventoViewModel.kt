@@ -2,21 +2,14 @@ package com.example.rescatando_mascotas_forever.presentation.eventos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 sealed class EventoState {
     object Loading : EventoState()
-    data class Success(val eventos: List<Evento>) : EventoState()
+    data class Success(val eventos: List<Evento>, val isLastPage: Boolean = false) : EventoState()
     data class Error(val message: String) : EventoState()
 }
 
@@ -32,14 +25,17 @@ class EventoViewModel(
     private val _eventoDetalle = MutableStateFlow<Evento?>(null)
     val eventoDetalle: StateFlow<Evento?> = _eventoDetalle
 
-    // Nuevos estados para filtros
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
     private val _selectedCategory = MutableStateFlow("Todos")
     val selectedCategory = _selectedCategory.asStateFlow()
 
-    // Flow que combina el estado de los eventos con los filtros
+    private val _currentPage = MutableStateFlow(1)
+    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
+    
+    private var isRemoteLastPage = false
+
     val filteredEventos: StateFlow<List<Evento>> = combine(
         _state,
         _searchText,
@@ -47,16 +43,19 @@ class EventoViewModel(
     ) { state, query, category ->
         if (state is EventoState.Success) {
             state.eventos.filter { evento ->
-                // Si la categoría es "Todos", aceptamos cualquier evento aunque el tipo sea null
-                val matchesCat = if (category == "Todos" || category == "All") {
-                    true
-                } else {
-                    evento.tipo?.contains(category, ignoreCase = true) == true
+                val matchesCat = when (category) {
+                    "Todos", "All" -> true
+                    "Gratis" -> evento.costo?.contains("Gratis", ignoreCase = true) == true
+                    "Adopciones" -> evento.nombre.contains("Adopción", ignoreCase = true) || 
+                                   evento.categoria?.contains("Adopción", ignoreCase = true) == true
+                    else -> evento.tipo?.contains(category, ignoreCase = true) == true ||
+                            evento.categoria?.contains(category, ignoreCase = true) == true
                 }
 
                 val matchesSearch = query.isEmpty() ||
                         evento.nombre.contains(query, ignoreCase = true) ||
-                        evento.lugar.contains(query, ignoreCase = true)
+                        evento.lugar.contains(query, ignoreCase = true) ||
+                        evento.organizador?.contains(query, ignoreCase = true) == true
                 
                 matchesCat && matchesSearch
             }
@@ -66,7 +65,7 @@ class EventoViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        getEventos()
+        getEventos(1)
     }
 
     fun onSearchTextChange(text: String) {
@@ -77,29 +76,43 @@ class EventoViewModel(
         _selectedCategory.value = category
     }
 
-    fun getEventos() {
+    fun getEventos(page: Int = 1) {
+        _currentPage.value = page
+        _state.value = EventoState.Loading
+        
         viewModelScope.launch {
-            _state.value = EventoState.Loading
-            repository.getEventos().collect { result ->
-                result.onSuccess { eventos ->
-                    println("DEBUG_EVENTOS: Se cargaron ${eventos.size} eventos")
-                    _state.value = EventoState.Success(eventos)
+            repository.getEventos(page).collect { result ->
+                result.onSuccess { pagination ->
+                    isRemoteLastPage = pagination.currentPage >= pagination.lastPage
+                    _state.value = EventoState.Success(
+                        eventos = pagination.data,
+                        isLastPage = isRemoteLastPage
+                    )
                 }.onFailure { error ->
-                    println("DEBUG_EVENTOS: Error al cargar: ${error.message}")
                     _state.value = EventoState.Error(error.message ?: "Error desconocido")
                 }
             }
         }
     }
 
+    fun nextPage() {
+        if (!isRemoteLastPage) {
+            getEventos(_currentPage.value + 1)
+        }
+    }
+
+    fun prevPage() {
+        if (_currentPage.value > 1) {
+            getEventos(_currentPage.value - 1)
+        }
+    }
+
     fun getEventoById(id: Int) {
-        // 1. Intento rápido: si ya tenemos los eventos, lo asignamos de inmediato
         val currentState = _state.value
         if (currentState is EventoState.Success) {
             _eventoDetalle.value = currentState.eventos.find { it.id == id }
         }
 
-        // 2. Por si acaso aún está cargando la lista, nos quedamos escuchando
         viewModelScope.launch {
             state.collectLatest { latestState ->
                 if (latestState is EventoState.Success) {

@@ -1,6 +1,5 @@
 package com.example.rescatando_mascotas_forever.presentation.eventos
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,8 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
@@ -49,6 +48,7 @@ fun EventoScreen(
     val filteredEventos by viewModel.filteredEventos.collectAsState()
     val searchText by viewModel.searchText.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val currentPage by viewModel.currentPage.collectAsState()
 
     val catAll = stringResource(R.string.event_cat_all)
     val catFree = "Gratis"
@@ -74,7 +74,6 @@ fun EventoScreen(
                     .padding(paddingValues)
                     .padding(horizontal = 20.dp)
             ) {
-                // Encabezado
                 item {
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(
@@ -95,14 +94,13 @@ fun EventoScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        IconButton(onClick = { viewModel.getEventos() }) {
+                        IconButton(onClick = { viewModel.getEventos(1) }) {
                             Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                // Campo de búsqueda
                 item {
                     OutlinedTextField(
                         value = searchText,
@@ -119,7 +117,6 @@ fun EventoScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                // Filtros de categoría
                 item {
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -151,7 +148,6 @@ fun EventoScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                // Contenido según el estado del ViewModel
                 when (val currentState = state) {
                     is EventoState.Loading -> {
                         item {
@@ -212,6 +208,50 @@ fun EventoScreen(
                                 }
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
+
+                            // --- PAGINACIÓN CON BOTONES ---
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 32.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    FilledTonalButton(
+                                        onClick = { viewModel.prevPage() },
+                                        enabled = currentPage > 1,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Anterior")
+                                    }
+
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "Pág $currentPage",
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 14.sp
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = { viewModel.nextPage() },
+                                        enabled = !currentState.isLastPage,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Text("Siguiente")
+                                        Spacer(Modifier.width(8.dp))
+                                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -244,11 +284,10 @@ fun EventCard(
     var isFavorite by remember { mutableStateOf(false) }
     var isConfirmed by remember { mutableStateOf(false) }
 
-    // Lógica de fallback ultra-robusta para diferentes campos de imagen
-    val imagePath = when {
-        !evento.imagenUrl.isNullOrEmpty() && evento.imagenUrl != "null" -> evento.imagenUrl
-        !evento.imagenPublicId.isNullOrEmpty() && evento.imagenPublicId != "null" -> evento.imagenPublicId
-        else -> null
+    val imagePath = if (!evento.imagenUrl.isNullOrEmpty() && evento.imagenUrl != "null") {
+        evento.imagenUrl
+    } else {
+        evento.imagenPublicId
     }
     val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
 
@@ -261,18 +300,29 @@ fun EventCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column {
-            // --- PARTE SUPERIOR: IMAGEN Y BADGES ---
             Box {
-                Image(
-                    painter = rememberAsyncImagePainter(fullImageUrl),
+                coil.compose.SubcomposeAsyncImage(
+                    model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                        .data(fullImageUrl)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(24.dp))
+                        }
+                    },
+                    error = {
+                        Box(Modifier.fillMaxSize().background(Color.LightGray.copy(alpha = 0.3f)), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.BrokenImage, null, tint = Color.Gray)
+                        }
+                    }
                 )
                 
-                // Overlay oscuro inferior para legibilidad si fuera necesario
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -285,7 +335,6 @@ fun EventCard(
                         )
                 )
 
-                // Categoría (Badge Flotante)
                 Surface(
                     modifier = Modifier
                         .padding(16.dp)
@@ -303,7 +352,6 @@ fun EventCard(
                     )
                 }
                 
-                // Botón de Like sobre la imagen
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
                     modifier = Modifier
@@ -325,7 +373,6 @@ fun EventCard(
                 }
             }
 
-            // --- PARTE INFERIOR: INFORMACIÓN ---
             Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = evento.nombre,
@@ -337,13 +384,11 @@ fun EventCard(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Fila de Fecha y Lugar con mejor diseño
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Fecha
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             Icons.Default.CalendarToday,
@@ -360,7 +405,6 @@ fun EventCard(
                         )
                     }
                     
-                    // Lugar
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                         Icon(
                             Icons.Default.LocationOn,
@@ -382,7 +426,7 @@ fun EventCard(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = evento.descripcion ?: "¡No te pierdas este increíble evento para ayudar a nuestros peluditos!",
+                    text = evento.descripcion ?: "¡No te pierdas este increíble evento!",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                     maxLines = 2,
@@ -392,7 +436,6 @@ fun EventCard(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Botones de Acción
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
