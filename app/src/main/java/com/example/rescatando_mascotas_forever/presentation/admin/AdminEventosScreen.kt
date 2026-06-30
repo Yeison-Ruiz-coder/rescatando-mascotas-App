@@ -1,10 +1,16 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
+import android.app.DatePickerDialog
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -13,10 +19,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,6 +37,7 @@ import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoState
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,11 +47,15 @@ fun AdminEventosScreen(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val state by viewModel.state.collectAsState()
+    val filteredEventos by viewModel.filteredEventos.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
 
     var showDialog by remember { mutableStateOf(false) }
     var eventoEditando by remember { mutableStateOf<Evento?>(null) }
+    var showDeleteConfirm by remember { mutableStateOf<Int?>(null) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -74,6 +89,7 @@ fun AdminEventosScreen(
                     .padding(padding)
                     .background(MaterialTheme.colorScheme.background)
             ) {
+                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -85,6 +101,16 @@ fun AdminEventosScreen(
                         Text(stringResource(R.string.admin_action_events_desc), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
+
+                // Buscador
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { viewModel.onSearchTextChange(it) },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    placeholder = { Text("Buscar evento...") },
+                    leadingIcon = { Icon(Icons.Default.Search, null) },
+                    shape = RoundedCornerShape(12.dp)
+                )
 
                 when (val currentState = state) {
                     is EventoState.Loading -> {
@@ -98,14 +124,14 @@ fun AdminEventosScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            items(currentState.eventos) { evento ->
+                            items(filteredEventos) { evento ->
                                 EventoAdminCard(
                                     evento = evento,
                                     onEdit = {
                                         eventoEditando = evento
                                         showDialog = true
                                     },
-                                    onDelete = { /* Implementar lógica de eliminación si es necesario */ }
+                                    onDelete = { showDeleteConfirm = evento.id }
                                 )
                             }
                         }
@@ -129,15 +155,44 @@ fun AdminEventosScreen(
         EventoDialogStepByStep(
             evento = eventoEditando,
             onDismiss = { showDialog = false },
-            onConfirm = { /* Implementar lógica para guardar o actualizar a través de la API */
-                showDialog = false
+            onConfirm = { evento, imageUri ->
+                if (eventoEditando == null) {
+                    viewModel.crearEvento(context, evento, imageUri) { showDialog = false }
+                } else {
+                    viewModel.actualizarEvento(context, evento.id, evento, imageUri) { showDialog = false }
+                }
+            }
+        )
+    }
+
+    if (showDeleteConfirm != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = null },
+            title = { Text("Eliminar Evento") },
+            text = { Text("¿Estás seguro de que deseas eliminar este evento? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.eliminarEvento(showDeleteConfirm!!)
+                        showDeleteConfirm = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text("ELIMINAR")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = null }) {
+                    Text("CANCELAR")
+                }
             }
         )
     }
 }
 
 @Composable
-fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (Evento) -> Unit) {
+fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (Evento, Uri?) -> Unit) {
+    val context = LocalContext.current
     var currentStep by remember { mutableIntStateOf(1) }
     val totalSteps = 2
 
@@ -145,82 +200,155 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
     var fecha by remember { mutableStateOf(evento?.fecha ?: "") }
     var ubicacion by remember { mutableStateOf(evento?.lugar ?: "") }
     var tipo by remember { mutableStateOf(evento?.tipo ?: "NORMAL") }
-    var url by remember { mutableStateOf(evento?.imagenUrl ?: "") }
+    var descripcion by remember { mutableStateOf(evento?.descripcion ?: "") }
+    
+    // Estado para la imagen
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val imageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+    }
+
+    // Calendario para el DatePicker
+    val calendar = Calendar.getInstance()
+    val datePickerDialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            val formattedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            fecha = formattedDate
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+    )
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
-        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
-        focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
-        cursorColor = MaterialTheme.colorScheme.onPrimary
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.outline
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.primary,
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Column {
                 Text(
-                    if (evento == null) stringResource(R.string.admin_events_new) else stringResource(R.string.admin_events_edit),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.Bold
+                    if (evento == null) "Nuevo Evento" else "Editar Evento",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
                 )
                 Text(
-                    stringResource(R.string.rescue_survey_step, currentStep, totalSteps),
+                    "Paso $currentStep de $totalSteps",
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                    fontWeight = FontWeight.Medium
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            ) {
                 LinearProgressIndicator(
                     progress = { currentStep.toFloat() / totalSteps.toFloat() },
-                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
+                    modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                 )
 
                 if (currentStep == 1) {
                     OutlinedTextField(
                         value = titulo,
                         onValueChange = { titulo = it },
-                        label = { Text(stringResource(R.string.admin_events_label_title), fontWeight = FontWeight.Bold) },
+                        label = { Text("Título del Evento") },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
+                        colors = textFieldColors,
+                        shape = RoundedCornerShape(12.dp)
                     )
+
+                    // Campo de Fecha con clic para abrir Calendario
                     OutlinedTextField(
                         value = fecha,
-                        onValueChange = { fecha = it },
-                        label = { Text(stringResource(R.string.admin_events_label_date), fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
+                        onValueChange = { },
+                        label = { Text("Fecha (AAAA-MM-DD)") },
+                        modifier = Modifier.fillMaxWidth().clickable { datePickerDialog.show() },
+                        colors = textFieldColors,
+                        shape = RoundedCornerShape(12.dp),
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { datePickerDialog.show() }) {
+                                Icon(Icons.Default.CalendarToday, null, tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
                     )
+
                     OutlinedTextField(
                         value = ubicacion,
                         onValueChange = { ubicacion = it },
-                        label = { Text(stringResource(R.string.admin_events_label_location), fontWeight = FontWeight.Bold) },
+                        label = { Text("Ubicación / Lugar") },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
+                        colors = textFieldColors,
+                        shape = RoundedCornerShape(12.dp)
                     )
                 } else {
                     OutlinedTextField(
                         value = tipo,
                         onValueChange = { tipo = it },
-                        label = { Text("Tipo de Evento", fontWeight = FontWeight.Bold) },
+                        label = { Text("Categoría (Ej: Adopción, Feria)") },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
+                        colors = textFieldColors,
+                        shape = RoundedCornerShape(12.dp)
                     )
+                    
                     OutlinedTextField(
-                        value = url,
-                        onValueChange = { url = it },
-                        label = { Text(stringResource(R.string.admin_pets_label_image), fontWeight = FontWeight.Bold) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = textFieldColors
+                        value = descripcion,
+                        onValueChange = { descripcion = it },
+                        label = { Text("Descripción") },
+                        modifier = Modifier.fillMaxWidth().height(100.dp),
+                        colors = textFieldColors,
+                        shape = RoundedCornerShape(12.dp),
+                        maxLines = 4
                     )
+
+                    // Selector de Imagen
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clickable { imageLauncher.launch("image/*") },
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                        ) {
+                            if (selectedImageUri != null) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(selectedImageUri),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else if (!evento?.imagenUrl.isNullOrEmpty()) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(evento?.imagenUrl)),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(Icons.Default.AddPhotoAlternate, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(24.dp))
+                            }
+                        }
+                        TextButton(onClick = { imageLauncher.launch("image/*") }) {
+                            Text(if (selectedImageUri == null && evento?.imagenUrl == null) "Seleccionar Foto" else "Cambiar Foto")
+                        }
+                    }
                 }
             }
         },
@@ -229,36 +357,27 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                 if (currentStep == 1) {
                     Button(
                         onClick = { currentStep = 2 },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimary,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold)
+                        Text("SIGUIENTE")
                     }
                 } else {
                     Button(
                         onClick = {
-                            // Aquí se crearía el objeto Evento real para enviar a la API
                             onConfirm(Evento(
                                 id = evento?.id ?: 0,
                                 nombre = titulo,
                                 lugar = ubicacion,
-                                descripcion = evento?.descripcion,
+                                descripcion = descripcion,
                                 fecha = fecha,
-                                imagenUrl = url,
-                                imagenPublicId = evento?.imagenPublicId,
-                                fundacionId = evento?.fundacionId,
-                                tipo = tipo,
-                                likes = evento?.likes,
-                                createdAt = evento?.createdAt,
-                                updatedAt = evento?.updatedAt,
-                                deletedAt = evento?.deletedAt
-                            ))
+                                imagenUrl = evento?.imagenUrl,
+                                tipo = tipo
+                            ), selectedImageUri)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50), contentColor = Color.White)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(stringResource(R.string.btn_save_upper), color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("GUARDAR", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -267,11 +386,11 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
             Row {
                 if (currentStep == 2) {
                     TextButton(onClick = { currentStep = 1 }) {
-                        Text(stringResource(R.string.btn_previous), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
+                        Text("ATRÁS")
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.btn_cancel_upper), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                    Text("CANCELAR", color = MaterialTheme.colorScheme.error)
                 }
             }
         }

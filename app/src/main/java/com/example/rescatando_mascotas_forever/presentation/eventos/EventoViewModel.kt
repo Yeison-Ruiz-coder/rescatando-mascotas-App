@@ -1,5 +1,7 @@
 package com.example.rescatando_mascotas_forever.presentation.eventos
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
@@ -75,6 +77,42 @@ class EventoViewModel(
 
     fun onCategorySelected(category: String) {
         _selectedCategory.value = category
+    }
+
+    fun crearEvento(context: Context, evento: Evento, imageUri: Uri?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _state.value = EventoState.Loading // Mostrar carga mientras se sube el archivo
+            repository.crearEvento(context, evento, imageUri).onSuccess {
+                getEventos()
+                onSuccess()
+            }.onFailure { error ->
+                _state.value = EventoState.Error("Error al crear: ${error.message}")
+                println("DEBUG_ADMIN_EVENTOS: Error al crear: ${error.message}")
+            }
+        }
+    }
+
+    fun actualizarEvento(context: Context, id: Int, evento: Evento, imageUri: Uri?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _state.value = EventoState.Loading // Mostrar carga
+            repository.actualizarEvento(context, id, evento, imageUri).onSuccess {
+                getEventos()
+                onSuccess()
+            }.onFailure { error ->
+                _state.value = EventoState.Error("Error al actualizar: ${error.message}")
+                println("DEBUG_ADMIN_EVENTOS: Error al actualizar: ${error.message}")
+            }
+        }
+    }
+
+    fun eliminarEvento(id: Int) {
+        viewModelScope.launch {
+            repository.eliminarEvento(id).onSuccess {
+                getEventos()
+            }.onFailure { error ->
+                _state.value = EventoState.Error(error.message ?: "Error al eliminar")
+            }
+        }
     }
 
     fun getEventos() {

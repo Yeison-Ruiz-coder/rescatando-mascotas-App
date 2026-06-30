@@ -11,6 +11,8 @@ import com.example.rescatando_mascotas_forever.presentation.common.navigation.Ap
 import com.example.rescatando_mascotas_forever.ui.theme.RescatandomascotasforeverTheme
 import com.example.rescatando_mascotas_forever.ui.theme.ThemeController
 import com.example.rescatando_mascotas_forever.data.local.ThemeManager
+import com.example.rescatando_mascotas_forever.data.local.SessionManager
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,6 +21,12 @@ class MainActivity : AppCompatActivity() {
         // Inicializar el tema guardado
         val themeManager = ThemeManager(this)
         ThemeController.isDarkOverride.value = themeManager.getDarkMode()
+
+        // Inicializar el token de sesión si existe
+        val sessionManager = SessionManager(this)
+        sessionManager.getToken()?.let { token ->
+            RetrofitClient.setToken(token)
+        }
 
         setContent {
             RescatandomascotasforeverTheme {
