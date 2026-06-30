@@ -373,7 +373,7 @@ fun HeaderSection(
     
     LaunchedEffect(Unit) {
         while(true) {
-            kotlinx.coroutines.delay(5000)
+            kotlinx.coroutines.delay(3000)
             currentImageIndex = (currentImageIndex + 1) % carouselImages.size
         }
     }

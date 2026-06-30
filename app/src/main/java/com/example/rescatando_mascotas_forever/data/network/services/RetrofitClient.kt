@@ -20,7 +20,10 @@ object RetrofitClient {
         val original = chain.request()
         val requestBuilder = original.newBuilder()
             .addHeader("Accept", "application/json")
-            // No forzamos Content-Type globalmente para no romper las peticiones Multipart
+
+        // No forzamos Content-Type aquí para que Retrofit pueda establecer
+        // automáticamente el 'boundary' en peticiones Multipart.
+        // Si la petición es JSON normal, Retrofit ya añade el Header vía Converter.
 
         authToken?.let {
             requestBuilder.addHeader("Authorization", "Bearer $it")

@@ -1,6 +1,5 @@
 package com.example.rescatando_mascotas_forever.presentation.admin
 
-import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,7 +44,6 @@ fun AdminHomeScreen(
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val lastUpdated = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date()) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -85,15 +81,18 @@ fun AdminHomeScreen(
         ) { padding ->
             Box(modifier = Modifier.fillMaxSize().padding(padding)) {
                 when (val state = uiState) {
-                    is AdminHomeState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center), color = Color(0xFF673AB7))
+                    is AdminHomeState.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     is AdminHomeState.Success -> {
-                        val stats = state.stats.stats
-                        val graficos = state.stats.graficos
-
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 32.dp)
                         ) {
+                            // --- 1. HEADER PÚRPURA PREMIUM ---
                             item {
                                 Box(
                                     modifier = Modifier
@@ -102,32 +101,53 @@ fun AdminHomeScreen(
                                         .padding(horizontal = 24.dp, vertical = 32.dp)
                                 ) {
                                     Column {
-                                        StatusLiveBadge(lastUpdated)
-                                        Spacer(Modifier.height(8.dp))
-                                        Text("Panel Administrativo", fontSize = 28.sp, fontWeight = FontWeight.Black, color = Color.White)
-                                        Text("Analítica avanzada desde Railway Production", fontSize = 14.sp, color = Color.White.copy(alpha = 0.7f))
+                                        StatusLiveBadge()
+                                        Spacer(Modifier.height(12.dp))
+                                        Text(
+                                            text = stringResource(R.string.admin_home_title),
+                                            fontSize = 28.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.admin_home_subtitle),
+                                            fontSize = 14.sp,
+                                            color = Color.White.copy(alpha = 0.7f)
+                                        )
                                     }
                                 }
                             }
 
+                            // --- 2. KPI GRID (MÉTRICAS) ---
                             item {
-                                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        MetricCardSenior("Mascotas", stats.mascotas.total.toString(), "${stats.mascotas.enAdopcion} libres", Icons.Default.Pets, Color(0xFF10B981), Modifier.weight(1f))
-                                        MetricCardSenior("Rescates", stats.rescates.completados.toString(), null, Icons.Default.Warning, Color(0xFFF43F5E), Modifier.weight(1f))
-                                        MetricCardSenior("Adopciones", stats.adopciones.totales.toString(), null, Icons.Default.CheckCircle, Color(0xFF3B82F6), Modifier.weight(1f))
-                                    }
-                                    Spacer(Modifier.height(12.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        MetricCardSenior("Usuarios", stats.usuarios.total.toString(), "${stats.usuarios.activos} activos", Icons.Default.Group, Color(0xFF6366F1), Modifier.weight(1f))
-                                        MetricCardSenior("Entidades", (stats.usuarios.fundaciones + stats.usuarios.veterinarias).toString(), "Verificadas", Icons.Default.Verified, Color(0xFFF59E0B), Modifier.weight(1f))
-                                    }
+                                Row(
+                                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    MetricCardSenior(
+                                        title = stringResource(R.string.admin_home_stat_pets),
+                                        value = state.stats.totalMascotas.toString(),
+                                        trend = state.stats.mascotasTrend,
+                                        icon = Icons.Default.Pets,
+                                        color = Color(0xFF10B981),
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    MetricCardSenior(
+                                        title = "Rescates",
+                                        value = state.stats.totalRescates.toString(),
+                                        trend = state.stats.rescatesTrend,
+                                        icon = Icons.Default.Warning,
+                                        color = Color(0xFFF43F5E),
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    MetricCardSenior(
+                                        title = stringResource(R.string.admin_home_stat_adoptions_short),
+                                        value = state.stats.totalAdopciones.toString(),
+                                        trend = state.stats.adopcionesTrend,
+                                        icon = Icons.Default.CheckCircle,
+                                        color = Color(0xFF3B82F6),
+                                        modifier = Modifier.weight(1f)
+                                    )
                                 }
                             }
 
@@ -139,7 +159,7 @@ fun AdminHomeScreen(
 
                             item {
                                 Row(
-                                    modifier = Modifier.padding(20.dp).fillMaxWidth(),
+                                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
                                     Card(
@@ -157,20 +177,21 @@ fun AdminHomeScreen(
                                     }
 
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                        ActionCardPro("Ver Mascotas", Icons.Default.Edit, Color(0xFF673AB7)) { navController.navigate("admin_mascotas") }
-                                        ActionCardPro("Gestionar Usuarios", Icons.Default.Group, Color(0xFF3B82F6)) { navController.navigate("admin_usuarios") }
-                                        ActionCardPro("Generar PDF", Icons.Default.PictureAsPdf, Color(0xFF10B981)) {
-                                            ReportGenerator.generateStatsPdf(context, stats.mascotas.total, stats.rescates.completados, stats.adopciones.totales)
+                                        ActionCardPro("Mascotas", Icons.Default.Edit, Color(0xFF673AB7)) { navController.navigate("admin_mascotas") }
+                                        ActionCardPro("Usuarios", Icons.Default.Group, Color(0xFF3B82F6)) { navController.navigate("admin_usuarios") }
+                                        ActionCardPro("Reporte PDF", Icons.Default.PictureAsPdf, Color(0xFF10B981)) { 
+                                            ReportGenerator.generateStatsPdf(context, state.stats.totalMascotas, state.stats.totalRescates, state.stats.totalAdopciones) 
                                         }
                                     }
                                 }
                             }
-
+                            
                             item {
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
+                                // Botón de Modo Usuario para Vista Previa
                                 OutlinedButton(
                                     onClick = { navController.navigate("home") },
-                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
+                                    modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(50.dp),
                                     shape = RoundedCornerShape(12.dp),
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                                 ) {
@@ -181,7 +202,9 @@ fun AdminHomeScreen(
                             }
                         }
                     }
-                    is AdminHomeState.Error -> ErrorLayout(state.message) { viewModel.fetchDashboardData() }
+                    is AdminHomeState.Error -> {
+                        ErrorLayout(state.message) { viewModel.fetchDashboardData() }
+                    }
                 }
             }
         }
@@ -232,24 +255,21 @@ fun MetricCardSenior(title: String, value: String, trend: String?, icon: ImageVe
 @Composable
 fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
     Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth().height(56.dp),
-        shape = RoundedCornerShape(16.dp),
+        modifier = modifier.height(130.dp),
+        shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier.size(36.dp).background(color.copy(alpha = 0.1f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
+        Column(Modifier.padding(16.dp)) {
+            Box(Modifier.size(36.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
                 Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
             }
-            Spacer(Modifier.width(12.dp))
-            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+            Spacer(Modifier.weight(1f))
+            Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, fontSize = 11.sp, color = Color(0xFF64748B), modifier = Modifier.weight(1f))
+                Text(trend, fontSize = 10.sp, color = if(trend.startsWith("+")) Color(0xFF10B981) else Color.Red, fontWeight = FontWeight.Bold)
+            }
         }
     }
 }
@@ -277,21 +297,22 @@ fun AnalyticsSectionCard(title: String, icon: ImageVector, action: @Composable (
 
 @Composable
 fun SeniorAreaChart(data: List<MonthlyData>) {
-    val points = if(data.isEmpty()) listOf(MonthlyData("L", 0f), MonthlyData("M", 0f), MonthlyData("X", 0f), MonthlyData("J", 0f), MonthlyData("V", 0f)) else data
+    val points = if(data.isEmpty()) listOf(MonthlyData("L", 10f), MonthlyData("M", 25f), MonthlyData("X", 15f), MonthlyData("J", 35f), MonthlyData("V", 28f)) else data
     val maxValue = points.maxByOrNull { it.value }?.value ?: 1f
-
+    
     Canvas(modifier = Modifier.fillMaxWidth().height(140.dp)) {
         val path = Path()
         val space = size.width / (points.size - 1).coerceAtLeast(1)
-
+        
         points.forEachIndexed { i, item ->
             val x = i * space
-            val y = size.height - (item.value / (maxValue * 1.2f)) * size.height
+            val y = size.height - (item.value / maxValue) * size.height
             if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
         }
 
         drawPath(path, color = Color(0xFF673AB7), style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-
+        
+        // Fill Area
         val fillPath = Path().apply {
             addPath(path)
             lineTo(size.width, size.height)
@@ -326,11 +347,26 @@ fun SeniorDonutChart(data: List<SpeciesDistribution>) {
 }
 
 @Composable
+fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(52.dp).clickable { onClick() },
+        color = Color.White, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+    ) {
+        Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(32.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(16.dp))
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF334155))
+        }
+    }
+}
+
+@Composable
 fun ErrorLayout(msg: String, onRetry: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Icon(Icons.Default.CloudOff, null, Modifier.size(48.dp), tint = Color.Gray)
-        Text("Fallo en sincronización Railway", fontWeight = FontWeight.Bold)
-        Text(msg, fontSize = 12.sp, color = Color.Gray, modifier = Modifier.padding(horizontal = 32.dp))
+        Text(msg, fontWeight = FontWeight.Bold)
         Button(onClick = onRetry, modifier = Modifier.padding(top = 16.dp)) { Text("Reintentar") }
     }
 }

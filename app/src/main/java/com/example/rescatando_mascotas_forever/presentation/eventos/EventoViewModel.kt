@@ -1,40 +1,46 @@
 package com.example.rescatando_mascotas_forever.presentation.eventos
 
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 sealed class EventoState {
     object Loading : EventoState()
-    data class Success(val eventos: List<Evento>, val isLastPage: Boolean = false) : EventoState()
+    data class Success(
+        val eventos: List<Evento>,
+        val hasMore: Boolean = false,
+        val isNextPageLoading: Boolean = false
+    ) : EventoState()
     data class Error(val message: String) : EventoState()
 }
 
 class EventoViewModel(
-    private val repository: EventoRepository = EventoRepository(
-        com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient.eventoApi
-    )
+    private val repository: EventoRepository = EventoRepository(RetrofitClient.eventoApi)
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<EventoState>(EventoState.Loading)
     val state: StateFlow<EventoState> = _state.asStateFlow()
 
-    private val _eventoDetalle = MutableStateFlow<Evento?>(null)
-    val eventoDetalle: StateFlow<Evento?> = _eventoDetalle
+    private var currentPage = 1
+    private var lastPage = 1
+    private var allEventosList = mutableListOf<Evento>()
 
     private val _searchText = MutableStateFlow("")
     val searchText = _searchText.asStateFlow()
 
     private val _selectedCategory = MutableStateFlow("Todos")
     val selectedCategory = _selectedCategory.asStateFlow()
-
-    private val _currentPage = MutableStateFlow(1)
-    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
-    
-    private var isRemoteLastPage = false
 
     val filteredEventos: StateFlow<List<Evento>> = combine(
         _state,
@@ -43,13 +49,10 @@ class EventoViewModel(
     ) { state, query, category ->
         if (state is EventoState.Success) {
             state.eventos.filter { evento ->
-                val matchesCat = when (category) {
-                    "Todos", "All" -> true
-                    "Gratis" -> evento.costo?.contains("Gratis", ignoreCase = true) == true
-                    "Adopciones" -> evento.nombre.contains("Adopción", ignoreCase = true) || 
-                                   evento.categoria?.contains("Adopción", ignoreCase = true) == true
-                    else -> evento.tipo?.contains(category, ignoreCase = true) == true ||
-                            evento.categoria?.contains(category, ignoreCase = true) == true
+                val matchesCat = if (category == "Todos" || category == "All") {
+                    true
+                } else {
+                    evento.tipo?.contains(category, ignoreCase = true) == true
                 }
 
                 val matchesSearch = query.isEmpty() ||
@@ -76,53 +79,85 @@ class EventoViewModel(
         _selectedCategory.value = category
     }
 
-    fun getEventos(page: Int = 1) {
-        _currentPage.value = page
-        _state.value = EventoState.Loading
-        
+    fun getEventos() {
+        currentPage = 1
+        allEventosList.clear()
+        fetchPage(currentPage)
+    }
+
+    fun loadNextPage() {
+        val currentState = _state.value
+        if (currentState is EventoState.Success && !currentState.isNextPageLoading && currentPage < lastPage) {
+            _state.value = currentState.copy(isNextPageLoading = true)
+            fetchPage(currentPage + 1)
+        }
+    }
+
+    private fun fetchPage(page: Int) {
         viewModelScope.launch {
+            if (page == 1) _state.value = EventoState.Loading
+            
             repository.getEventos(page).collect { result ->
                 result.onSuccess { pagination ->
-                    isRemoteLastPage = pagination.currentPage >= pagination.lastPage
+                    currentPage = pagination.currentPage
+                    lastPage = pagination.lastPage
+                    
+                    if (page == 1) {
+                        allEventosList = pagination.data.toMutableList()
+                    } else {
+                        allEventosList.addAll(pagination.data)
+                    }
+
                     _state.value = EventoState.Success(
-                        eventos = pagination.data,
-                        isLastPage = isRemoteLastPage
+                        eventos = allEventosList.toList(),
+                        hasMore = currentPage < lastPage,
+                        isNextPageLoading = false
                     )
                 }.onFailure { error ->
-                    _state.value = EventoState.Error(error.message ?: "Error desconocido")
+                    if (page == 1) {
+                        _state.value = EventoState.Error(error.message ?: "Error desconocido")
+                    } else {
+                        val currentState = _state.value
+                        if (currentState is EventoState.Success) {
+                            _state.value = currentState.copy(isNextPageLoading = false)
+                        }
+                    }
                 }
             }
         }
     }
 
-    fun nextPage() {
-        if (!isRemoteLastPage) {
-            getEventos(_currentPage.value + 1)
-        }
-    }
-
-    fun prevPage() {
-        if (_currentPage.value > 1) {
-            getEventos(_currentPage.value - 1)
-        }
-    }
-
-    fun getEventoById(id: Int) {
-        val currentState = _state.value
-        if (currentState is EventoState.Success) {
-            _eventoDetalle.value = currentState.eventos.find { it.id == id }
-        }
-
+    fun crearEvento(context: Context, evento: Evento, imageUri: Uri?, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            state.collectLatest { latestState ->
-                if (latestState is EventoState.Success) {
-                    _eventoDetalle.value = latestState.eventos.find { it.id == id }
-                }
+            _state.value = EventoState.Loading
+            repository.crearEvento(context, evento, imageUri).onSuccess {
+                getEventos()
+                onSuccess()
+            }.onFailure { error ->
+                _state.value = EventoState.Error("Error al crear: ${error.message}")
             }
         }
     }
-    
-    fun limpiarDetalle() {
-        _eventoDetalle.value = null
+
+    fun actualizarEvento(context: Context, id: Int, evento: Evento, imageUri: Uri?, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _state.value = EventoState.Loading
+            repository.actualizarEvento(context, id, evento, imageUri).onSuccess {
+                getEventos()
+                onSuccess()
+            }.onFailure { error ->
+                _state.value = EventoState.Error("Error al actualizar: ${error.message}")
+            }
+        }
+    }
+
+    fun eliminarEvento(id: Int) {
+        viewModelScope.launch {
+            repository.eliminarEvento(id).onSuccess {
+                getEventos()
+            }.onFailure { error ->
+                _state.value = EventoState.Error(error.message ?: "Error al eliminar")
+            }
+        }
     }
 }

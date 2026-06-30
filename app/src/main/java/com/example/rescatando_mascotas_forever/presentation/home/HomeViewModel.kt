@@ -6,14 +6,10 @@ import com.example.rescatando_mascotas_forever.data.network.services.RetrofitCli
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.data.network.models.EventoPagination
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import com.example.rescatando_mascotas_forever.data.network.models.MascotaDataWrapper
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.reflect.TypeToken
 
 data class Foundation(
     val id: Int,
@@ -133,37 +129,9 @@ class HomeViewModel(
             
             mascotaRepository.getMascotas().collect { result ->
                 result.onSuccess { response ->
-                    try {
-                        val gson = Gson()
-                        val json = gson.toJson(response.data)
-                        val element = gson.fromJson(json, JsonElement::class.java)
-
-                        val mascotas = when {
-                            element.isJsonArray -> {
-                                val listType = object : TypeToken<List<Mascota>>() {}.type
-                                gson.fromJson<List<Mascota>>(element, listType)
-                            }
-                            element.isJsonObject -> {
-                                val obj = element.asJsonObject
-                                when {
-                                    obj.has("data") && obj.get("data").isJsonArray -> {
-                                        val listType = object : TypeToken<List<Mascota>>() {}.type
-                                        gson.fromJson<List<Mascota>>(obj.get("data"), listType)
-                                    }
-                                    obj.has("id") -> listOf(gson.fromJson(element, Mascota::class.java))
-                                    else -> emptyList()
-                                }
-                            }
-                            else -> emptyList()
-                        }
-                        
-                        // En el Home solo mostramos una muestra (ej: 8), no todos los 100 para evitar listas infinitas
-                        todasLasMascotasList = mascotas?.take(8) ?: emptyList()
-                        filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        todasLasMascotasList = emptyList()
-                    }
+                    // Ahora que el modelo está tipado, el parseo es directo
+                    todasLasMascotasList = response.data?.data ?: emptyList()
+                    filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
                 }.onFailure { e ->
                     _error.value = "Error al cargar mascotas: ${e.message}"
                 }
@@ -171,10 +139,11 @@ class HomeViewModel(
             }
             
             eventoRepository.getEventos().collect { result ->
-                val pagination = result.getOrNull()
-                if (pagination != null) {
-                    // Tomamos solo los últimos 3 eventos subidos (ordenados por ID descendente)
-                    _eventos.value = pagination.data.sortedByDescending { it.id }.take(3)
+                result.onSuccess { pagination ->
+                    // Tomamos solo los últimos 3 eventos subidos de la lista 'data'
+                    _eventos.value = pagination.data.sortedByDescending { evento -> evento.id }.take(3)
+                }.onFailure {
+                    // Silently fail or log for events
                 }
             }
         }

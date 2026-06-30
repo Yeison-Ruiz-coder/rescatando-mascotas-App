@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -42,46 +39,11 @@ class AdopcionViewModel : ViewModel() {
             _currentPage.value = page
             
             try {
-                val response = RetrofitClient.mascotaApi.getMascotas(especie = if (especie == "Todas") null else especie, page = page)
-                if (response.success && response.data != null) {
-                    val gson = Gson()
-                    val json = gson.toJson(response.data)
-                    val element = gson.fromJson(json, JsonElement::class.java)
-
-                    val list: List<Mascota> = when {
-                        element == null || element.isJsonNull -> emptyList()
-                        element.isJsonArray -> {
-                            val listType = object : TypeToken<List<Mascota>>() {}.type
-                            gson.fromJson(element, listType)
-                        }
-                        element.isJsonObject -> {
-                            val obj = element.asJsonObject
-                            
-                            if (obj.has("current_page") && !obj.get("current_page").isJsonNull) {
-                                _currentPage.value = obj.get("current_page").asInt
-                            }
-                            if (obj.has("last_page") && !obj.get("last_page").isJsonNull) {
-                                _lastPage.value = obj.get("last_page").asInt
-                            }
-                            if (obj.has("total") && !obj.get("total").isJsonNull) {
-                                _totalMascotas.value = obj.get("total").asInt
-                            }
-
-                            if (obj.has("data")) {
-                                val dataField = obj.get("data")
-                                if (dataField.isJsonArray) {
-                                    val listType = object : TypeToken<List<Mascota>>() {}.type
-                                    gson.fromJson(dataField, listType)
-                                } else if (dataField.isJsonObject) {
-                                    listOf(gson.fromJson(dataField, Mascota::class.java))
-                                } else emptyList()
-                            } else if (obj.has("id")) {
-                                listOf(gson.fromJson(obj, Mascota::class.java))
-                            } else emptyList()
-                        }
-                        else -> emptyList()
-                    }
-                    _mascotas.value = list
+                // Quitamos el filtro de estado explícito por si el backend usa otro término
+                val response = RetrofitClient.mascotaApi.getMascotas(especie = especie)
+                if (response.success) {
+                    // Ahora que el modelo está tipado, el acceso es directo
+                    _mascotas.value = response.data?.data ?: emptyList()
                 } else {
                     _mascotas.value = emptyList()
                     if (!response.success) {

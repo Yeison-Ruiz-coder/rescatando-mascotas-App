@@ -167,6 +167,22 @@ fun AdopcionListScreen(
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surface
                             )
                         )
+                        
+                        Spacer(Modifier.height(16.dp))
+                        
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(especies) { especie ->
+                                CustomChipItem(
+                                    text = especie,
+                                    selected = selectedEspecie == especie,
+                                    onClick = { selectedEspecie = especie }
+                                )
+                            }
+                        }
+                    }
+                }
 
                         Spacer(Modifier.height(12.dp))
 
@@ -197,7 +213,7 @@ fun AdopcionListScreen(
                 } else if (error != null) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
-                            Text(text = error!!, color = WebDanger, textAlign = TextAlign.Center)
+                            Text(text = error!!, color = Color.Red, textAlign = TextAlign.Center)
                         }
                     }
                 } else {
@@ -298,6 +314,93 @@ fun CustomChipItem(text: String, selected: Boolean, onClick: () -> Unit) {
             fontSize = 13.sp,
             fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium
         )
+    }
+}
+
+@Composable
+fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: Modifier = Modifier) {
+    val baseUrl = Constants.BASE_URL
+    val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
+        mascota.fotoPrincipal
+    } else {
+        "${baseUrl}storage/${mascota.fotoPrincipal}"
+    }
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Column {
+            Box(modifier = Modifier.height(150.dp).fillMaxWidth()) {
+                Image(
+                    painter = rememberAsyncImagePainter(fullImageUrl),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
+                                startY = 200f
+                            )
+                        )
+                )
+
+                Surface(
+                    modifier = Modifier.padding(8.dp).align(Alignment.TopStart),
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                ) {
+                    Text(
+                        text = (mascota.estado ?: "DISPONIBLE").uppercase(),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    mascota.nombre, 
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 16.sp, 
+                    color = MaterialTheme.colorScheme.primary
+                )
+                val ageSuffix = if (mascota.edadAprox == 1.0) stringResource(R.string.pet_age_singular) else stringResource(R.string.pet_age_suffix)
+                Text(
+                    "${mascota.especie} • ${mascota.edadAprox ?: 0} $ageSuffix",
+                    fontSize = 12.sp, 
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.LocationOn, null, tint = Color.Red.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(mascota.ubicacion ?: "Sin ubicación", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Button(
+                    onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.Favorite, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onPrimary)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Apadrinar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
     }
 }
 

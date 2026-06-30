@@ -209,46 +209,20 @@ fun EventoScreen(
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
 
-                            // --- PAGINACIÓN CON BOTONES ---
-                            item {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 32.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    FilledTonalButton(
-                                        onClick = { viewModel.prevPage() },
-                                        enabled = currentPage > 1,
-                                        shape = RoundedCornerShape(12.dp)
+                            // Botón para cargar más si hay más páginas
+                            if (currentState.hasMore) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(18.dp))
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Anterior")
-                                    }
-
-                                    Surface(
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text(
-                                            text = "Pág $currentPage",
-                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontSize = 14.sp
-                                        )
-                                    }
-
-                                    Button(
-                                        onClick = { viewModel.nextPage() },
-                                        enabled = !currentState.isLastPage,
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Text("Siguiente")
-                                        Spacer(Modifier.width(8.dp))
-                                        Icon(Icons.AutoMirrored.Filled.ArrowForward, null, modifier = Modifier.size(18.dp))
+                                        if (currentState.isNextPageLoading) {
+                                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                        } else {
+                                            TextButton(onClick = { viewModel.loadNextPage() }) {
+                                                Text("Cargar más eventos", fontWeight = FontWeight.Bold)
+                                            }
+                                        }
                                     }
                                 }
                             }
