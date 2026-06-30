@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.example.rescatando_mascotas_forever.data.network.api.EventoApi
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
+import com.example.rescatando_mascotas_forever.data.network.models.EventoPagination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

@@ -27,6 +27,13 @@ interface SuscripcionApi {
     @PATCH("api/suscripciones/user/{id}")
     suspend fun updateSuscripcion(@Path("id") id: Int, @Body data: Map<String, Any?>): SingleSuscripcionResponse
 
+    // Rutas Administrativas
+    @GET("api/admin/suscripciones")
+    suspend fun getAllSuscripcionesAdmin(): SuscripcionResponse
+
+    @PATCH("api/admin/suscripciones/{id}/status")
+    suspend fun adminUpdateSuscripcionStatus(@Path("id") id: Int, @Body data: Map<String, String>): SingleSuscripcionResponse
+
     // Rutas Públicas - Planes
     @GET("api/suscripciones/planes")
     suspend fun getPlanes(): SuscripcionResponse

@@ -18,30 +18,44 @@ object ThemeController {
     var isDarkOverride = mutableStateOf<Boolean?>(null)
 }
 
-private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
-    background = DarkBackground,
-    surface = DarkSurface,
-    onPrimary = Color.Black,
-    onSecondary = Color.Black,
-    onTertiary = Color.Black,
-    onBackground = DarkOnSurface,
-    onSurface = DarkOnSurface
+/**
+ * PALETA WEB - MODO OSCURO
+ */
+private val WebDarkColorScheme = darkColorScheme(
+    primary = WebPrimaryDark,
+    secondary = WebSecondaryDark,
+    tertiary = WebAccentDark,
+    background = WebBackgroundSectionDark,
+    surface = WebCardBgDark,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = White,
+    onBackground = WebTextDark,
+    onSurface = WebTextDark,
+    surfaceVariant = WebLightDark,
+    outline = WebBorderDark,
+    error = WebDangerDark,
+    onError = White
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = BrandPurple,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
-    background = LightBackground,
-    surface = LightSurface,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = LightOnSurface,
-    onSurface = LightOnSurface
+/**
+ * PALETA WEB - MODO CLARO
+ */
+private val WebLightColorScheme = lightColorScheme(
+    primary = WebPrimary,
+    secondary = WebSecondary,
+    tertiary = WebAccent,
+    background = WebLight,
+    surface = WebCardBg,
+    onPrimary = White,
+    onSecondary = White,
+    onTertiary = White,
+    onBackground = WebText,
+    onSurface = WebText,
+    surfaceVariant = WebBackgroundSection,
+    outline = WebBorder,
+    error = WebDanger,
+    onError = White
 )
 
 @Composable
@@ -50,7 +64,7 @@ fun RescatandomascotasforeverTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    // Si hay un override manual, usamos ese. Si no, usamos el del sistema.
+    // Lógica preparada para el override manual
     val useDarkTheme = ThemeController.isDarkOverride.value ?: darkTheme
 
     val colorScheme = when {
@@ -58,8 +72,8 @@ fun RescatandomascotasforeverTheme(
             val context = LocalContext.current
             if (useDarkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        useDarkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        useDarkTheme -> WebDarkColorScheme
+        else -> WebLightColorScheme
     }
 
     MaterialTheme(

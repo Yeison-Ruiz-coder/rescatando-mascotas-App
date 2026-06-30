@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
@@ -140,7 +139,7 @@ fun AdminEventosScreen(
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Error: ${currentState.message}", color = Color.Red)
-                                Button(onClick = { viewModel.getEventos() }) {
+                                Button(onClick = { viewModel.getEventos(1) }) {
                                     Text("Reintentar")
                                 }
                             }
@@ -395,63 +394,4 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
             }
         }
     )
-}
-
-@Composable
-fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
-    // Lógica de fallback para imagenUrl o imagenPublicId
-    val imagePath = if (!evento.imagenUrl.isNullOrEmpty()) evento.imagenUrl else evento.imagenPublicId
-    val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(fullImageUrl),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(Modifier.width(16.dp))
-
-            Column(Modifier.weight(1f)) {
-                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
-                Text("${evento.fecha} • ${evento.lugar}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1)
-
-                Spacer(Modifier.height(4.dp))
-
-                Surface(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = evento.tipo ?: "EVENTO",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 10.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            Row {
-                IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.primary)
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, null, tint = Color.Red)
-                }
-            }
-        }
-    }
 }

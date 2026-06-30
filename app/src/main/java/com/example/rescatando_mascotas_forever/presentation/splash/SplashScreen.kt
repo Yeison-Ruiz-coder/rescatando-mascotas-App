@@ -9,6 +9,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -24,6 +26,8 @@ import androidx.navigation.NavHostController
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
+import com.example.rescatando_mascotas_forever.ui.theme.BrandPurple
+import com.example.rescatando_mascotas_forever.ui.theme.BrandPurpleDark
 import kotlinx.coroutines.delay
 
 @Composable
@@ -31,34 +35,32 @@ fun SplashScreen(navController: NavHostController) {
     var startAnimation by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    
-    // Animación de escala y opacidad
+
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.5f,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = FastOutSlowInEasing
-        ), label = ""
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+        label = "scale"
     )
-    
+
     val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 1000
-        ), label = ""
+        animationSpec = tween(durationMillis = 1000),
+        label = "alpha"
     )
 
     LaunchedEffect(key1 = true) {
         startAnimation = true
-        delay(2500) // Duración del "telón"
-        
-        if (sessionManager.isLoggedIn()) {
-            val token = sessionManager.getToken()
-            RetrofitClient.setToken(token)
+        delay(2500)
 
-            val user = sessionManager.getUser()
-            if (user?.tipo == "admin") {
-                navController.navigate("admin_home") {
+        try {
+            if (sessionManager.isLoggedIn()) {
+                val token = sessionManager.getToken()
+                RetrofitClient.setToken(token)
+
+                val user = sessionManager.getUser()
+                val destino = if (user?.tipo == "admin") "admin_home" else "home"
+
+                navController.navigate(destino) {
                     popUpTo("splash") { inclusive = true }
                 }
             } else {
@@ -66,23 +68,19 @@ fun SplashScreen(navController: NavHostController) {
                     popUpTo("splash") { inclusive = true }
                 }
             }
-        } else {
-            // Ir directamente a Home como invitado
+        } catch (e: Exception) {
             navController.navigate("home") {
                 popUpTo("splash") { inclusive = true }
             }
         }
     }
 
-    val primaryColor: Color = MaterialTheme.colorScheme.primary
-    val secondaryColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(primaryColor, secondaryColor)
+                    colors = listOf(BrandPurple, BrandPurpleDark)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -94,7 +92,7 @@ fun SplashScreen(navController: NavHostController) {
             Surface(
                 modifier = Modifier.size(180.dp),
                 shape = CircleShape,
-                color = Color.White, // Siempre blanco para que el logo se vea original
+                color = Color.White,
                 shadowElevation = 8.dp
             ) {
                 Image(
@@ -103,27 +101,26 @@ fun SplashScreen(navController: NavHostController) {
                     modifier = Modifier.padding(20.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             Text(
                 text = "Rescatando Mascotas",
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = Color.White,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
                 text = "Forever",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
+                color = Color.White.copy(alpha = 0.8f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Light
             )
-            
+
             Spacer(modifier = Modifier.height(40.dp))
-            
-            // Indicador de carga sutil
+
             androidx.compose.material3.CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = Color.White,
                 strokeWidth = 3.dp,
                 modifier = Modifier.size(30.dp)
             )

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
+import com.example.rescatando_mascotas_forever.data.network.models.EventoPagination
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.repository.EventoRepository
 import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository

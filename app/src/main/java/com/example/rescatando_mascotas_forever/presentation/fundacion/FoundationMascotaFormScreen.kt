@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.rescatando_mascotas_forever.data.network.models.toSafeString
 import com.example.rescatando_mascotas_forever.ui.theme.FoundationGradient
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,17 +43,26 @@ fun FoundationMascotaFormScreen(
     var peso by remember { mutableStateOf("") }
     var tamano by remember { mutableStateOf("mediano") }
     var genero by remember { mutableStateOf("Macho") }
+    var color by remember { mutableStateOf("") }
     var estado by remember { mutableStateOf("En adopcion") }
     var ubicacion by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
     var condiciones by remember { mutableStateOf("") }
     var salud by remember { mutableStateOf("") }
+    var enfermedades by remember { mutableStateOf("") }
+    var medicamentos by remember { mutableStateOf("") }
+    var requisitos by remember { mutableStateOf("") }
+    var hogarRecomendado by remember { mutableStateOf("") }
+    var videoUrl by remember { mutableStateOf("") }
+    
+    // Boolean states
     var esterilizado by remember { mutableStateOf(false) }
     var desparasitado by remember { mutableStateOf(false) }
     var vacunado by remember { mutableStateOf(false) }
     var aptoNinos by remember { mutableStateOf(true) }
     var aptoAnimales by remember { mutableStateOf(true) }
     var hogarTemporal by remember { mutableStateOf(false) }
+    var destacada by remember { mutableStateOf(false) }
     
     var fotoPrincipalUri by remember { mutableStateOf<Uri?>(null) }
     var galeriaUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
@@ -79,17 +89,25 @@ fun FoundationMascotaFormScreen(
             peso = it.pesoAprox?.toString() ?: ""
             tamano = it.tamano ?: "mediano"
             genero = it.genero ?: "Macho"
+            color = it.color ?: ""
             estado = it.estado ?: "En adopcion"
             ubicacion = it.ubicacion ?: ""
             descripcion = it.descripcion ?: ""
-            condiciones = it.condicionesEspeciales ?: ""
-            salud = it.saludGeneral ?: ""
-            esterilizado = it.esterilizado
-            desparasitado = it.desparasitado
-            vacunado = it.vacunado
-            aptoNinos = it.aptoConNinos
-            aptoAnimales = it.aptoConOtrosAnimales
-            hogarTemporal = it.necesitaHogarTemporal
+            condiciones = it.condicionesEspeciales.toSafeString()
+            salud = it.saludGeneral.toSafeString()
+            enfermedades = it.enfermedadesCronicas.toSafeString()
+            medicamentos = it.medicamentos.toSafeString()
+            requisitos = it.requisitosAdopcion.toSafeString()
+            hogarRecomendado = it.hogarRecomendado.toSafeString()
+            videoUrl = it.videoUrl ?: ""
+            
+            esterilizado = it.esterilizado ?: false
+            desparasitado = it.desparasitado ?: false
+            vacunado = it.vacunado ?: false
+            aptoNinos = it.aptoConNinos ?: true
+            aptoAnimales = it.aptoConOtrosAnimales ?: true
+            hogarTemporal = it.necesitaHogarTemporal ?: false
+            destacada = it.destacada ?: false
         }
     }
 
@@ -155,7 +173,15 @@ fun FoundationMascotaFormScreen(
                     label = { Text("Peso (kg)") },
                     modifier = Modifier.weight(1f)
                 )
-                
+                OutlinedTextField(
+                    value = color,
+                    onValueChange = { color = it },
+                    label = { Text("Color") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 var expandedTamano by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.weight(1f)) {
                     OutlinedTextField(
@@ -172,10 +198,7 @@ fun FoundationMascotaFormScreen(
                         }
                     }
                 }
-            }
 
-            // Género y Estado
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 var expandedGenero by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.weight(1f)) {
                     OutlinedTextField(
@@ -192,21 +215,21 @@ fun FoundationMascotaFormScreen(
                         }
                     }
                 }
+            }
 
-                var expandedEstado by remember { mutableStateOf(false) }
-                Box(modifier = Modifier.weight(1f)) {
-                    OutlinedTextField(
-                        value = estado,
-                        onValueChange = {},
-                        label = { Text("Estado") },
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { IconButton(onClick = { expandedEstado = true }) { Icon(Icons.Default.ArrowDropDown, null) } }
-                    )
-                    DropdownMenu(expanded = expandedEstado, onDismissRequest = { expandedEstado = false }) {
-                        listOf("Adoptado", "En adopcion", "Rescatada", "En acogida").forEach { e ->
-                            DropdownMenuItem(text = { Text(e) }, onClick = { estado = e; expandedEstado = false })
-                        }
+            var expandedEstado by remember { mutableStateOf(false) }
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = estado,
+                    onValueChange = {},
+                    label = { Text("Estado") },
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { IconButton(onClick = { expandedEstado = true }) { Icon(Icons.Default.ArrowDropDown, null) } }
+                )
+                DropdownMenu(expanded = expandedEstado, onDismissRequest = { expandedEstado = false }) {
+                    listOf("Adoptado", "En adopcion", "Rescatada", "En acogida").forEach { e ->
+                        DropdownMenuItem(text = { Text(e) }, onClick = { estado = e; expandedEstado = false })
                     }
                 }
             }
@@ -226,13 +249,53 @@ fun FoundationMascotaFormScreen(
                 CheckboxLabel("Apto animales", aptoAnimales) { aptoAnimales = it }
                 CheckboxLabel("Hogar Temporal", hogarTemporal) { hogarTemporal = it }
             }
+            CheckboxLabel("Mascota Destacada", destacada) { destacada = it }
 
             OutlinedTextField(
                 value = salud,
                 onValueChange = { salud = it },
-                label = { Text("Salud General / Enfermedades") },
+                label = { Text("Salud General") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = enfermedades,
+                onValueChange = { enfermedades = it },
+                label = { Text("Enfermedades Crónicas") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = medicamentos,
+                onValueChange = { medicamentos = it },
+                label = { Text("Medicamentos") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Sección: Comportamiento y Requisitos
+            FormSectionTitle("Comportamiento y Requisitos")
+            OutlinedTextField(
+                value = descripcion,
+                onValueChange = { descripcion = it },
+                label = { Text("Descripción / Historia") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 2
+                minLines = 3
+            )
+            OutlinedTextField(
+                value = condiciones,
+                onValueChange = { condiciones = it },
+                label = { Text("Condiciones Especiales") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = requisitos,
+                onValueChange = { requisitos = it },
+                label = { Text("Requisitos de Adopción") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = hogarRecomendado,
+                onValueChange = { hogarRecomendado = it },
+                label = { Text("Hogar Recomendado") },
+                modifier = Modifier.fillMaxWidth()
             )
 
             // Sección: Ubicación y Multimedia
@@ -247,11 +310,11 @@ fun FoundationMascotaFormScreen(
             )
 
             OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción") },
+                value = videoUrl,
+                onValueChange = { videoUrl = it },
+                label = { Text("URL de Video (YouTube/Vimeo)") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                leadingIcon = { Icon(Icons.Default.VideoLibrary, null) }
             )
 
             // Fotos
@@ -281,9 +344,34 @@ fun FoundationMascotaFormScreen(
             Button(
                 onClick = {
                     viewModel.saveMascota(
-                        context, mascotaId, nombre, especie, edad, peso, tamano, genero, estado,
-                        ubicacion, descripcion, condiciones, salud, esterilizado, desparasitado,
-                        vacunado, aptoNinos, aptoAnimales, hogarTemporal, fotoPrincipalUri, galeriaUris
+                        context = context,
+                        id = mascotaId,
+                        nombre = nombre,
+                        especie = especie,
+                        edad = edad,
+                        peso = peso,
+                        tamano = tamano,
+                        genero = genero,
+                        color = color,
+                        estado = estado,
+                        ubicacion = ubicacion,
+                        descripcion = descripcion,
+                        condiciones = condiciones,
+                        salud = salud,
+                        enfermedades = enfermedades,
+                        medicamentos = medicamentos,
+                        requisitos = requisitos,
+                        hogarRecomendado = hogarRecomendado,
+                        videoUrl = videoUrl,
+                        esterilizado = esterilizado,
+                        desparasitado = desparasitado,
+                        vacunado = vacunado,
+                        aptoNinos = aptoNinos,
+                        aptoAnimales = aptoAnimales,
+                        hogarTemporal = hogarTemporal,
+                        destacada = destacada,
+                        fotoPrincipalUri = fotoPrincipalUri,
+                        galeriaUris = galeriaUris
                     )
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),

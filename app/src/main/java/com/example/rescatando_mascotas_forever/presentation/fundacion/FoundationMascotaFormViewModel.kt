@@ -65,17 +65,24 @@ class FoundationMascotaFormViewModel(
         peso: String,
         tamano: String,
         genero: String,
+        color: String,
         estado: String,
         ubicacion: String,
         descripcion: String,
         condiciones: String,
         salud: String,
+        enfermedades: String,
+        medicamentos: String,
+        requisitos: String,
+        hogarRecomendado: String,
+        videoUrl: String,
         esterilizado: Boolean,
         desparasitado: Boolean,
         vacunado: Boolean,
         aptoNinos: Boolean,
         aptoAnimales: Boolean,
         hogarTemporal: Boolean,
+        destacada: Boolean,
         fotoPrincipalUri: Uri?,
         galeriaUris: List<Uri>
     ) {
@@ -89,17 +96,26 @@ class FoundationMascotaFormViewModel(
             partMap["peso_aprox"] = peso.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["tamano"] = tamano.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["genero"] = genero.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["color"] = color.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["estado"] = estado.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["lugar_rescate"] = ubicacion.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["descripcion"] = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["condiciones_especiales"] = condiciones.toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["salud_general"] = salud.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["enfermedades_cronicas"] = enfermedades.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["medicamentos"] = medicamentos.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["requisitos_adopcion"] = requisitos.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["hogar_recomendado"] = hogarRecomendado.toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["video_url"] = videoUrl.toRequestBody("text/plain".toMediaTypeOrNull())
+            
+            // Booleanos como 1 o 0
             partMap["esterilizado"] = (if (esterilizado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["desparasitado"] = (if (desparasitado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["vacunado"] = (if (vacunado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["apto_con_ninos"] = (if (aptoNinos) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["apto_con_otros_animales"] = (if (aptoAnimales) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
             partMap["necesita_hogar_temporal"] = (if (hogarTemporal) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
+            partMap["destacada"] = (if (destacada) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
 
             if (id != null) {
                 partMap["_method"] = "PUT".toRequestBody("text/plain".toMediaTypeOrNull())
@@ -129,14 +145,18 @@ class FoundationMascotaFormViewModel(
     }
 
     private fun uriToFile(context: Context, uri: Uri): File? {
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-        val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
-        val outputStream = FileOutputStream(file)
-        inputStream.use { input ->
-            outputStream.use { output ->
-                input.copyTo(output)
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+            val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+            val outputStream = FileOutputStream(file)
+            inputStream.use { input ->
+                outputStream.use { output ->
+                    input.copyTo(output)
+                }
             }
+            return file
+        } catch (e: Exception) {
+            return null
         }
-        return file
     }
 }

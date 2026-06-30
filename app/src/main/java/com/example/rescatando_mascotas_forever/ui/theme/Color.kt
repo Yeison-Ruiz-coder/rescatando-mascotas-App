@@ -3,41 +3,91 @@ package com.example.rescatando_mascotas_forever.ui.theme
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+/**
+ * COLORES SÓLIDOS (Estáticos para asegurar contraste)
+ * Útiles para componentes que no deben cambiar con el tema (ej. botones sobre fondos oscuros)
+ */
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+val Transparent = Color(0x00000000)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Colores de Contraste Fijo
+val StaticWhite = Color(0xFFFFFFFF)
+val StaticBlack = Color(0xFF1B202B)
+val StaticDarkCard = Color(0xFF1E293B)
+val StaticLightCard = Color(0xFFFFFFFF)
 
-// Brand Colors
-val BrandPurple = Color(0xFF673AB7)
-val BrandPurpleLight = Color(0xFF9575CD)
-val BrandPurpleDark = Color(0xFF4C35A3)
+/**
+ * PALETA WEB - MODO CLARO (Preparada para estilos globales)
+ */
+val WebPrimary = Color(0xFF667EEA)
+val WebSecondary = Color(0xFF764BA2)
+val WebPrimaryLight = Color(0xFF8B9CFF)
+val WebSecondaryLight = Color(0xFF9B6BC4)
 
-// Dark Theme Colors
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF1E1E1E)
-val DarkOnSurface = Color(0xFFE1E1E1)
-val DarkPrimary = Color(0xFFD0BCFF)
+val WebAccent = Color(0xFFFF8C42)
+val WebHeart = Color(0xFFFF6B9D)
+val WebSuccess = Color(0xFF2ECC71)
+val WebDanger = Color(0xFFFF4757)
+val WebWarning = Color(0xFFFFC107)
+val WebInfo = Color(0xFF4299E1)
 
-// Light Theme Colors
-val LightBackground = Color(0xFFFDF7F2)
-val LightSurface = Color(0xFFFFFFFF)
-val LightOnSurface = Color(0xFF1C1B1F)
+val WebLight = Color(0xFFF7F2FC)
+val WebBackgroundSection = Color(0xFFF4ECFC)
+val WebLightSecondary = Color(0xFFF6E6FF)
+val WebCardBg = Color(0xFFFFFFFF)
+val WebBorder = Color(0x14000000)
 
-// Web Theme Colors (Existing)
-val WebDarkBg = Color(0xFF0A0E14)
-val WebCardDark = Color(0xFF161B22)
-val WebYellow = Color(0xFFFFD600)
-val WebVerifiedGreen = Color(0xFF4CAF50)
+val WebText = Color(0xFF1B202B)
+val WebTextMuted = Color(0xFF39414D)
+val WebTextLight = Color(0xFF7A8592)
 
-// Gradients
+// Fundaciones
+val WebFundacionPrimary = Color(0xFFFF4757)
+val WebFundacionSecondary = Color(0xFFFF6B81)
+
+/**
+ * PALETA WEB - MODO OSCURO
+ */
+val WebPrimaryDark = Color(0xFF8B9CFF)
+val WebSecondaryDark = Color(0xFFB07CD4)
+val WebPrimaryLightDark = Color(0xFFA0B0FF)
+val WebSecondaryLightDark = Color(0xFFC49AE0)
+
+val WebAccentDark = Color(0xFFFF9F5E)
+val WebHeartDark = Color(0xFFFF85B3)
+val WebSuccessDark = Color(0xFF3EE681)
+val WebDangerDark = Color(0xFFFF6B7A)
+val WebWarningDark = Color(0xFFFBBF24)
+val WebInfoDark = Color(0xFF60A5FA)
+
+val WebLightDark = Color(0xFF1A1A2E)
+val WebBackgroundDark = Color(0xFF0F172A)
+val WebBackgroundSectionDark = Color(0xFF070111)
+val WebCardBgDark = Color(0xFF1E293B)
+val WebBorderDark = Color(0x268B9CFF)
+
+val WebTextDark = Color(0xFFF6F9FC)
+val WebTextMutedDark = Color(0xFFD2DAE6)
+val WebTextLightDark = Color(0xFFBBC9DD)
+
+/**
+ * ALIAS Y GRADIENTES
+ */
+val WebYellow = WebWarning
+val WebVerifiedGreen = WebSuccess
+
 val WebPurpleGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFF9575CD), Color(0xFF7E57C2))
+    colors = listOf(WebPrimary, WebSecondary)
 )
 
 val FoundationGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFFFF5722), Color(0xFFE64A19)) // Naranja Rojizo
+    colors = listOf(WebFundacionPrimary, WebFundacionSecondary)
 )
+
+/**
+ * COMPATIBILIDAD (BRAND ANTERIOR)
+ */
+val BrandPurple = Color(0xFF673AB7)
+val BrandPurpleLight = Color(0xFF9575CD)
+val BrandPurpleDark = Color(0xFF4C35A3)

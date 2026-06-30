@@ -1,8 +1,13 @@
 package com.example.rescatando_mascotas_forever.data.network.api
 
+import com.example.rescatando_mascotas_forever.data.network.models.ApiResponse
+import com.google.gson.annotations.SerializedName
 import retrofit2.http.GET
 
-data class MonthlyData(val label: String, val value: Float)
+data class MonthlyData(
+    @SerializedName("fecha") val label: String,
+    @SerializedName("total") val value: Float
+)
 
 data class SpeciesDistribution(val name: String, val count: Int, val color: String)
 
@@ -20,6 +25,6 @@ data class AdminStatsResponse(
 )
 
 interface AdminApi {
-    @GET("api/admin/stats")
-    suspend fun getGeneralStats(): AdminStatsResponse
+    @GET("api/admin/dashboard")
+    suspend fun getGeneralStats(): ApiResponse<AdminStatsResponse>
 }

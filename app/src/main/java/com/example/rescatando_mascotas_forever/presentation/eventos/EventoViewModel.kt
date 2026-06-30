@@ -57,7 +57,8 @@ class EventoViewModel(
 
                 val matchesSearch = query.isEmpty() ||
                         evento.nombre.contains(query, ignoreCase = true) ||
-                        evento.lugar.contains(query, ignoreCase = true)
+                        evento.lugar.contains(query, ignoreCase = true) ||
+                        evento.organizador?.contains(query, ignoreCase = true) == true
                 
                 matchesCat && matchesSearch
             }
@@ -67,7 +68,7 @@ class EventoViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
-        getEventos()
+        getEventos(1)
     }
 
     fun onSearchTextChange(text: String) {

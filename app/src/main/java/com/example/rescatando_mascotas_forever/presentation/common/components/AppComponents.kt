@@ -3,15 +3,14 @@ package com.example.rescatando_mascotas_forever.presentation.common.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -39,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
+import com.example.rescatando_mascotas_forever.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -57,7 +57,7 @@ fun GradientHeader(title: String) {
     ) {
         Text(
             text = title,
-            color = Color.White, // Siempre blanco sobre el degradado oscuro de la marca
+            color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold
         )
@@ -86,23 +86,34 @@ fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
-    val brandPurple = MaterialTheme.colorScheme.primary
+fun MainTopBar(
+    drawerState: DrawerState,
+    scope: CoroutineScope,
+    onTitleClick: () -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null
+) {
+    val isDark = ThemeController.isDarkOverride.value ?: isSystemInDarkTheme()
+    // Inversión solicitada: Modo Claro -> Fondo Negro, Modo Oscuro -> Fondo Blanco
+    val containerColor = if (isDark) StaticWhite else StaticBlack
+    val brandPurple = WebPrimary
+
     CenterAlignedTopAppBar(
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Contenedor blanco para el logo (siempre claro)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onTitleClick() }
+            ) {
                 Surface(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(44.dp), // Aumentado para mejor visibilidad
                     shape = CircleShape,
                     color = Color.White,
-                    shadowElevation = 2.dp
+                    shadowElevation = 0.dp
                 ) {
                     Image(
                         painter = painterResource(id = R.mipmap.logo_foreground),
                         contentDescription = null,
-                        modifier = Modifier.padding(4.dp),
-                        contentScale = ContentScale.Fit
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop // Asegura que ocupe todo el espacio
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
@@ -110,7 +121,7 @@ fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
                     text = stringResource(R.string.app_name),
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 18.sp,
-                    color = brandPurple
+                    color = brandPurple // Letras siempre moradas
                 )
             }
         },
@@ -119,25 +130,33 @@ fun MainTopBar(drawerState: DrawerState, scope: CoroutineScope) {
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = stringResource(R.string.nav_menu),
-                    tint = brandPurple
+                    tint = brandPurple // Hamburguesa morada
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = containerColor,
+            scrolledContainerColor = containerColor
+        ),
+        scrollBehavior = scrollBehavior
     )
 }
 
 @Composable
-fun AppBottomBar(navController: NavHostController) {
-    val brandPurple = MaterialTheme.colorScheme.primary
+fun AppBottomBar(navController: NavHostController, onReselect: (() -> Unit)? = null) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val brandPurple = WebPrimary
 
-    NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 8.dp) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 12.dp,
+        modifier = Modifier.height(80.dp)
+    ) {
         val items = listOf(
             Triple("home", Icons.Default.Home, stringResource(R.string.nav_home)),
             Triple("adopciones", Icons.Default.Pets, stringResource(R.string.nav_adopt)),
-            Triple("formulario_rescate", Icons.Default.AddCircle, stringResource(R.string.home_section_report)),
+            Triple("formulario_rescate", Icons.Default.AddCircle, "Reportar"),
             Triple("perfil", Icons.Default.Person, stringResource(R.string.nav_profile))
         )
 
@@ -147,7 +166,9 @@ fun AppBottomBar(navController: NavHostController) {
                 selected = isSelected,
                 alwaysShowLabel = true,
                 onClick = {
-                    if (currentRoute != route) {
+                    if (currentRoute == route) {
+                        onReselect?.invoke()
+                    } else {
                         navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
@@ -157,16 +178,19 @@ fun AppBottomBar(navController: NavHostController) {
                 },
                 icon = {
                     Icon(
-                        icon,
-                        null,
-                        tint = if (route == "formulario_rescate") Color.Red else if (isSelected) brandPurple else MaterialTheme.colorScheme.onSurfaceVariant
+                        imageVector = icon,
+                        contentDescription = null,
+                        modifier = Modifier.size(26.dp),
+                        tint = if (route == "formulario_rescate") WebDanger else if (isSelected) brandPurple else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 label = {
                     Text(
-                        label,
-                        fontSize = 10.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                        text = label,
+                        fontSize = 11.sp,
+                        fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
@@ -202,13 +226,12 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
     val scrollState = rememberScrollState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
+
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    // Observamos el flow global del usuario para actualizaciones en tiempo real
     val user by SessionManager.userFlow.collectAsState()
     val userName = user?.nombre ?: "Usuario"
-    
+
     val avatarUrl = user?.avatar?.let {
         if (it.startsWith("http") || it.startsWith("content://") || it.startsWith("file://") || it.startsWith("/")) it
         else "${com.example.rescatando_mascotas_forever.utils.Constants.BASE_URL}storage/$it"
@@ -239,42 +262,42 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
                     )
                 } else {
                     Icon(
-                        Icons.Default.AccountCircle, 
-                        null, 
-                        tint = Color.White, 
+                        Icons.Default.AccountCircle,
+                        null,
+                        tint = Color.White,
                         modifier = Modifier.size(64.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    stringResource(R.string.drawer_hello, userName), 
-                    color = Color.White, 
-                    fontWeight = FontWeight.Bold, 
+                    stringResource(R.string.drawer_hello, userName),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
                 )
                 Text(user?.email ?: "Bienvenido a Rescatando Mascotas", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
             }
         }
         Spacer(Modifier.height(16.dp))
-        
+
         DrawerMenuItem(stringResource(R.string.nav_home), Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
         DrawerMenuItem(stringResource(R.string.nav_profile), Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
-        
+
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("COMUNIDAD Y APOYO")
-        
+
         DrawerMenuItem("Solicitud Adopción", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
         DrawerMenuItem("Suscripciones", Icons.Default.CardMembership, currentRoute == "suscripciones") { navigateAndClose("suscripciones") }
         DrawerMenuItem("Donaciones", Icons.Default.VolunteerActivism, currentRoute == "donaciones") { navigateAndClose("donaciones") }
         DrawerMenuItem("Últimos Rescates", Icons.Default.History, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
-        
+
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("SERVICIOS")
-        
+
         DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
         DrawerMenuItem("Voluntarios", Icons.Default.Groups, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
-        
+
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("INFORMACIÓN")
         DrawerMenuItem("Nosotros", Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
@@ -282,9 +305,9 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
 
         Spacer(modifier = Modifier.height(24.dp))
         if (user == null) {
-            DrawerMenuItem("Iniciar Sesión", Icons.AutoMirrored.Filled.Login, false, MaterialTheme.colorScheme.primary) { navigateAndClose("login") }
+            DrawerMenuItem("Iniciar Sesión", Icons.AutoMirrored.Filled.Login, false, WebPrimary) { navigateAndClose("login") }
         } else {
-            DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) { 
+            DrawerMenuItem(stringResource(R.string.drawer_logout), Icons.AutoMirrored.Filled.ExitToApp, false, Color.Red) {
                 scope.launch {
                     sessionManager.logout()
                     drawerState.close()
@@ -302,7 +325,7 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
 fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerState, scope: CoroutineScope) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    
+
     val navigateAndClose: (String) -> Unit = { route ->
         scope.launch {
             drawerState.close()
@@ -323,6 +346,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
         DrawerMenuItem("Dashboard", Icons.Default.Dashboard, isSelected = currentRoute == "admin_home") { navigateAndClose("admin_home") }
         DrawerMenuItem("Usuarios", Icons.Default.Group, isSelected = currentRoute == "admin_usuarios") { navigateAndClose("admin_usuarios") }
         DrawerMenuItem("Mascotas", Icons.Default.Pets, isSelected = currentRoute == "admin_mascotas") { navigateAndClose("admin_mascotas") }
+        DrawerMenuItem("Suscripciones", Icons.Default.CardMembership, isSelected = currentRoute == "admin_suscripciones") { navigateAndClose("admin_suscripciones") }
         DrawerMenuItem("Reportes Rescate", Icons.Default.Warning, isSelected = currentRoute == "admin_reportes_rescate") { navigateAndClose("admin_reportes_rescate") }
         DrawerMenuItem("Eventos", Icons.Default.Event, isSelected = currentRoute == "admin_eventos") { navigateAndClose("admin_eventos") }
 
@@ -343,7 +367,7 @@ fun AdminDrawerContent(navController: NavHostController, drawerState: DrawerStat
 
 @Composable
 fun DrawerMenuItem(text: String, icon: ImageVector, isSelected: Boolean, color: Color = MaterialTheme.colorScheme.onSurface, onClick: () -> Unit) {
-    val brandPurple = MaterialTheme.colorScheme.primary
+    val brandPurple = WebPrimary
     val contentColor = if (isSelected) brandPurple else color
     val backgroundColor = if (isSelected) brandPurple.copy(alpha = 0.08f) else Color.Transparent
 
