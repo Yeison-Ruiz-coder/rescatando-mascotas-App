@@ -160,7 +160,7 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    val capitalizedFrecuencia = suscripcion.frecuencia.replaceFirstChar {
+                    val capitalizedFrecuencia = (suscripcion.frecuencia ?: "mensual").replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                     }
                     Text(
@@ -204,8 +204,7 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     "Desde: ${suscripcion.fechaInicio}", 
                     fontSize = 11.sp, 
@@ -221,13 +220,13 @@ fun SuscripcionItem(suscripcion: Suscripcion, onDelete: () -> Unit) {
                     }
                 ) {
                     Text(
-                        text = suscripcion.estado.uppercase(),
+                        text = (suscripcion.estado?:"pendiente").uppercase(),
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         fontSize = 10.sp,
                         color = when(suscripcion.estado) {
                             "activo" -> Color(0xFF2E7D32)
                             "pausado" -> Color(0xFFEF6C00)
-                            else -> Color.Gray
+                            else -> Color(0.5f, 0.5f, 0.5f, 1.0f) // Color gris seguro
                         },
                         fontWeight = FontWeight.ExtraBold
                     )

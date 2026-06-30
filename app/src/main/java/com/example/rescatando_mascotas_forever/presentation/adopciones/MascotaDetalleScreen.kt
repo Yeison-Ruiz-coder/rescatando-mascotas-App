@@ -130,9 +130,9 @@ fun MascotaDetalleScreen(
                         Column(Modifier.weight(1f)) {
                             Text("Salud y Cuidados", color = Color(0xFF7B5EE1), fontSize = 22.sp, fontWeight = FontWeight.Black)
                             Spacer(Modifier.height(12.dp))
-                            HealthItem("ESTERILIZADO", mascota.esterilizado)
-                            HealthItem("DESPARASITADO", mascota.desparasitado)
-                            HealthItem("VACUNADO", mascota.vacunado)
+                            HealthItem("ESTERILIZADO", mascota.esterilizado ?: false)
+                            HealthItem("DESPARASITADO", mascota.desparasitado ?: false)
+                            HealthItem("VACUNADO", mascota.vacunado ?: false)
                         }
                     }
 

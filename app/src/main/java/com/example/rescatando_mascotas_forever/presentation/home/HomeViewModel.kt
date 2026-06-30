@@ -11,6 +11,7 @@ import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 
 data class Foundation(
@@ -132,15 +133,33 @@ class HomeViewModel(
             mascotaRepository.getMascotas().collect { result ->
                 result.onSuccess { response ->
                     try {
-                        // Al haber comentado galeria_fotos en el modelo Mascota,
-                        // el parseo de response.data a MascotaDataWrapper ya no fallará.
                         val gson = Gson()
                         val json = gson.toJson(response.data)
-                        val wrapper = gson.fromJson(json, MascotaDataWrapper::class.java)
+                        val element = gson.fromJson(json, JsonElement::class.java)
+
+                        val mascotas = when {
+                            element.isJsonArray -> {
+                                val listType = object : TypeToken<List<Mascota>>() {}.type
+                                gson.fromJson<List<Mascota>>(element, listType)
+                            }
+                            element.isJsonObject -> {
+                                val obj = element.asJsonObject
+                                when {
+                                    obj.has("data") && obj.get("data").isJsonArray -> {
+                                        val listType = object : TypeToken<List<Mascota>>() {}.type
+                                        gson.fromJson<List<Mascota>>(obj.get("data"), listType)
+                                    }
+                                    obj.has("id") -> listOf(gson.fromJson(element, Mascota::class.java))
+                                    else -> emptyList()
+                                }
+                            }
+                            else -> emptyList()
+                        }
                         
-                        todasLasMascotasList = wrapper?.data ?: emptyList()
+                        todasLasMascotasList = mascotas ?: emptyList()
                         filtrarMascotasLocalmente(_selectedCategoria.value, _searchQuery.value)
                     } catch (e: Exception) {
+                        e.printStackTrace()
                         todasLasMascotasList = emptyList()
                     }
                 }.onFailure { e ->

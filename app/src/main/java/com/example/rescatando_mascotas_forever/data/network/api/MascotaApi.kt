@@ -21,6 +21,28 @@ interface MascotaApi {
         @Path("id") id: Int
     ): MascotaResponse
 
+    // --- RUTAS ADMINISTRATIVAS ---
+    @GET("api/admin/mascotas")
+    suspend fun getAdminMascotas(): MascotaResponse
+
+    @Multipart
+    @POST("api/admin/mascotas")
+    suspend fun adminStoreMascota(
+        @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part fotoPrincipal: MultipartBody.Part? = null
+    ): MascotaResponse
+
+    @Multipart
+    @POST("api/admin/mascotas/{id}")
+    suspend fun adminUpdateMascota(
+        @Path("id") id: Int,
+        @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part fotoPrincipal: MultipartBody.Part? = null
+    ): MascotaResponse
+
+    @DELETE("api/admin/mascotas/{id}")
+    suspend fun adminDeleteMascota(@Path("id") id: Int): MascotaResponse
+
     // --- RUTAS DE ENTIDAD (FUNDACIÓN/VETERINARIA) ---
     @GET("api/entity/mascotas")
     suspend fun getMisMascotas(): MascotaResponse

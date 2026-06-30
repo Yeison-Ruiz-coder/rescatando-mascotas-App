@@ -31,52 +31,58 @@ fun SplashScreen(navController: NavHostController) {
     var startAnimation by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    
-    // Animación de escala y opacidad
+
+    // Animaciones...
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.5f,
-        animationSpec = tween(
-            durationMillis = 1000,
-            easing = FastOutSlowInEasing
-        ), label = ""
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
+        label = ""
     )
-    
+
     val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 1000
-        ), label = ""
+        animationSpec = tween(durationMillis = 1000),
+        label = ""
     )
 
+    // ÚNICO LaunchedEffect
     LaunchedEffect(key1 = true) {
         startAnimation = true
-        delay(2500) // Duración del "telón"
-        
-        if (sessionManager.isLoggedIn()) {
-            val token = sessionManager.getToken()
-            RetrofitClient.setToken(token)
+        delay(2500)
 
-            val user = sessionManager.getUser()
-            if (user?.tipo == "admin") {
-                navController.navigate("admin_home") {
+        android.util.Log.d("SplashScreen", "Iniciando navegación...")
+        try {
+            if (sessionManager.isLoggedIn()) {
+                val token = sessionManager.getToken()
+                android.util.Log.d("SplashScreen", "Token obtenido: ${token?.take(10)}...")
+                RetrofitClient.setToken(token)
+
+                val user = sessionManager.getUser()
+                android.util.Log.d("SplashScreen", "Usuario: $user")
+                val destino = if (user?.tipo == "admin") "admin_home" else "home"
+                android.util.Log.d("SplashScreen", "Navegando a: $destino")
+
+                navController.navigate(destino) {
                     popUpTo("splash") { inclusive = true }
                 }
             } else {
+                android.util.Log.d("SplashScreen", "Usuario invitado, navegando a home")
                 navController.navigate("home") {
                     popUpTo("splash") { inclusive = true }
                 }
             }
-        } else {
-            // Ir directamente a Home como invitado
-            navController.navigate("home") {
-                popUpTo("splash") { inclusive = true }
+        } catch (e: Exception) {
+            android.util.Log.e("SplashScreen", "ERROR en navegación", e)
+            // Fallback: intenta ir a home
+            try {
+                navController.navigate("home") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            } catch (ex: Exception) {
+                android.util.Log.e("SplashScreen", "Fallback también falló", ex)
             }
         }
     }
-
-    val primaryColor: Color = MaterialTheme.colorScheme.primary
-    val secondaryColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-
     Box(
         modifier = Modifier
             .fillMaxSize()

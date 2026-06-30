@@ -49,6 +49,7 @@ import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacione
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminMascotaFormScreen
 import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
 import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
 import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
@@ -114,6 +115,19 @@ fun AppNavigation() {
         navController = navController,
         startDestination = "splash"
     ) {
+        composable(
+            route = "admin_mascota_form?mascotaId={mascotaId}",
+            arguments = listOf(navArgument("mascotaId") {
+                type = NavType.IntType
+                defaultValue = -1
+            })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("mascotaId") ?: -1
+            AdminMascotaFormScreen(
+                navController = navController,
+                mascotaId = if (id == -1) null else id
+            )
+        }
         composable("splash") {
             SplashScreen(navController = navController)
         }
