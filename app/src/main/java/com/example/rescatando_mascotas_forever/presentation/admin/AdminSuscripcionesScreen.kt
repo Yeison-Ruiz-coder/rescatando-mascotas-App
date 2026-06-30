@@ -37,17 +37,18 @@ fun AdminSuscripcionesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Gestión de Suscripciones", fontWeight = FontWeight.Bold) },
+                title = { Text("Gestión de Suscripciones", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Atrás", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.loadAllSuscripciones() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refrescar")
+                        Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { padding ->
@@ -55,7 +56,7 @@ fun AdminSuscripcionesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color(0xFFF5F5F5))
+                .background(MaterialTheme.colorScheme.background)
         ) {
             when (state) {
                 is SuscripcionState.Loading -> {
@@ -112,7 +113,7 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -126,13 +127,13 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
                         text = "Suscripción #${suscripcion.id}",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = suscripcion.mascota?.nombre ?: "Sin Mascota",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFF2E1A7A)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -180,7 +181,7 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
                     text = "Mensaje: \"${suscripcion.mensajeApoyo}\"",
                     fontSize = 12.sp,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                    color = Color.DarkGray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -212,8 +213,8 @@ fun AdminSuscripcionCard(suscripcion: Suscripcion, onUpdateStatus: (String) -> U
 @Composable
 fun InfoIconText(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, modifier: Modifier = Modifier) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, modifier = Modifier.size(14.dp), tint = Color.Gray)
+        Icon(icon, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = Color.DarkGray)
+        Text(text, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }

@@ -49,7 +49,21 @@ fun AdminHomeScreen(
     val context = LocalContext.current
     val lastUpdated = remember { SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date()) }
 
-    AppDrawer(navController, drawerState, scope) {
+    val adminGradient = Brush.verticalGradient(
+        colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
+    )
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.width(300.dp)
+            ) {
+                AdminDrawerContent(navController, drawerState, scope)
+            }
+        }
+    ) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -168,7 +182,20 @@ fun AdminHomeScreen(
                             }
                         }
                     }
-                    is AdminHomeState.Error -> ErrorLayout(state.message) { viewModel.fetchDashboardData() }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    // Botón de Modo Usuario para Vista Previa
+                    OutlinedButton(
+                        onClick = { navController.navigate("home") },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(Icons.Default.RemoveRedEye, null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.admin_home_btn_preview), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -211,6 +238,19 @@ fun MetricCardSenior(title: String, value: String, trend: String?, icon: ImageVe
                     Text(trend, fontSize = 10.sp, color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = action.title,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = action.description ?: "",
+                fontSize = 11.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 14.sp
+            )
         }
     }
 }
@@ -288,17 +328,21 @@ fun SeniorDonutChart(data: List<SpeciesDistribution>) {
 }
 
 @Composable
-fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxWidth().height(52.dp).clickable { onClick() },
-        color = Color.White, shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, Color(0xFFF1F5F9))
+fun StatCard(title: String, value: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(32.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = color, modifier = Modifier.size(16.dp))
-            }
-            Spacer(Modifier.width(10.dp))
-            Text(title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF334155))
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = value, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(text = title, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

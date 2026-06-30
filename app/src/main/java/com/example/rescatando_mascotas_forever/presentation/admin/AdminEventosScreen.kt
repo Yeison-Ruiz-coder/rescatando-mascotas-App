@@ -61,8 +61,8 @@ fun AdminEventosScreen(
                         eventoEditando = null
                         showDialog = true
                     },
-                    containerColor = Color(0xFF673AB7),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
                     Icon(Icons.Default.Add, stringResource(R.string.admin_pets_add))
                 }
@@ -72,24 +72,24 @@ fun AdminEventosScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color(0xFFF8F9FA))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF673AB7))
+                        .background(MaterialTheme.colorScheme.primary)
                         .padding(20.dp)
                 ) {
                     Column {
-                        Text(stringResource(R.string.admin_action_events_title), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text(stringResource(R.string.admin_action_events_desc), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text(stringResource(R.string.admin_action_events_title), color = MaterialTheme.colorScheme.onPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.admin_action_events_desc), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontSize = 14.sp)
                     }
                 }
 
                 when (val currentState = state) {
                     is EventoState.Loading -> {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color(0xFF673AB7))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                     is EventoState.Success -> {
@@ -148,29 +148,29 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
     var url by remember { mutableStateOf(evento?.imagenUrl ?: "") }
 
     val textFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = Color.White,
-        unfocusedTextColor = Color.White,
-        focusedLabelColor = Color.White,
-        unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-        focusedBorderColor = Color.White,
-        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-        cursorColor = Color.White
+        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
+        focusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+        cursorColor = MaterialTheme.colorScheme.onPrimary
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF673AB7),
+        containerColor = MaterialTheme.colorScheme.primary,
         title = {
             Column {
                 Text(
                     if (evento == null) stringResource(R.string.admin_events_new) else stringResource(R.string.admin_events_edit),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     stringResource(R.string.rescue_survey_step, currentStep, totalSteps),
                     fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -180,8 +180,8 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                 LinearProgressIndicator(
                     progress = { currentStep.toFloat() / totalSteps.toFloat() },
                     modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                    color = Color.White,
-                    trackColor = Color.White.copy(alpha = 0.2f)
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    trackColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
                 )
 
                 if (currentStep == 1) {
@@ -229,7 +229,10 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                 if (currentStep == 1) {
                     Button(
                         onClick = { currentStep = 2 },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF673AB7))
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimary,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
                     ) {
                         Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold)
                     }
@@ -264,11 +267,11 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
             Row {
                 if (currentStep == 2) {
                     TextButton(onClick = { currentStep = 1 }) {
-                        Text(stringResource(R.string.btn_previous), color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.btn_previous), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.btn_cancel_upper), color = Color.White.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.btn_cancel_upper), color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -277,10 +280,14 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
 
 @Composable
 fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
+    // Lógica de fallback para imagenUrl o imagenPublicId
+    val imagePath = if (!evento.imagenUrl.isNullOrEmpty()) evento.imagenUrl else evento.imagenPublicId
+    val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -288,7 +295,7 @@ fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = rememberAsyncImagePainter(evento.imagenUrl),
+                painter = rememberAsyncImagePainter(fullImageUrl),
                 contentDescription = null,
                 modifier = Modifier
                     .size(70.dp)
@@ -299,18 +306,18 @@ fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
             Spacer(Modifier.width(16.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = Color.Black)
-                Text("${evento.fecha} • ${evento.lugar}", color = Color(0xFF333333), fontSize = 12.sp, maxLines = 1)
+                Text(evento.nombre, fontWeight = FontWeight.Bold, fontSize = 15.sp, maxLines = 1, color = MaterialTheme.colorScheme.onSurface)
+                Text("${evento.fecha} • ${evento.lugar}", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, maxLines = 1)
 
                 Spacer(Modifier.height(4.dp))
 
                 Surface(
-                    color = Color(0xFF673AB7).copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = evento.tipo ?: "EVENTO",
-                        color = Color(0xFF673AB7),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                         fontWeight = FontWeight.Bold
@@ -320,7 +327,7 @@ fun EventoAdminCard(evento: Evento, onEdit: () -> Unit, onDelete: () -> Unit) {
 
             Row {
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, null, tint = Color(0xFF673AB7))
+                    Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, null, tint = Color.Red)

@@ -68,9 +68,7 @@ fun AdopcionListScreen(
             containerColor = Color(0xFF0F0E17)
         ) { padding ->
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
+                modifier = Modifier.fillMaxSize().padding(padding).background(MaterialTheme.colorScheme.background)
             ) {
                 item {
                     Box(
@@ -151,36 +149,36 @@ fun AdopcionListScreen(
                             )
                         )
 
-                        Spacer(Modifier.height(16.dp))
-
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            contentPadding = PaddingValues(bottom = 20.dp)
-                        ) {
-                            items(especies) { especie ->
-                                CustomChipItem(
-                                    text = especie,
-                                    selected = selectedEspecie == especie,
-                                    onClick = { selectedEspecie = especie }
-                                )
-                            }
-                        }
-                    }
+                item {
+                    Text(
+                        stringResource(R.string.adopt_subtitle),
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
                 if (isLoading) {
                     item {
-                        Box(modifier = Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = Color(0xFF7B5EE1), strokeWidth = 3.dp)
+                        Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 } else if (error != null) {
                     item {
-                        Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
-                            Text(text = error!!, color = Color.Red, textAlign = TextAlign.Center)
+                        Box(modifier = Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) {
+                            Text(text = error!!, color = Color.Red, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
                     }
-                } else {
+                } else if (mascotas.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                            Text("No hay mascotas disponibles para adopción", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+else {
                     item {
                         val filteredMascotas = mascotas.filter { 
                             (selectedEspecie == "Todas" || it.especie?.contains(selectedEspecie, ignoreCase = true) == true) &&
@@ -236,19 +234,18 @@ fun CustomChipItem(text: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: Modifier = Modifier) {
+    val baseUrl = com.example.rescatando_mascotas_forever.utils.Constants.BASE_URL
     val fullImageUrl = if (mascota.fotoPrincipal?.startsWith("http") == true) {
         mascota.fotoPrincipal
     } else {
-        "${Constants.BASE_URL}storage/${mascota.fotoPrincipal}"
+        "${baseUrl}storage/${mascota.fotoPrincipal}"
     }
 
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { navController.navigate("mascota_detalle/${mascota.id}") },
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1B1A23)),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             Box(modifier = Modifier.height(150.dp).fillMaxWidth()) {
@@ -271,56 +268,51 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                 )
 
                 Surface(
-                    modifier = Modifier.padding(10.dp).align(Alignment.TopStart),
-                    shape = RoundedCornerShape(10.dp),
-                    color = Color.Black.copy(alpha = 0.5f)
+                    modifier = Modifier.padding(8.dp).align(Alignment.TopStart),
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 ) {
                     Text(
-                        text = mascota.nombre,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        text = mascota.estado.uppercase(),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
-
-            Column(modifier = Modifier.padding(10.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    PetTag(mascota.especie ?: "Perro", Color(0xFF4A90E2))
-                    PetTag(mascota.genero ?: "Macho", Color(0xFF9C27B0))
-                    val edad = mascota.edadAprox?.toInt() ?: 0
-                    PetTag("$edad años", Color(0xFFFF9800))
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    mascota.nombre, 
+                    fontWeight = FontWeight.ExtraBold, 
+                    fontSize = 16.sp, 
+                    color = MaterialTheme.colorScheme.primary
+                )
+                val ageSuffix = if (mascota.edadAprox == 1.0) stringResource(R.string.pet_age_singular) else stringResource(R.string.pet_age_suffix)
+                Text(
+                    "${mascota.especie} • ${mascota.edadAprox ?: 0} $ageSuffix",
+                    fontSize = 12.sp, 
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.LocationOn, null, tint = Color.Red.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text(mascota.ubicacion ?: "Sin ubicación", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(32.dp)
-                        .clickable { navController.navigate("mascota_detalle/${mascota.id}") },
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFF7B5EE1).copy(alpha = 0.2f),
-                    border = BorderStroke(1.dp, Color(0xFF7B5EE1).copy(alpha = 0.4f))
+                Button(
+                    onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Conocer más",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Icon(Icons.Default.ArrowForward, null, tint = Color.White, modifier = Modifier.size(10.dp))
-                    }
+                    Icon(Icons.Default.Favorite, null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onPrimary)
+                    Spacer(Modifier.width(4.dp))
+                    Text("Apadrinar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -328,18 +320,18 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
 }
 
 @Composable
-fun PetTag(text: String, color: Color) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = color.copy(alpha = 0.15f),
-        border = BorderStroke(0.5.dp, color.copy(alpha = 0.3f))
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
-            fontSize = 9.sp,
-            color = Color.White.copy(alpha = 0.9f),
-            fontWeight = FontWeight.SemiBold
-        )
+fun AdoptionStepItem(number: Int, text: String) {
+    Row(modifier = Modifier.padding(vertical = 8.dp), verticalAlignment = Alignment.Top) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(number.toString(), color = MaterialTheme.colorScheme.onPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.width(16.dp))
+        Text(text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface, lineHeight = 20.sp)
     }
 }

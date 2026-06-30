@@ -78,7 +78,7 @@ fun RescateScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // 1. Header Moderno
                 item {
@@ -129,12 +129,12 @@ fun RescateScreen(navController: NavHostController) {
                             stringResource(R.string.rescue_subtitle),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF2E1A7A)
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             stringResource(R.string.rescue_subtitle_desc),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -190,19 +190,19 @@ fun RescateScreen(navController: NavHostController) {
                             stringResource(R.string.rescue_action_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2E1A7A)
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Button(
                             onClick = { navController.navigate("formulario_rescate") },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Icon(Icons.Default.Edit, null , tint = Color.White, modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.Edit, null , tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                             Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.rescue_btn_report), fontWeight = FontWeight.Bold , color = Color.White)
+                            Text(stringResource(R.string.rescue_btn_report), fontWeight = FontWeight.Bold , color = MaterialTheme.colorScheme.onPrimary)
                         }
                         
                         Spacer(modifier = Modifier.height(12.dp))
@@ -211,9 +211,9 @@ fun RescateScreen(navController: NavHostController) {
                             onClick = { navController.navigate("registro_rescatista") },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            border = BorderStroke(2.dp, Color(0xFF2E1A7A))
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
                         ) {
-                            Text(stringResource(R.string.rescue_btn_join), color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.rescue_btn_join), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -229,8 +229,8 @@ fun ModernRescateCard(rescate: RescateData) {
             .padding(horizontal = 24.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA)),
-        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column {
             Box {
@@ -244,7 +244,7 @@ fun ModernRescateCard(rescate: RescateData) {
                 Surface(
                     modifier = Modifier.padding(16.dp).align(Alignment.TopStart),
                     shape = RoundedCornerShape(12.dp),
-                    color = Color.White.copy(alpha = 0.9f)
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -252,7 +252,7 @@ fun ModernRescateCard(rescate: RescateData) {
                     ) {
                         Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF4CAF50)))
                         Spacer(Modifier.width(8.dp))
-                        Text(rescate.estado, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text(rescate.estado, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
@@ -269,7 +269,7 @@ fun ModernRescateCard(rescate: RescateData) {
                     modifier = Modifier.align(Alignment.End),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text(stringResource(R.string.rescue_card_history), color = Color(0xFF2E1A7A), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.rescue_card_history), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -279,9 +279,9 @@ fun ModernRescateCard(rescate: RescateData) {
 @Composable
 fun RescateDetailRow(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, tint = Color.Gray, modifier = Modifier.size(18.dp))
+        Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(8.dp))
-        Text(text, fontSize = 14.sp, color = Color.DarkGray)
+        Text(text, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 

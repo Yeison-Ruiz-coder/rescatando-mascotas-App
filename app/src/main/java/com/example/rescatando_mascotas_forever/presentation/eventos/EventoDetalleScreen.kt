@@ -81,10 +81,15 @@ fun EventoDetalleScreen(
                 ) {
                     // --- CABECERA CON IMAGEN INMERSIVA ---
                     Box(modifier = Modifier.height(320.dp).fillMaxWidth()) {
+                        val imagePath = when {
+                            !evento.imagenUrl.isNullOrEmpty() && evento.imagenUrl != "null" -> evento.imagenUrl
+                            !evento.imagenPublicId.isNullOrEmpty() && evento.imagenPublicId != "null" -> evento.imagenPublicId
+                            else -> null
+                        }
+                        val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
+
                         Image(
-                            painter = rememberAsyncImagePainter(
-                                model = evento.imagenUrl ?: "https://via.placeholder.com/600x400"
-                            ),
+                            painter = rememberAsyncImagePainter(model = fullImageUrl),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -140,17 +145,18 @@ fun EventoDetalleScreen(
                             .background(Color(0xFFFDF7F2))
                             .padding(24.dp)
                     ) {
-                        // Badge de Categoría
+                        // Badge de Categoría Minimalista
                         Surface(
-                            color = Color(0xFF673AB7).copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(12.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF673AB7).copy(alpha = 0.3f))
                         ) {
                             Text(
-                                text = evento.tipo?.uppercase() ?: "EVENTO",
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                text = (evento.tipo ?: "EVENTO").lowercase(),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 color = Color(0xFF673AB7),
-                                fontWeight = FontWeight.Black,
-                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 12.sp,
                                 letterSpacing = 1.sp
                             )
                         }
@@ -167,11 +173,39 @@ fun EventoDetalleScreen(
 
                         Spacer(modifier = Modifier.height(28.dp))
 
-                        // Fila de Información: Fecha
+                        // Formateo inteligente de Fecha y Hora (Limpio y legible)
+                        val (displayFecha, displayHora) = remember(evento.fecha) {
+                            try {
+                                if (evento.fecha.contains("T")) {
+                                    val parts = evento.fecha.split("T")
+                                    val datePart = parts[0]
+                                    
+                                    val timePart = if (parts.size > 1) {
+                                        val timeStr = parts[1].substring(0, 5)
+                                        val timeParts = timeStr.split(":")
+                                        val horaRaw = timeParts[0].toInt()
+                                        val amPm = if (horaRaw >= 12) "PM" else "AM"
+                                        val hora12 = if (horaRaw % 12 == 0) 12 else horaRaw % 12
+                                        String.format("%02d:%s %s", hora12, timeParts[1], amPm)
+                                    } else ""
+                                    
+                                    Pair(datePart, timePart)
+                                } else if (evento.fecha.contains("-")) {
+                                    val parts = evento.fecha.split(" ")
+                                    Pair(parts[0], if (parts.size > 1) parts[1] else "")
+                                } else {
+                                    Pair(evento.fecha, "")
+                                }
+                            } catch (e: Exception) {
+                                Pair(evento.fecha, "")
+                            }
+                        }
+
+                        // Fila de Información: Fecha y Hora combinadas limpiamente
                         InfoSection(
                             icon = Icons.Default.CalendarMonth,
                             title = "Fecha y Hora",
-                            subtitle = evento.fecha,
+                            subtitle = if (displayHora.isNotEmpty()) "$displayFecha • $displayHora" else displayFecha,
                             iconColor = Color(0xFF673AB7)
                         )
 

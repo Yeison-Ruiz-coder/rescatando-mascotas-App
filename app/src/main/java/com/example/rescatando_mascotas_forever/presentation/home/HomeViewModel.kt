@@ -169,7 +169,12 @@ class HomeViewModel(
             }
             
             eventoRepository.getEventos().collect { result ->
-                result.onSuccess { _eventos.value = it.take(3) }.onFailure { }
+                result.onSuccess {
+                    // Tomamos solo los últimos 3 eventos subidos (ordenados por ID descendente)
+                    _eventos.value = it.sortedByDescending { evento -> evento.id }.take(3)
+                }.onFailure {
+                    // Silently fail or log for events
+                }
             }
         }
     }

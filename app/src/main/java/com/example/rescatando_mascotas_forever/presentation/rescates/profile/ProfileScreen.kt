@@ -1,6 +1,9 @@
 package com.example.rescatando_mascotas_forever.presentation.rescates.profile
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -35,22 +38,34 @@ import com.example.rescatando_mascotas_forever.data.local.SessionManager
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import java.io.File
+import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val user = remember { sessionManager.getUser() }
+    // Observamos el flow global para que cualquier cambio se vea en todas partes
+    val user by SessionManager.userFlow.collectAsState()
     
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedImageUri = uri
+        if (uri != null) {
+            // Copiar la imagen al almacenamiento interno para que sea permanente
+            val internalPath = saveImageToInternalStorage(context, uri)
+            if (internalPath != null) {
+                val updatedUser = user?.copy(avatar = internalPath)
+                if (updatedUser != null) {
+                    sessionManager.updateUser(updatedUser)
+                    Toast.makeText(context, "Foto de perfil guardada", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     AppDrawer(
@@ -61,7 +76,7 @@ fun ProfileScreen(navController: NavHostController) {
         Scaffold(
             topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
             bottomBar = { AppBottomBar(navController = navController) },
-            containerColor = Color(0xFFFDF7F2)
+            containerColor = MaterialTheme.colorScheme.background
         ) { padding ->
             LazyColumn(
                 modifier = Modifier
@@ -73,14 +88,14 @@ fun ProfileScreen(navController: NavHostController) {
                     ProfileHeader(
                         name = user?.nombre ?: "Usuario",
                         email = user?.email ?: "Sin correo",
-                        avatarUrl = selectedImageUri?.toString() ?: user?.avatar,
+                        avatarUrl = user?.avatar,
                         onEditClick = { launcher.launch("image/*") }
                     )
                 }
 
                 item {
                     Spacer(modifier = Modifier.height(24.dp))
-                    ProfileMenuSection(navController)
+                    ProfileMenuSection(navController, context)
                 }
 
                 item {
@@ -90,6 +105,30 @@ fun ProfileScreen(navController: NavHostController) {
                 }
             }
         }
+    }
+}
+
+fun saveImageToInternalStorage(context: Context, uri: Uri): String? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val fileName = "profile_pic_${System.currentTimeMillis()}.jpg"
+        val file = File(context.filesDir, fileName)
+        
+        // Eliminar fotos de perfil anteriores para ahorrar espacio
+        context.filesDir.listFiles()?.forEach { 
+            if (it.name.startsWith("profile_pic_")) it.delete() 
+        }
+        
+        val outputStream = FileOutputStream(file)
+        inputStream?.use { input ->
+            outputStream.use { output ->
+                input.copyTo(output)
+            }
+        }
+        file.absolutePath
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }
 
@@ -172,40 +211,49 @@ fun ProfileHeader(name: String, email: String, avatarUrl: String?, onEditClick: 
 }
 
 @Composable
-fun ProfileMenuSection(navController: NavHostController) {
+fun ProfileMenuSection(navController: NavHostController, context: Context) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .background(Color.White, RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
             .padding(vertical = 8.dp)
     ) {
         ProfileMenuItem(
             icon = Icons.Default.Favorite,
             title = stringResource(R.string.profile_my_adoptions),
             subtitle = stringResource(R.string.profile_adoptions_desc),
-            onClick = { navController.navigate("formulario_adopcion") }
+            onClick = { navController.navigate("adopciones") }
         )
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         ProfileMenuItem(
             icon = Icons.AutoMirrored.Filled.List,
             title = stringResource(R.string.profile_my_rescues),
             subtitle = stringResource(R.string.profile_rescues_desc),
             onClick = { navController.navigate("ultimos_rescates") }
         )
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         ProfileMenuItem(
             icon = Icons.Default.Settings,
             title = stringResource(R.string.profile_settings),
             subtitle = stringResource(R.string.profile_settings_desc),
             onClick = { navController.navigate("configuracion") }
         )
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = Color(0xFFF0F0F0))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         ProfileMenuItem(
-            icon = Icons.Default.Info,
+            icon = Icons.Default.SupportAgent,
             title = stringResource(R.string.profile_support),
             subtitle = stringResource(R.string.profile_support_desc),
-            onClick = { }
+            onClick = { 
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://wa.me/573123456789")
+                }
+                try {
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "No se pudo abrir WhatsApp", Toast.LENGTH_SHORT).show()
+                }
+            }
         )
     }
 }
@@ -227,18 +275,18 @@ fun ProfileMenuItem(
         Surface(
             modifier = Modifier.size(40.dp),
             shape = CircleShape,
-            color = Color(0xFFEDE7F6)
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = Color(0xFF673AB7), modifier = Modifier.size(20.dp))
+                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
             }
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black)
-            Text(subtitle, fontSize = 12.sp, color = Color.Gray)
+            Text(title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.LightGray)
+        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
