@@ -296,7 +296,6 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
 
         DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
-        DrawerMenuItem("Voluntarios", Icons.Default.Groups, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("INFORMACIÓN")

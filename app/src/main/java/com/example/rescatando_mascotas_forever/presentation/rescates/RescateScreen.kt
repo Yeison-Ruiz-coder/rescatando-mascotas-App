@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 fun RescateScreen(navController: NavHostController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val rescatesPrueba = listOf(
         RescateData(
@@ -67,8 +69,9 @@ fun RescateScreen(navController: NavHostController) {
         scope = scope
     ) {
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                MainTopBar(drawerState = drawerState, scope = scope)
+                MainTopBar(drawerState = drawerState, scope = scope, scrollBehavior = scrollBehavior)
             },
             bottomBar = {
                 AppBottomBar(navController)

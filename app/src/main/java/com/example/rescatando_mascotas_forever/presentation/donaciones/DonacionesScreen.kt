@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -32,6 +33,7 @@ fun DonacionesScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val bankInfo = """
         ${stringResource(R.string.donations_bank_label)}: Bancolombia
@@ -42,7 +44,8 @@ fun DonacionesScreen(navController: NavHostController) {
 
     AppDrawer(navController = navController, drawerState = drawerState, scope = scope) {
         Scaffold(
-            topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = { MainTopBar(drawerState = drawerState, scope = scope, scrollBehavior = scrollBehavior) },
             bottomBar = { AppBottomBar(navController = navController) },
             snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
