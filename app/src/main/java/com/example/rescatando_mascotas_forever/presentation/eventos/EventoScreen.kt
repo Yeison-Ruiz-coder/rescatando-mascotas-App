@@ -1,5 +1,6 @@
 package com.example.rescatando_mascotas_forever.presentation.eventos
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,6 +36,7 @@ import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppBottomBar
 import com.example.rescatando_mascotas_forever.presentation.common.components.AppDrawer
 import com.example.rescatando_mascotas_forever.presentation.common.components.MainTopBar
+import com.example.rescatando_mascotas_forever.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,80 +85,97 @@ fun EventoScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(horizontal = 20.dp)
             ) {
                 item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
                     ) {
-                        Column {
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = R.mipmap.logo_foreground),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            alpha = 0.05f
+                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
                             Text(
                                 stringResource(R.string.event_title),
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary
+                                color = WebPrimary,
+                                fontSize = 48.sp,
+                                fontWeight = FontWeight.Black
                             )
-                            Text(
-                                stringResource(R.string.event_subtitle),
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        IconButton(onClick = { viewModel.getEventos(1) }) {
-                            Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = MaterialTheme.colorScheme.primary)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = searchText,
-                        onValueChange = { viewModel.onSearchTextChange(it) },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Buscar evento o lugar") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF673AB7),
-                            unfocusedBorderColor = Color.Gray
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                item {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
-                        items(categorias) { categoria ->
-                            FilterChip(
-                                selected = categoria == selectedCategory,
-                                onClick = { viewModel.onCategorySelected(categoria) },
-                                label = { Text(categoria) },
-                                leadingIcon = {
-                                    val icon = when (categoria) {
-                                        catAll -> Icons.Default.DateRange
-                                        catFree -> Icons.Default.Favorite
-                                        catContests -> Icons.Default.EmojiEvents
-                                        else -> Icons.Default.Pets
-                                    }
-                                    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                                },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = WebPrimary.copy(alpha = 0.1f),
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(Icons.Default.Event, null, tint = WebPrimary, modifier = Modifier.padding(4.dp))
+                                }
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    stringResource(R.string.event_subtitle),
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
                                 )
-                            )
+                            }
+                        }
+                        
+                        IconButton(
+                            onClick = { viewModel.getEventos(1) },
+                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp)
+                        ) {
+                            Icon(Icons.Default.Refresh, contentDescription = "Refrescar", tint = WebPrimary)
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = searchText,
+                            onValueChange = { viewModel.onSearchTextChange(it) },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Buscar evento...", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f), fontSize = 14.sp) },
+                            leadingIcon = { Icon(Icons.Default.Search, null, tint = WebPrimary) },
+                            shape = RoundedCornerShape(16.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = WebPrimary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f),
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                            )
+                        )
+
+                        Spacer(Modifier.height(16.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(categorias) { categoria ->
+                                EventoCustomChipItem(
+                                    text = categoria,
+                                    selected = categoria == selectedCategory,
+                                    onClick = { viewModel.onCategorySelected(categoria) }
+                                )
+                            }
+                        }
+                    }
                 }
 
                 when (val currentState = state) {
@@ -179,7 +198,7 @@ fun EventoScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(top = 40.dp),
+                                        .padding(top = 40.dp, start = 20.dp, end = 20.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Icon(
@@ -204,7 +223,9 @@ fun EventoScreen(
                             }
                         } else {
                             items(filteredEventos, key = { it.id }) { evento ->
-                                Box(modifier = Modifier.animateItem()) {
+                                Box(modifier = Modifier
+                                    .animateItem()
+                                    .padding(horizontal = 20.dp)) {
                                     EventCard(
                                         evento = evento,
                                         onDetailsClick = {
@@ -256,6 +277,27 @@ fun EventoScreen(
                 item { Spacer(modifier = Modifier.height(30.dp)) }
             }
         }
+    }
+}
+
+@Composable
+fun EventoCustomChipItem(text: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(10.dp),
+        color = if (selected) WebPrimary else MaterialTheme.colorScheme.surface,
+        border = BorderStroke(
+            1.dp,
+            if (selected) WebPrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        )
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            color = if (selected) StaticWhite else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium
+        )
     }
 }
 
