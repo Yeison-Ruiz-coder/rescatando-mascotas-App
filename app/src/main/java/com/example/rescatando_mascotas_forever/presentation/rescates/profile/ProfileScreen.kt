@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -224,13 +223,6 @@ fun ProfileMenuSection(navController: NavHostController, context: Context) {
             title = stringResource(R.string.profile_my_adoptions),
             subtitle = stringResource(R.string.profile_adoptions_desc),
             onClick = { navController.navigate("adopciones") }
-        )
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
-        ProfileMenuItem(
-            icon = Icons.AutoMirrored.Filled.List,
-            title = stringResource(R.string.profile_my_rescues),
-            subtitle = stringResource(R.string.profile_rescues_desc),
-            onClick = { navController.navigate("ultimos_rescates") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         ProfileMenuItem(

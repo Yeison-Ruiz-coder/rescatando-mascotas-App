@@ -508,9 +508,6 @@ fun QuickActionsRow(navController: NavHostController) {
         QuickActionCard("Clínicas", Icons.Default.LocalHospital, WebSuccess, Modifier.weight(1f)) {
             navController.navigate("veterinarias")
         }
-        QuickActionCard("Ayuda", Icons.Default.Face, WebInfo, Modifier.weight(1f)) {
-            navController.navigate("rescatista_contactos")
-        }
     }
 }
 
