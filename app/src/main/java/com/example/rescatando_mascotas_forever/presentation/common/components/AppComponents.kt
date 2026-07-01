@@ -287,14 +287,12 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         DrawerMenuItem("Solicitud Adopción", Icons.Default.Pets, currentRoute == "adopciones") { navigateAndClose("adopciones") }
         DrawerMenuItem("Suscripciones", Icons.Default.CardMembership, currentRoute == "suscripciones") { navigateAndClose("suscripciones") }
         DrawerMenuItem("Donaciones", Icons.Default.VolunteerActivism, currentRoute == "donaciones") { navigateAndClose("donaciones") }
-        DrawerMenuItem("Últimos Rescates", Icons.Default.History, currentRoute == "ultimos_rescates") { navigateAndClose("ultimos_rescates") }
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("SERVICIOS")
 
         DrawerMenuItem("Eventos", Icons.Default.Event, currentRoute == "eventos") { navigateAndClose("eventos") }
         DrawerMenuItem("Veterinarias", Icons.Default.LocalHospital, currentRoute == "veterinarias") { navigateAndClose("veterinarias") }
-        DrawerMenuItem("Voluntarios", Icons.Default.Groups, currentRoute == "rescatista_contactos") { navigateAndClose("rescatista_contactos") }
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("INFORMACIÓN")

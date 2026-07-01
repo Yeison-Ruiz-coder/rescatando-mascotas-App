@@ -73,13 +73,14 @@ fun LoginScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // ... (resto del fondo)
+        // 1. Imagen de Fondo Local Personalizada
         Image(
-            painter = rememberAsyncImagePainter("https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop"),
+            painter = androidx.compose.ui.res.painterResource(id = R.drawable.img_carousel_4),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
+        // Overlay Oscuro para que el texto blanco sea legible
         Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)))
 
         Column(modifier = Modifier.fillMaxSize()) {

@@ -27,7 +27,6 @@ import com.example.rescatando_mascotas_forever.presentation.auth.register.Regist
 import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.MascotaDetalleScreen
-import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
 import com.example.rescatando_mascotas_forever.presentation.nosotros.NosotrosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRescatistaScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.FormularioRescateScreen
@@ -35,7 +34,6 @@ import com.example.rescatando_mascotas_forever.presentation.adopciones.Formulari
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoDetalleScreen
 import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
-import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
 import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
 import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
 import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen

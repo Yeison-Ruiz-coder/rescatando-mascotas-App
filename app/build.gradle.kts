@@ -9,7 +9,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.rescatando_mascotas_forever"
+        applicationId = "com.rescatando.mascotas.app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
