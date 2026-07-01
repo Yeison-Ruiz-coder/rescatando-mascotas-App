@@ -33,6 +33,7 @@ import coil.request.ImageRequest
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.network.models.toSafeString
 import com.example.rescatando_mascotas_forever.ui.theme.*
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,7 @@ fun MascotaDetalleScreen(
                         val mascota = (state as MascotaDetalleState.Success).mascota
                         Text(
                             text = mascota.nombre, 
-                            color = WebPrimary, // Morado para el nombre
+                            color = WebPrimary,
                             fontWeight = FontWeight.Black,
                             style = MaterialTheme.typography.titleLarge
                         )
@@ -66,20 +67,12 @@ fun MascotaDetalleScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack, 
-                            contentDescription = "Volver", 
-                            tint = WebAccent // Naranja para la flecha
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = WebAccent)
                     }
                 },
                 actions = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Default.Close, 
-                            contentDescription = "Cerrar", 
-                            tint = WebDanger // Rojo para la X
-                        )
+                        Icon(Icons.Default.Close, "Cerrar", tint = WebDanger)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -107,13 +100,11 @@ fun MascotaDetalleScreen(
                         .padding(padding)
                         .verticalScroll(scrollState)
                 ) {
-                    // Carrusel de fotos profesional
                     GallerySection(mascota)
 
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Spacer(Modifier.height(24.dp))
 
-                        // Historia
                         SectionTitle("Historia")
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -131,7 +122,6 @@ fun MascotaDetalleScreen(
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Grid de Información
                         Row(Modifier.fillMaxWidth()) {
                             Column(Modifier.weight(1f)) {
                                 SectionTitle("Detalles")
@@ -142,24 +132,23 @@ fun MascotaDetalleScreen(
                             Spacer(Modifier.width(16.dp))
                             Column(Modifier.weight(1f)) {
                                 SectionTitle("Salud")
-                                HealthItem("ESTERILIZADO", mascota.esterilizado ?: false)
-                                HealthItem("VACUNADO", mascota.vacunado ?: false)
-                                HealthItem("DESPARASITADO", mascota.desparasitado ?: false)
+                                // CORRECCIÓN: Usar métodos helper para obtener Booleanos reales
+                                HealthItem("ESTERILIZADO", mascota.isEsterilizado())
+                                HealthItem("VACUNADO", mascota.isVacunado())
+                                HealthItem("DESPARASITADO", mascota.isDesparasitado())
                             }
                         }
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Compatibilidad
                         SectionTitle("Compatibilidad")
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            CompatCard(Icons.Default.ChildCare, "Apto con niños", mascota.aptoConNinos ?: true, Modifier.weight(1f))
-                            CompatCard(Icons.Default.Pets, "Apto con animales", mascota.aptoConOtrosAnimales ?: true, Modifier.weight(1f))
+                            CompatCard(Icons.Default.ChildCare, "Apto con niños", mascota.isAptoNinos(), Modifier.weight(1f))
+                            CompatCard(Icons.Default.Pets, "Apto con animales", mascota.isAptoOtrosAnimales(), Modifier.weight(1f))
                         }
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Información de Salud Detallada
                         if (mascota.saludGeneral != null || mascota.enfermedadesCronicas != null) {
                             SectionTitle("Estado de Salud")
                             Card(
@@ -182,7 +171,6 @@ fun MascotaDetalleScreen(
 
                         Spacer(Modifier.height(24.dp))
 
-                        // Fundación
                         SectionTitle("Fundación")
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -198,7 +186,6 @@ fun MascotaDetalleScreen(
 
                         Spacer(Modifier.height(32.dp))
 
-                        // SECCIÓN ACCIONES
                         Text(
                             "Acciones",
                             color = MaterialTheme.colorScheme.primary,
@@ -210,9 +197,7 @@ fun MascotaDetalleScreen(
                         
                         Spacer(Modifier.height(16.dp))
 
-                        val actionGradient = Brush.horizontalGradient(
-                            colors = listOf(WebAccent, WebAccent.copy(alpha = 0.8f))
-                        )
+                        val actionGradient = Brush.horizontalGradient(colors = listOf(WebAccent, WebAccent.copy(alpha = 0.8f)))
                         
                         Box(
                             modifier = Modifier
@@ -255,45 +240,45 @@ fun MascotaDetalleScreen(
 @Composable
 fun GallerySection(mascota: Mascota) {
     val context = LocalContext.current
-    val baseUrl = "https://rescatando-mascotas-backend-final-production.up.railway.app/"
-    
-    // Extracción y limpieza de URLs de fotos
     val fotos = remember(mascota.id, mascota.fotoPrincipal, mascota.galeriaFotos) {
         val list = mutableListOf<String>()
-        
-        // 1. Añadir Foto Principal
         mascota.fotoPrincipal?.trim()?.removeSurrounding("\"")?.let { 
             if (it.isNotBlank() && it != "null") list.add(it) 
         }
         
-        // 2. Procesar Galería JSON
         try {
-            mascota.galeriaFotos?.let { galeria ->
-                when {
-                    galeria.isJsonArray -> {
-                        galeria.asJsonArray.forEach { element ->
-                            val url = if (element.isJsonPrimitive) element.asString else element.toString()
-                            if (url.isNotBlank() && url != "null") list.add(url.trim().removeSurrounding("\""))
+            val galeria = mascota.galeriaFotos
+            if (galeria != null) {
+                when (galeria) {
+                    is List<*> -> {
+                        galeria.forEach { item ->
+                            val url = item?.toString()?.trim()?.removeSurrounding("\"")
+                            if (!url.isNullOrBlank() && url != "null") list.add(url)
                         }
                     }
-                    galeria.isJsonPrimitive -> {
-                        val raw = galeria.asString.trim()
+                    is String -> {
+                        val raw = galeria.trim()
                         if (raw.startsWith("[")) {
-                            // Si es un string "[...]", lo parseamos como array real para limpiar escapes \/
                             try {
-                                JsonParser.parseString(raw).asJsonArray.forEach { element ->
-                                    val url = element.asString
-                                    if (url.isNotBlank() && url != "null") list.add(url)
+                                val jsonElement = JsonParser.parseString(raw)
+                                if (jsonElement.isJsonArray) {
+                                    val jsonArray = jsonElement.asJsonArray
+                                    for (i in 0 until jsonArray.size()) {
+                                        val element = jsonArray.get(i)
+                                        val url = if (element.isJsonPrimitive) element.asString else element.toString()
+                                        if (url.isNotBlank() && url != "null") {
+                                            list.add(url.trim().removeSurrounding("\""))
+                                        }
+                                    }
                                 }
                             } catch (e: Exception) {
-                                // Fallback: limpieza manual si falla el parseo
                                 raw.removePrefix("[").removeSuffix("]").split(",").forEach { item ->
-                                    val url = item.trim().removeSurrounding("\"").removeSurrounding("'").replace("\\/", "/")
+                                    val url = item.trim().removeSurrounding("\"").replace("\\/", "/")
                                     if (url.isNotBlank() && url != "null") list.add(url)
                                 }
                             }
                         } else if (raw.isNotBlank() && raw != "null") {
-                            list.add(raw.removeSurrounding("\"").replace("\\/", "/"))
+                            list.add(raw.removeSurrounding("\""))
                         }
                     }
                 }
@@ -302,10 +287,10 @@ fun GallerySection(mascota: Mascota) {
             Log.e("GallerySection", "Error procesando galería: ${e.message}")
         }
         
-        // 3. Normalizar URLs y eliminar duplicados
         list.distinct().map { url ->
             val cleanUrl = url.replace("\\/", "/")
-            if (cleanUrl.startsWith("http")) cleanUrl else "${baseUrl.trimEnd('/')}/storage/${cleanUrl.trimStart('/')}"
+            if (cleanUrl.startsWith("http")) cleanUrl 
+            else "https://rescatando-mascotas-backend-final-production.up.railway.app/storage/${cleanUrl.trimStart('/')}"
         }
     }
 
@@ -319,118 +304,27 @@ fun GallerySection(mascota: Mascota) {
     val pagerState = rememberPagerState(pageCount = { fotos.size })
     val scope = rememberCoroutineScope()
     
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(380.dp)
-            .background(Color.Black)
-    ) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1
-        ) { page ->
+    Box(modifier = Modifier.fillMaxWidth().height(380.dp).background(Color.Black)) {
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
             SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(fotos[page])
-                    .crossfade(true)
-                    .build(),
-                contentDescription = "Foto ${page + 1} de ${mascota.nombre}",
+                model = ImageRequest.Builder(context).data(fotos[page]).crossfade(true).build(),
+                contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, strokeWidth = 2.dp)
-                    }
-                },
-                error = {
-                    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceVariant), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.BrokenImage, null, tint = MaterialTheme.colorScheme.error.copy(alpha = 0.3f))
-                    }
-                }
+                loading = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
             )
         }
-
-        // Degradado inferior
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .align(Alignment.BottomCenter)
-                .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))))
-        )
 
         if (fotos.size > 1) {
             IconButton(
-                onClick = {
-                    scope.launch {
-                        val prev = if (pagerState.currentPage > 0) pagerState.currentPage - 1 else fotos.size - 1
-                        pagerState.animateScrollToPage(prev)
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 12.dp)
-                    .size(44.dp)
-                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-            ) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null, tint = Color.White, modifier = Modifier.size(28.dp))
-            }
+                onClick = { scope.launch { pagerState.animateScrollToPage((pagerState.currentPage - 1 + fotos.size) % fotos.size) } },
+                modifier = Modifier.align(Alignment.CenterStart).padding(8.dp).background(Color.Black.copy(alpha = 0.4f), CircleShape)
+            ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null, tint = Color.White) }
 
             IconButton(
-                onClick = {
-                    scope.launch {
-                        val next = if (pagerState.currentPage < fotos.size - 1) pagerState.currentPage + 1 else 0
-                        pagerState.animateScrollToPage(next)
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 12.dp)
-                    .size(44.dp)
-                    .background(Color.Black.copy(alpha = 0.4f), CircleShape)
-            ) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White, modifier = Modifier.size(28.dp))
-            }
-
-            Row(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                repeat(fotos.size) { index ->
-                    val isSelected = pagerState.currentPage == index
-                    Box(
-                        modifier = Modifier
-                            .size(if (isSelected) 10.dp else 6.dp)
-                            .clip(CircleShape)
-                            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f))
-                            .animateContentSize()
-                    )
-                }
-            }
-        }
-        
-        val estadoRaw = mascota.estado?.lowercase() ?: ""
-        val tagColor = when {
-            estadoRaw.contains("adopcion") || estadoRaw.contains("adopción") -> WebSuccess
-            estadoRaw.contains("acogida") -> WebPrimary
-            else -> WebPrimary
-        }
-        val tagText = mascota.estado?.uppercase() ?: "EN ADOPCIÓN"
-
-        Surface(
-            modifier = Modifier.padding(16.dp).align(Alignment.TopStart),
-            shape = RoundedCornerShape(8.dp),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
-        ) {
-            Text(
-                text = tagText,
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                fontSize = 10.sp,
-                color = tagColor,
-                fontWeight = FontWeight.ExtraBold
-            )
+                onClick = { scope.launch { pagerState.animateScrollToPage((pagerState.currentPage + 1) % fotos.size) } },
+                modifier = Modifier.align(Alignment.CenterEnd).padding(8.dp).background(Color.Black.copy(alpha = 0.4f), CircleShape)
+            ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null, tint = Color.White) }
         }
     }
 }
@@ -448,11 +342,25 @@ fun SectionTitle(title: String) {
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
-    Column(Modifier.padding(vertical = 4.dp)) {
-        Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-        Text(value, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f), modifier = Modifier.padding(top = 8.dp))
+fun HealthItem(label: String, status: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(10.dp)
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    if (status) Icons.Default.CheckCircle else Icons.Default.Cancel,
+                    null,
+                    tint = if (status) WebSuccess else WebDanger,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(if (status) "Sí" else "No", color = if (status) WebSuccess else WebDanger, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+            }
+        }
     }
 }
 
@@ -463,12 +371,8 @@ fun CompatCard(icon: ImageVector, label: String, status: Boolean, modifier: Modi
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(
-            Modifier.padding(16.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(Modifier.padding(16.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-            Spacer(Modifier.height(8.dp))
             Text(label, color = MaterialTheme.colorScheme.onSurface, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             Text(if (status) "Sí" else "No", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), fontSize = 11.sp)
         }
@@ -494,30 +398,10 @@ fun DetailItem(icon: ImageVector, label: String, value: String) {
 }
 
 @Composable
-fun HealthItem(label: String, status: Boolean) {
-    Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(10.dp)
-    ) {
-        Column(Modifier.padding(12.dp)) {
-            Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    if (status) Icons.Default.CheckCircle else Icons.Default.Cancel,
-                    null,
-                    tint = if (status) WebSuccess else WebDanger,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    if (status) "Sí" else "No",
-                    color = if (status) WebSuccess else WebDanger,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+fun InfoRow(label: String, value: String) {
+    Column(Modifier.padding(vertical = 4.dp)) {
+        Text(label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(value, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f), modifier = Modifier.padding(top = 8.dp))
     }
 }
