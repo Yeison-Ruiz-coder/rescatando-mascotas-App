@@ -16,8 +16,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,8 +84,8 @@ fun AdminMascotaFormScreen(
             fundacionIdState = it.fundacionId?.toString() ?: "1"
             nombre = it.nombre
             especie = it.especie ?: "Perro"
-            edad = it.edadAprox?.toString() ?: ""
-            peso = it.pesoAprox?.toString() ?: ""
+            edad = it.edadAprox.toSafeString()
+            peso = it.pesoAprox.toSafeString()
             tamano = it.tamano ?: "mediano"
             genero = it.genero ?: "Macho"
             color = it.color ?: ""
@@ -101,13 +99,15 @@ fun AdminMascotaFormScreen(
             requisitos = it.requisitosAdopcion.toSafeString()
             hogarRecomendado = it.hogarRecomendado.toSafeString()
             videoUrl = it.videoUrl ?: ""
-            esterilizado = it.esterilizado ?: false
-            desparasitado = it.desparasitado ?: false
-            vacunado = it.vacunado ?: false
-            aptoNinos = it.aptoConNinos ?: true
-            aptoAnimales = it.aptoConOtrosAnimales ?: true
-            hogarTemporal = it.necesitaHogarTemporal ?: false
-            destacada = it.destacada ?: false
+            
+            // CORRECCIÓN: Usar métodos helper para asignar Booleanos reales
+            esterilizado = it.isEsterilizado()
+            desparasitado = it.isDesparasitado()
+            vacunado = it.isVacunado()
+            aptoNinos = it.isAptoNinos()
+            aptoAnimales = it.isAptoOtrosAnimales()
+            hogarTemporal = it.isHogarTemporal()
+            destacada = it.isDestacada()
         }
     }
 
@@ -339,16 +339,16 @@ fun AdminMascotaFormScreen(
 fun SectionTitle(title: String) {
     Text(
         text = title,
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Black,
+        fontSize = 14.sp,
         color = Color(0xFF673AB7),
-        fontSize = 18.sp,
         modifier = Modifier.padding(top = 8.dp)
     )
 }
 
 @Composable
 fun LabeledCheckbox(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 2.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { onCheckedChange(!checked) }) {
         Checkbox(checked = checked, onCheckedChange = onCheckedChange)
         Text(label, fontSize = 14.sp)
     }

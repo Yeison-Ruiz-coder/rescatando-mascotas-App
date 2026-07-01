@@ -71,7 +71,11 @@ fun SplashScreen(navController: NavHostController) {
                 RetrofitClient.setToken(token)
 
                 val user = sessionManager.getUser()
-                val destino = if (user?.tipo == "admin") "admin_home" else "home"
+                val destino = when (user?.tipo) {
+                    "admin" -> "admin_home"
+                    "fundacion" -> "foundation_home"
+                    else -> "home"
+                }
 
                 navController.navigate(destino) {
                     popUpTo("splash") { inclusive = true }

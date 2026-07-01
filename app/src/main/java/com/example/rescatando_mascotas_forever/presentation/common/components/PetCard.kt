@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
+import com.example.rescatando_mascotas_forever.data.network.models.toSafeInt
 import com.example.rescatando_mascotas_forever.ui.theme.*
 import com.example.rescatando_mascotas_forever.utils.Constants
 
@@ -116,7 +117,7 @@ fun PetCard(
                     }
                 }
                 Text(
-                    text = "${mascota.especie ?: "Desconocida"} • ${mascota.edadAprox?.toInt() ?: 0} años",
+                    text = "${mascota.especie ?: "Desconocida"} • ${mascota.edadAprox.toSafeInt()} años",
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
