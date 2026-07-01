@@ -5,7 +5,10 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import com.example.rescatando_mascotas_forever.data.repository.MascotaRepository
+import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
+import com.example.rescatando_mascotas_forever.data.repository.FoundationMascotasRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +17,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
 
@@ -25,8 +27,16 @@ sealed class FormState {
     data class Error(val message: String) : FormState()
 }
 
+data class FormData(
+    val razas: List<RazaItem> = emptyList(),
+    val vacunas: List<VacunaItem> = emptyList()
+)
+
+data class RazaItem(val id: Int, val nombre_raza: String, val especie: String)
+data class VacunaItem(val id: Int, val nombre: String)
+
 class FoundationMascotaFormViewModel(
-    private val repository: MascotaRepository = MascotaRepository()
+    private val repository: FoundationMascotasRepository = FoundationMascotasRepository(RetrofitClient.entityApi)
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<FormState>(FormState.Idle)
@@ -35,105 +45,92 @@ class FoundationMascotaFormViewModel(
     private val _mascota = MutableStateFlow<Mascota?>(null)
     val mascota: StateFlow<Mascota?> = _mascota.asStateFlow()
 
+    private val _formData = MutableStateFlow(FormData())
+    val formData: StateFlow<FormData> = _formData.asStateFlow()
+
+    init {
+        loadFormData()
+    }
+
+    private fun loadFormData() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getMascotasFormData()
+                if (response.success && response.data != null) {
+                    val gson = Gson()
+                    val razasData = response.data["razas"]
+                    val vacunasData = response.data["vacunas"]
+                    
+                    val razas: List<RazaItem> = if (razasData != null) {
+                        gson.fromJson(gson.toJson(razasData), object : TypeToken<List<RazaItem>>() {}.type)
+                    } else emptyList()
+                    
+                    val vacunas: List<VacunaItem> = if (vacunasData != null) {
+                        gson.fromJson(gson.toJson(vacunasData), object : TypeToken<List<VacunaItem>>() {}.type)
+                    } else emptyList()
+                    
+                    _formData.value = FormData(razas, vacunas)
+                }
+            } catch (e: Exception) { 
+                _formData.value = FormData(emptyList(), emptyList())
+            }
+        }
+    }
+
     fun loadMascota(id: Int) {
         viewModelScope.launch {
             _state.value = FormState.Loading
-            repository.getMascotaById(id).collect { result ->
-                result.onSuccess { response ->
-                    if (response.success && response.data != null) {
-                        val gson = com.google.gson.Gson()
-                        val json = gson.toJson(response.data)
-                        val mascotaObj = gson.fromJson(json, Mascota::class.java)
-                        _mascota.value = mascotaObj
-                        _state.value = FormState.Idle
-                    } else {
-                        _state.value = FormState.Error(response.message ?: "Error al cargar la mascota")
-                    }
-                }.onFailure {
-                    _state.value = FormState.Error("Error al cargar la mascota")
+            try {
+                val response = repository.getMascotaDetalle(id)
+                if (response.success && response.data != null) {
+                    _mascota.value = response.data
+                    _state.value = FormState.Idle
                 }
+            } catch (e: Exception) {
+                _state.value = FormState.Error("Error al cargar detalle")
             }
         }
     }
 
     fun saveMascota(
         context: Context,
-        id: Int?,
-        nombre: String,
-        especie: String,
-        edad: String,
-        peso: String,
-        tamano: String,
-        genero: String,
-        color: String,
-        estado: String,
-        ubicacion: String,
-        descripcion: String,
-        condiciones: String,
-        salud: String,
-        enfermedades: String,
-        medicamentos: String,
-        requisitos: String,
-        hogarRecomendado: String,
-        videoUrl: String,
-        esterilizado: Boolean,
-        desparasitado: Boolean,
-        vacunado: Boolean,
-        aptoNinos: Boolean,
-        aptoAnimales: Boolean,
-        hogarTemporal: Boolean,
-        destacada: Boolean,
+        mascotaId: Int?,
+        rescateId: Int?,
+        fields: Map<String, String>,
+        arrays: Map<String, List<String>>,
         fotoPrincipalUri: Uri?,
         galeriaUris: List<Uri>
     ) {
         viewModelScope.launch {
             _state.value = FormState.Loading
+            try {
+                val fotoPrincipalPart = fotoPrincipalUri?.let { uriToMultipart(context, it, "foto_principal") }
+                val galeriaParts = galeriaUris.mapNotNull { uriToMultipart(context, it, "galeria_fotos[]") }
 
-            val partMap = mutableMapOf<String, RequestBody>()
-            partMap["nombre_mascota"] = nombre.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["especie"] = especie.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["edad_aprox"] = edad.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["peso_aprox"] = peso.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["tamano"] = tamano.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["genero"] = genero.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["color"] = color.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["estado"] = estado.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["lugar_rescate"] = ubicacion.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["descripcion"] = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["condiciones_especiales"] = condiciones.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["salud_general"] = salud.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["enfermedades_cronicas"] = enfermedades.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["medicamentos"] = medicamentos.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["requisitos_adopcion"] = requisitos.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["hogar_recomendado"] = hogarRecomendado.toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["video_url"] = videoUrl.toRequestBody("text/plain".toMediaTypeOrNull())
-            
-            // Booleanos como 1 o 0
-            partMap["esterilizado"] = (if (esterilizado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["desparasitado"] = (if (desparasitado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["vacunado"] = (if (vacunado) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["apto_con_ninos"] = (if (aptoNinos) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["apto_con_otros_animales"] = (if (aptoAnimales) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["necesita_hogar_temporal"] = (if (hogarTemporal) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-            partMap["destacada"] = (if (destacada) "1" else "0").toRequestBody("text/plain".toMediaTypeOrNull())
-
-            if (id != null) {
-                partMap["_method"] = "PUT".toRequestBody("text/plain".toMediaTypeOrNull())
+                val response = repository.saveMascota(mascotaId, fields, arrays, fotoPrincipalPart, galeriaParts, rescateId)
+                if (response.success) {
+                    _state.value = FormState.Success
+                } else {
+                    _state.value = FormState.Error(response.message ?: "Error al guardar")
+                }
+            } catch (e: Exception) {
+                _state.value = FormState.Error(e.message ?: "Error de conexión")
             }
+        }
+    }
 
-            val fotoPrincipalPart = fotoPrincipalUri?.let { uriToMultipart(context, it, "foto_principal") }
-            val galeriaParts = galeriaUris.mapNotNull { uriToMultipart(context, it, "galeria_fotos[]") }
-
-            val result = if (id == null) {
-                repository.storeMascota(partMap, fotoPrincipalPart, galeriaParts)
-            } else {
-                repository.updateMascota(id, partMap, fotoPrincipalPart, galeriaParts)
-            }
-
-            result.onSuccess {
-                _state.value = FormState.Success
-            }.onFailure {
-                _state.value = FormState.Error(it.message ?: "Error al guardar")
+    fun deleteMascota(id: Int) {
+        viewModelScope.launch {
+            _state.value = FormState.Loading
+            try {
+                val response = repository.eliminarMascota(id)
+                if (response.success) {
+                    _state.value = FormState.Success
+                } else {
+                    _state.value = FormState.Error(response.message ?: "Error al eliminar")
+                }
+            } catch (e: Exception) {
+                _state.value = FormState.Error("Error de red: ${e.message}")
             }
         }
     }
@@ -147,16 +144,10 @@ class FoundationMascotaFormViewModel(
     private fun uriToFile(context: Context, uri: Uri): File? {
         try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-            val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+            val file = File(context.cacheDir, "temp_pet_${System.currentTimeMillis()}.jpg")
             val outputStream = FileOutputStream(file)
-            inputStream.use { input ->
-                outputStream.use { output ->
-                    input.copyTo(output)
-                }
-            }
+            inputStream.use { input -> outputStream.use { output -> input.copyTo(output) } }
             return file
-        } catch (e: Exception) {
-            return null
-        }
+        } catch (e: Exception) { return null }
     }
 }

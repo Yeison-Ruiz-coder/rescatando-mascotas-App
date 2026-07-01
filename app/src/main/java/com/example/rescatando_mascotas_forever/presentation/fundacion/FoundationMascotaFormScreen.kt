@@ -3,7 +3,8 @@ package com.example.rescatando_mascotas_forever.presentation.fundacion
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
+import androidx.compose.animation.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,400 +16,483 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.rescatando_mascotas_forever.data.network.models.toSafeInt
 import com.example.rescatando_mascotas_forever.data.network.models.toSafeString
-import com.example.rescatando_mascotas_forever.ui.theme.FoundationGradient
+import com.example.rescatando_mascotas_forever.utils.Constants
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FoundationMascotaFormScreen(
     navController: NavHostController,
     mascotaId: Int? = null,
+    rescateId: Int? = null,
     viewModel: FoundationMascotaFormViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val mascotaEdit by viewModel.mascota.collectAsState()
 
-    // Form states
+    var currentStep by remember { mutableIntStateOf(1) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    // --- ESTADOS DEL FORMULARIO ---
     var nombre by remember { mutableStateOf("") }
     var especie by remember { mutableStateOf("Perro") }
     var edad by remember { mutableStateOf("") }
     var peso by remember { mutableStateOf("") }
-    var tamano by remember { mutableStateOf("mediano") }
-    var genero by remember { mutableStateOf("Macho") }
     var color by remember { mutableStateOf("") }
-    var estado by remember { mutableStateOf("En adopcion") }
     var ubicacion by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
-    var condiciones by remember { mutableStateOf("") }
-    var salud by remember { mutableStateOf("") }
-    var enfermedades by remember { mutableStateOf("") }
-    var medicamentos by remember { mutableStateOf("") }
-    var requisitos by remember { mutableStateOf("") }
     var hogarRecomendado by remember { mutableStateOf("") }
     var videoUrl by remember { mutableStateOf("") }
-    
-    // Boolean states
+
+    val generos = listOf("Macho", "Hembra", "Desconocido")
+    var genero by remember { mutableStateOf(generos[0]) }
+
+    val tamanos = listOf("pequeño", "mediano", "grande", "muy_grande")
+    var tamano by remember { mutableStateOf(tamanos[1]) }
+
+    val estados = listOf("En adopcion", "Adoptado", "Rescatada", "En acogida")
+    var estado by remember { mutableStateOf(estados[0]) }
+
+    var condicionesEspeciales by remember { mutableStateOf("") }
+    var saludGeneral by remember { mutableStateOf("") }
+    var enfermedadesCronicas by remember { mutableStateOf("") }
+    var medicamentos by remember { mutableStateOf("") }
+    var requisitosAdopcion by remember { mutableStateOf("") }
+    var destacada by remember { mutableStateOf(false) }
+
     var esterilizado by remember { mutableStateOf(false) }
     var desparasitado by remember { mutableStateOf(false) }
     var vacunado by remember { mutableStateOf(false) }
     var aptoNinos by remember { mutableStateOf(true) }
     var aptoAnimales by remember { mutableStateOf(true) }
     var hogarTemporal by remember { mutableStateOf(false) }
-    var destacada by remember { mutableStateOf(false) }
-    
+
     var fotoPrincipalUri by remember { mutableStateOf<Uri?>(null) }
     var galeriaUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
-    val fotoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        fotoPrincipalUri = uri
-    }
-    
-    val galeriaLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
-        galeriaUris = uris
-    }
+    val fotoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { fotoPrincipalUri = it }
+    val galeriaLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { galeriaUris = it }
 
-    LaunchedEffect(mascotaId) {
-        if (mascotaId != null) {
-            viewModel.loadMascota(mascotaId)
-        }
-    }
+    LaunchedEffect(mascotaId) { mascotaId?.let { viewModel.loadMascota(it) } }
 
     LaunchedEffect(mascotaEdit) {
         mascotaEdit?.let {
             nombre = it.nombre
             especie = it.especie ?: "Perro"
-            edad = it.edadAprox?.toString() ?: ""
-            peso = it.pesoAprox?.toString() ?: ""
-            tamano = it.tamano ?: "mediano"
-            genero = it.genero ?: "Macho"
+            edad = it.edadAprox.toSafeInt().toString()
+            peso = it.pesoAprox.toSafeString()
+            genero = if (it.genero in generos) it.genero!! else generos[0]
+            tamano = if (it.tamano in tamanos) it.tamano!! else tamanos[1]
+            estado = if (it.estado in estados) it.estado!! else estados[0]
             color = it.color ?: ""
-            estado = it.estado ?: "En adopcion"
             ubicacion = it.ubicacion ?: ""
             descripcion = it.descripcion ?: ""
-            condiciones = it.condicionesEspeciales.toSafeString()
-            salud = it.saludGeneral.toSafeString()
-            enfermedades = it.enfermedadesCronicas.toSafeString()
-            medicamentos = it.medicamentos.toSafeString()
-            requisitos = it.requisitosAdopcion.toSafeString()
             hogarRecomendado = it.hogarRecomendado.toSafeString()
             videoUrl = it.videoUrl ?: ""
-            
-            esterilizado = it.esterilizado ?: false
-            desparasitado = it.desparasitado ?: false
-            vacunado = it.vacunado ?: false
-            aptoNinos = it.aptoConNinos ?: true
-            aptoAnimales = it.aptoConOtrosAnimales ?: true
-            hogarTemporal = it.necesitaHogarTemporal ?: false
-            destacada = it.destacada ?: false
+            condicionesEspeciales = it.condicionesEspeciales.toSafeString()
+            saludGeneral = it.saludGeneral.toSafeString()
+            enfermedadesCronicas = it.enfermedadesCronicas.toSafeString()
+            medicamentos = it.medicamentos.toSafeString()
+            requisitosAdopcion = it.requisitosAdopcion.toSafeString()
+            destacada = it.isDestacada()
+            esterilizado = it.isEsterilizado()
+            desparasitado = it.isDesparasitado()
+            vacunado = it.isVacunado()
+            aptoNinos = it.isAptoNinos()
+            aptoAnimales = it.isAptoOtrosAnimales()
+            hogarTemporal = it.isHogarTemporal()
         }
     }
 
     LaunchedEffect(state) {
-        if (state is FormState.Success) {
-            navController.popBackStack()
-        }
+        if (state is FormState.Success) navController.popBackStack()
     }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(if (mascotaId == null) "Nueva Mascota" else "Editar Mascota", color = Color.White, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Atrás", tint = Color.White)
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(if (mascotaId == null) "Registrar Mascota" else "Editar Mascota", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text("Paso $currentStep de 4", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f))
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent),
-                modifier = Modifier.background(FoundationGradient)
+                navigationIcon = {
+                    IconButton(onClick = { if (currentStep > 1) currentStep-- else navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onPrimary)
+                    }
+                },
+                actions = {
+                    if (mascotaId != null) {
+                        IconButton(onClick = { showDeleteDialog = true }) {
+                            Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Sección: Información Básica
-            FormSectionTitle("Información Básica")
-            
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre de la mascota") },
+            LinearProgressIndicator(
+                progress = { currentStep / 4f },
                 modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.Pets, null) }
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = especie,
-                    onValueChange = { especie = it },
-                    label = { Text("Especie") },
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = edad,
-                    onValueChange = { edad = it },
-                    label = { Text("Edad aprox.") },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("Ej: 2") }
-                )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                AnimatedContent(
+                    targetState = currentStep,
+                    transitionSpec = {
+                        if (targetState > initialState) {
+                            slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                        } else {
+                            slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                        }
+                    }, label = ""
+                ) { step ->
+                    when (step) {
+                        1 -> StepBasics(
+                            nombre, { nombre = it }, especie, { especie = it }, edad, { edad = it },
+                            peso, { peso = it }, color, { color = it }, genero, { genero = it }, generos,
+                            tamano, { tamano = it }, tamanos, destacada, { destacada = it }
+                        )
+                        2 -> StepMedia(
+                            fotoPrincipalUri, { fotoLauncher.launch("image/*") },
+                            mascotaEdit?.fotoPrincipal, galeriaUris, { galeriaLauncher.launch("image/*") },
+                            videoUrl, { videoUrl = it }
+                        )
+                        3 -> StepHealth(
+                            esterilizado, { esterilizado = it }, desparasitado, { desparasitado = it },
+                            vacunado, { vacunado = it }, saludGeneral, { saludGeneral = it },
+                            enfermedadesCronicas, { enfermedadesCronicas = it }, medicamentos, { medicamentos = it },
+                            condicionesEspeciales, { condicionesEspeciales = it }
+                        )
+                        4 -> StepAdoption(
+                            aptoNinos, { aptoNinos = it }, aptoAnimales, { aptoAnimales = it },
+                            hogarTemporal, { hogarTemporal = it }, descripcion, { descripcion = it },
+                            ubicacion, { ubicacion = it }, hogarRecomendado, { hogarRecomendado = it },
+                            requisitosAdopcion, { requisitosAdopcion = it }, estado, { estado = it }, estados
+                        )
+                    }
+                }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = peso,
-                    onValueChange = { peso = it },
-                    label = { Text("Peso (kg)") },
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = color,
-                    onValueChange = { color = it },
-                    label = { Text("Color") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            Surface(
+                tonalElevation = 8.dp,
+                shadowElevation = 8.dp,
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (currentStep > 1) {
+                        OutlinedButton(
+                            onClick = { currentStep-- },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("ANTERIOR")
+                        }
+                    }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                var expandedTamano by remember { mutableStateOf(false) }
-                Box(modifier = Modifier.weight(1f)) {
-                    OutlinedTextField(
-                        value = tamano,
-                        onValueChange = {},
-                        label = { Text("Tamaño") },
-                        readOnly = true,
-                        trailingIcon = { IconButton(onClick = { expandedTamano = true }) { Icon(Icons.Default.ArrowDropDown, null) } },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    DropdownMenu(expanded = expandedTamano, onDismissRequest = { expandedTamano = false }) {
-                        listOf("pequeño", "mediano", "grande", "muy_grande").forEach { t ->
-                            DropdownMenuItem(text = { Text(t) }, onClick = { tamano = t; expandedTamano = false })
+                    Button(
+                        onClick = {
+                            if (currentStep < 4) {
+                                currentStep++
+                            } else {
+                                val fields = mutableMapOf(
+                                    "nombre_mascota" to nombre,
+                                    "especie" to especie,
+                                    "genero" to genero,
+                                    "tamano" to tamano,
+                                    "estado" to estado,
+                                    "destacada" to if (destacada) "1" else "0",
+                                    "esterilizado" to if (esterilizado) "1" else "0",
+                                    "desparasitado" to if (desparasitado) "1" else "0",
+                                    "vacunado" to if (vacunado) "1" else "0",
+                                    "apto_con_ninos" to if (aptoNinos) "1" else "0",
+                                    "apto_con_otros_animales" to if (aptoAnimales) "1" else "0",
+                                    "necesita_hogar_temporal" to if (hogarTemporal) "1" else "0"
+                                )
+                                if (edad.isNotEmpty()) fields["edad_aprox"] = edad
+                                if (peso.isNotEmpty()) fields["peso_aprox"] = peso
+                                if (color.isNotEmpty()) fields["color"] = color
+                                if (ubicacion.isNotEmpty()) fields["lugar_rescate"] = ubicacion
+                                if (descripcion.isNotEmpty()) fields["descripcion"] = descripcion
+                                if (hogarRecomendado.isNotEmpty()) fields["hogar_recomendado"] = hogarRecomendado
+                                if (saludGeneral.isNotEmpty()) fields["salud_general"] = saludGeneral
+                                if (condicionesEspeciales.isNotEmpty()) fields["condiciones_especiales"] = condicionesEspeciales
+                                if (videoUrl.isNotEmpty()) fields["video_url"] = videoUrl
+                                if (requisitosAdopcion.isNotEmpty()) fields["requisitos_adopcion"] = requisitosAdopcion
+
+                                viewModel.saveMascota(context, mascotaId, rescateId, fields, emptyMap(), fotoPrincipalUri, galeriaUris)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = nombre.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        if (state is FormState.Loading) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
+                        } else {
+                            Text(if (currentStep < 4) "SIGUIENTE" else "GUARDAR")
                         }
                     }
                 }
+            }
+        }
+    }
 
-                var expandedGenero by remember { mutableStateOf(false) }
-                Box(modifier = Modifier.weight(1f)) {
-                    OutlinedTextField(
-                        value = genero,
-                        onValueChange = {},
-                        label = { Text("Género") },
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { IconButton(onClick = { expandedGenero = true }) { Icon(Icons.Default.ArrowDropDown, null) } }
-                    )
-                    DropdownMenu(expanded = expandedGenero, onDismissRequest = { expandedGenero = false }) {
-                        listOf("Macho", "Hembra", "Desconocido").forEach { g ->
-                            DropdownMenuItem(text = { Text(g) }, onClick = { genero = g; expandedGenero = false })
-                        }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("¿Eliminar a $nombre?") },
+            text = { Text("Esta acción borrará permanentemente a la mascota de la base de datos y no se podrá recuperar.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        mascotaId?.let { viewModel.deleteMascota(it) }
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("SÍ, ELIMINAR", color = MaterialTheme.colorScheme.onError) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("CANCELAR") }
+            }
+        )
+    }
+}
+
+@Composable
+fun StepBasics(
+    nombre: String, onNombre: (String) -> Unit,
+    especie: String, onEspecie: (String) -> Unit,
+    edad: String, onEdad: (String) -> Unit,
+    peso: String, onPeso: (String) -> Unit,
+    color: String, onColor: (String) -> Unit,
+    genero: String, onGenero: (String) -> Unit, generos: List<String>,
+    tamano: String, onTamano: (String) -> Unit, tamanos: List<String>,
+    destacada: Boolean, onDestacada: (Boolean) -> Unit
+) {
+    FormCard("Información Básica") {
+        AppTextField(value = nombre, onValueChange = onNombre, label = "Nombre de la mascota *")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AppTextField(value = especie, onValueChange = onEspecie, label = "Especie", modifier = Modifier.weight(1f))
+            AppTextField(value = color, onValueChange = onColor, label = "Color", modifier = Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AppTextField(value = edad, onValueChange = onEdad, label = "Edad Aprox.", modifier = Modifier.weight(1f))
+            AppTextField(value = peso, onValueChange = onPeso, label = "Peso (kg)", modifier = Modifier.weight(1f))
+        }
+        AppDropdown(label = "Género", options = generos, selected = genero, onSelect = onGenero)
+        AppDropdown(label = "Tamaño", options = tamanos, selected = tamano, onSelect = onTamano)
+        CheckboxLabel("Mascota Destacada", destacada, onDestacada)
+    }
+}
+
+@Composable
+fun StepMedia(
+    fotoUri: Uri?, onPickPick: () -> Unit,
+    fotoActual: String?,
+    galeria: List<Uri>, onPickGaleria: () -> Unit,
+    video: String, onVideo: (String) -> Unit
+) {
+    FormCard("Fotografías y Videos") {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable { onPickPick() },
+                contentAlignment = Alignment.Center
+            ) {
+                val painter = rememberAsyncImagePainter(fotoUri ?: Constants.getImageUrl(fotoActual))
+                Image(painter = painter, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                if (fotoUri == null && fotoActual == null) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.AddAPhoto, null, tint = MaterialTheme.colorScheme.primary)
+                        Text("Foto Principal", fontSize = 10.sp)
                     }
                 }
             }
-
-            var expandedEstado by remember { mutableStateOf(false) }
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = estado,
-                    onValueChange = {},
-                    label = { Text("Estado") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = { IconButton(onClick = { expandedEstado = true }) { Icon(Icons.Default.ArrowDropDown, null) } }
+            Button(
+                onClick = onPickGaleria,
+                modifier = Modifier.height(120.dp).weight(1f),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                DropdownMenu(expanded = expandedEstado, onDismissRequest = { expandedEstado = false }) {
-                    listOf("Adoptado", "En adopcion", "Rescatada", "En acogida").forEach { e ->
-                        DropdownMenuItem(text = { Text(e) }, onClick = { estado = e; expandedEstado = false })
-                    }
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Collections, null)
+                    Text("Galería (${galeria.size})", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
+        }
+        AppTextField(value = video, onValueChange = onVideo, label = "URL de Video (YouTube)")
+    }
+}
 
-            // Sección: Salud y Detalles
-            FormSectionTitle("Salud y Características")
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                CheckboxLabel("Esterilizado", esterilizado) { esterilizado = it }
-                CheckboxLabel("Desparasitado", desparasitado) { desparasitado = it }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                CheckboxLabel("Vacunado", vacunado) { vacunado = it }
-                CheckboxLabel("Apto niños", aptoNinos) { aptoNinos = it }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                CheckboxLabel("Apto animales", aptoAnimales) { aptoAnimales = it }
-                CheckboxLabel("Hogar Temporal", hogarTemporal) { hogarTemporal = it }
-            }
-            CheckboxLabel("Mascota Destacada", destacada) { destacada = it }
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun StepHealth(
+    esterilizado: Boolean, onEst: (Boolean) -> Unit,
+    desparasitado: Boolean, onDesp: (Boolean) -> Unit,
+    vacunado: Boolean, onVac: (Boolean) -> Unit,
+    salud: String, onSalud: (String) -> Unit,
+    enfermedades: String, onEnf: (String) -> Unit,
+    medicamentos: String, onMed: (String) -> Unit,
+    condiciones: String, onCond: (String) -> Unit
+) {
+    FormCard("Salud y Estado") {
+        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AppFilterChip(selected = esterilizado, onClick = { onEst(!esterilizado) }, label = "Esterilizado")
+            AppFilterChip(selected = desparasitado, onClick = { onDesp(!desparasitado) }, label = "Desparasitado")
+            AppFilterChip(selected = vacunado, onClick = { onVac(!vacunado) }, label = "Vacunado")
+        }
+        AppTextField(value = salud, onValueChange = onSalud, label = "Salud General", minLines = 2)
+        AppTextField(value = enfermedades, onValueChange = onEnf, label = "Enfermedades crónicas", minLines = 2)
+        AppTextField(value = medicamentos, onValueChange = onMed, label = "Medicamentos actuales", minLines = 2)
+        AppTextField(value = condiciones, onValueChange = onCond, label = "Condiciones especiales", minLines = 2)
+    }
+}
 
-            OutlinedTextField(
-                value = salud,
-                onValueChange = { salud = it },
-                label = { Text("Salud General") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = enfermedades,
-                onValueChange = { enfermedades = it },
-                label = { Text("Enfermedades Crónicas") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = medicamentos,
-                onValueChange = { medicamentos = it },
-                label = { Text("Medicamentos") },
-                modifier = Modifier.fillMaxWidth()
-            )
+@Composable
+fun StepAdoption(
+    aptoNinos: Boolean, onNinos: (Boolean) -> Unit,
+    aptoAnimales: Boolean, onAnimales: (Boolean) -> Unit,
+    hogarTemporal: Boolean, onTemp: (Boolean) -> Unit,
+    descripcion: String, onDesc: (String) -> Unit,
+    ubicacion: String, onUbi: (String) -> Unit,
+    hogarRec: String, onHogar: (String) -> Unit,
+    requisitos: String, onReq: (String) -> Unit,
+    estado: String, onEstado: (String) -> Unit, estados: List<String>
+) {
+    FormCard("Comportamiento y Adopción") {
+        Row(Modifier.fillMaxWidth()) {
+            CheckboxLabel("Apto Niños", aptoNinos, onNinos)
+            CheckboxLabel("Apto Animales", aptoAnimales, onAnimales)
+        }
+        CheckboxLabel("Necesita Hogar Temporal", hogarTemporal, onTemp)
+        AppDropdown(label = "Estado Actual", options = estados, selected = estado, onSelect = onEstado)
+        AppTextField(value = ubicacion, onValueChange = onUbi, label = "Ubicación / Lugar de Rescate")
+        AppTextField(value = descripcion, onValueChange = onDesc, label = "Historia de la mascota", minLines = 3)
+        AppTextField(value = hogarRec, onValueChange = onHogar, label = "Tipo de hogar recomendado")
+        AppTextField(value = requisitos, onValueChange = onReq, label = "Requisitos de adopción", minLines = 2)
+    }
+}
 
-            // Sección: Comportamiento y Requisitos
-            FormSectionTitle("Comportamiento y Requisitos")
-            OutlinedTextField(
-                value = descripcion,
-                onValueChange = { descripcion = it },
-                label = { Text("Descripción / Historia") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppDropdown(label: String, options: List<String>, selected: String, onSelect: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = selected, onValueChange = {}, readOnly = true, label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f)
             )
-            OutlinedTextField(
-                value = condiciones,
-                onValueChange = { condiciones = it },
-                label = { Text("Condiciones Especiales") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = requisitos,
-                onValueChange = { requisitos = it },
-                label = { Text("Requisitos de Adopción") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = hogarRecomendado,
-                onValueChange = { hogarRecomendado = it },
-                label = { Text("Hogar Recomendado") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Sección: Ubicación y Multimedia
-            FormSectionTitle("Ubicación y Multimedia")
-            
-            OutlinedTextField(
-                value = ubicacion,
-                onValueChange = { ubicacion = it },
-                label = { Text("Lugar de rescate / Ciudad") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.LocationOn, null) }
-            )
-
-            OutlinedTextField(
-                value = videoUrl,
-                onValueChange = { videoUrl = it },
-                label = { Text("URL de Video (YouTube/Vimeo)") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.VideoLibrary, null) }
-            )
-
-            // Fotos
-            Button(
-                onClick = { fotoLauncher.launch("image/*") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Icon(Icons.Default.PhotoCamera, null)
-                Spacer(Modifier.width(8.dp))
-                Text(if (fotoPrincipalUri != null) "Foto Principal Seleccionada" else "Seleccionar Foto Principal")
-            }
-
-            Button(
-                onClick = { galeriaLauncher.launch("image/*") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Icon(Icons.Default.Collections, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Galería (${galeriaUris.size} fotos)")
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // Botón Guardar
-            Button(
-                onClick = {
-                    viewModel.saveMascota(
-                        context = context,
-                        id = mascotaId,
-                        nombre = nombre,
-                        especie = especie,
-                        edad = edad,
-                        peso = peso,
-                        tamano = tamano,
-                        genero = genero,
-                        color = color,
-                        estado = estado,
-                        ubicacion = ubicacion,
-                        descripcion = descripcion,
-                        condiciones = condiciones,
-                        salud = salud,
-                        enfermedades = enfermedades,
-                        medicamentos = medicamentos,
-                        requisitos = requisitos,
-                        hogarRecomendado = hogarRecomendado,
-                        videoUrl = videoUrl,
-                        esterilizado = esterilizado,
-                        desparasitado = desparasitado,
-                        vacunado = vacunado,
-                        aptoNinos = aptoNinos,
-                        aptoAnimales = aptoAnimales,
-                        hogarTemporal = hogarTemporal,
-                        destacada = destacada,
-                        fotoPrincipalUri = fotoPrincipalUri,
-                        galeriaUris = galeriaUris
-                    )
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722)),
-                enabled = state !is FormState.Loading && nombre.isNotBlank()
-            ) {
-                if (state is FormState.Loading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Text("GUARDAR MASCOTA", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                }
-            }
-            
-            if (state is FormState.Error) {
-                Text((state as FormState.Error).message, color = Color.Red, fontSize = 12.sp)
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(text = { Text(option) }, onClick = { onSelect(option); expanded = false })
             }
         }
     }
 }
 
 @Composable
-fun FormSectionTitle(title: String) {
-    Text(
-        text = title.uppercase(),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
-        color = Color.Gray,
-        letterSpacing = 1.sp,
-        modifier = Modifier.padding(top = 8.dp)
+fun AppTextField(value: String, onValueChange: (String) -> Unit, label: String, modifier: Modifier = Modifier, minLines: Int = 1) {
+    OutlinedTextField(
+        value = value, onValueChange = onValueChange, label = { Text(label) },
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        minLines = minLines,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.15f)
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppFilterChip(selected: Boolean, onClick: () -> Unit, label: String) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label) },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+            selectedLabelColor = MaterialTheme.colorScheme.primary
+        )
     )
 }
 
 @Composable
+fun FormCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(title.uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.sp)
+            content()
+        }
+    }
+}
+
+@Composable
 fun CheckboxLabel(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
-        Text(label, fontSize = 13.sp)
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(end = 12.dp)) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
+        )
+        Text(label, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
     }
 }

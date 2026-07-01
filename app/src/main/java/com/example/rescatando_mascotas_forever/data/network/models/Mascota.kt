@@ -1,6 +1,5 @@
 package com.example.rescatando_mascotas_forever.data.network.models
 
-import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 
 data class Mascota(
@@ -14,10 +13,10 @@ data class Mascota(
     val especie: String? = null,
 
     @SerializedName("edad_aprox")
-    val edadAprox: Double? = null,
+    val edadAprox: Any? = null,
 
     @SerializedName("peso_aprox")
-    val pesoAprox: JsonElement? = null,
+    val pesoAprox: Any? = null,
 
     @SerializedName("tamano")
     val tamano: String? = null,
@@ -38,25 +37,25 @@ data class Mascota(
     val descripcion: String? = null,
 
     @SerializedName("condiciones_especiales")
-    val condicionesEspeciales: JsonElement? = null,
+    val condicionesEspeciales: Any? = null,
 
     @SerializedName("salud_general")
-    val saludGeneral: JsonElement? = null,
+    val saludGeneral: Any? = null,
 
     @SerializedName("esterilizado")
-    val esterilizado: Boolean? = false,
+    val esterilizado: Any? = null,
 
     @SerializedName("desparasitado")
-    val desparasitado: Boolean? = false,
+    val desparasitado: Any? = null,
 
     @SerializedName("vacunado")
-    val vacunado: Boolean? = false,
+    val vacunado: Any? = null,
 
     @SerializedName("enfermedades_cronicas")
-    val enfermedadesCronicas: JsonElement? = null,
+    val enfermedadesCronicas: Any? = null,
 
     @SerializedName("medicamentos")
-    val medicamentos: JsonElement? = null,
+    val medicamentos: Any? = null,
 
     @SerializedName("foto_principal")
     val fotoPrincipal: String? = null,
@@ -65,7 +64,7 @@ data class Mascota(
     val fotoPrincipalPublicId: String? = null,
 
     @SerializedName("galeria_fotos")
-    val galeriaFotos: JsonElement? = null,
+    val galeriaFotos: Any? = null,
 
     @SerializedName("video_url")
     val videoUrl: String? = null,
@@ -74,28 +73,19 @@ data class Mascota(
     val videoPublicId: String? = null,
 
     @SerializedName("necesita_hogar_temporal")
-    val necesitaHogarTemporal: Boolean? = false,
+    val necesitaHogarTemporal: Any? = null,
 
     @SerializedName("apto_con_ninos")
-    val aptoConNinos: Boolean? = true,
+    val aptoConNinos: Any? = null,
 
     @SerializedName("apto_con_otros_animales")
-    val aptoConOtrosAnimales: Boolean? = true,
+    val aptoConOtrosAnimales: Any? = null,
 
     @SerializedName("requisitos_adopcion")
-    val requisitosAdopcion: JsonElement? = null,
+    val requisitosAdopcion: Any? = null,
 
     @SerializedName("hogar_recomendado")
-    val hogarRecomendado: JsonElement? = null,
-
-    @SerializedName("fecha_ingreso")
-    val fechaIngreso: String? = null,
-
-    @SerializedName("fecha_publicacion")
-    val fechaPublicacion: String? = null,
-
-    @SerializedName("fecha_salida")
-    val fechaSalida: String? = null,
+    val hogarRecomendado: Any? = null,
 
     @SerializedName("fundacion_id")
     val fundacionId: Int? = null,
@@ -104,35 +94,45 @@ data class Mascota(
     val veterinariaId: Int? = null,
 
     @SerializedName("destacada")
-    val destacada: Boolean? = false,
-
-    @SerializedName("vistas")
-    val vistas: JsonElement? = null,
-
-    @SerializedName("interesados")
-    val interesados: JsonElement? = null,
-
-    @SerializedName("padrinos")
-    val padrinos: JsonElement? = null,
-
-    @SerializedName("created_by")
-    val createdBy: Int? = null,
-
-    @SerializedName("updated_by")
-    val updatedBy: Int? = null,
-
-    @SerializedName("created_at")
-    val createdAt: String? = null,
-
-    @SerializedName("updated_at")
-    val updatedAt: String? = null,
-
-    @SerializedName("deleted_at")
-    val deletedAt: String? = null,
+    val destacada: Any? = null,
 
     @SerializedName("fundacion")
     val fundacion: Fundacion? = null
-)
+) {
+    fun isEsterilizado(): Boolean = toBoolean(esterilizado)
+    fun isDesparasitado(): Boolean = toBoolean(desparasitado)
+    fun isVacunado(): Boolean = toBoolean(vacunado)
+    fun isAptoNinos(): Boolean = toBoolean(aptoConNinos)
+    fun isAptoOtrosAnimales(): Boolean = toBoolean(aptoConOtrosAnimales)
+    fun isHogarTemporal(): Boolean = toBoolean(necesitaHogarTemporal)
+    fun isDestacada(): Boolean = toBoolean(destacada)
+
+    private fun toBoolean(value: Any?): Boolean {
+        return when (value) {
+            is Boolean -> value
+            is Number -> value.toInt() == 1
+            is String -> value == "1" || value.lowercase() == "true"
+            else -> false
+        }
+    }
+}
+
+fun Any?.toSafeInt(): Int {
+    return when (this) {
+        is Number -> this.toInt()
+        is String -> this.toDoubleOrNull()?.toInt() ?: 0
+        else -> 0
+    }
+}
+
+fun Any?.toSafeString(): String {
+    return when (this) {
+        null -> ""
+        is String -> this
+        is List<*> -> this.joinToString(", ")
+        else -> this.toString()
+    }
+}
 
 data class Fundacion(
     val id: Int,
@@ -143,67 +143,14 @@ data class Fundacion(
     val ciudad: String? = null
 )
 
-fun JsonElement?.toSafeString(): String {
-    if (this == null || this.isJsonNull) return ""
-    return try {
-        if (this.isJsonArray) {
-            this.asJsonArray.mapNotNull { 
-                if (it.isJsonPrimitive) it.asString else null 
-            }.joinToString(", ")
-        } else if (this.isJsonPrimitive) {
-            this.asString
-        } else {
-            this.toString()
-        }
-    } catch (e: Exception) {
-        ""
-    }
-}
-
-fun JsonElement?.toSafeInt(): Int {
-    if (this == null || this.isJsonNull) return 0
-    return try {
-        if (this.isJsonPrimitive && this.asJsonPrimitive.isNumber) {
-            this.asInt
-        } else if (this.isJsonArray) {
-            this.asJsonArray.size()
-        } else {
-            0
-        }
-    } catch (e: Exception) {
-        0
-    }
-}
-
 data class MascotaResponse(
-    @SerializedName("success")
-    val success: Boolean,
-
-    @SerializedName("message")
-    val message: String?,
-
-    @SerializedName("data")
-    val data: MascotaDataWrapper?
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String?,
+    @SerializedName("data") val data: PaginatedResponse<Mascota>?
 )
 
 data class MascotaDetailResponse(
-    @SerializedName("success")
-    val success: Boolean,
-
-    @SerializedName("message")
-    val message: String?,
-
-    @SerializedName("data")
-    val data: Mascota?
-)
-
-data class MascotaDataWrapper(
-    @SerializedName("current_page")
-    val currentPage: Int?,
-
-    @SerializedName("last_page")
-    val lastPage: Int?,
-
-    @SerializedName("data")
-    val data: List<Mascota>? = null
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String?,
+    @SerializedName("data") val data: Mascota?
 )
