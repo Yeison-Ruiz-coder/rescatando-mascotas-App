@@ -19,7 +19,11 @@ data class Rescate(
     @SerializedName("mascota_id") val mascotaId: Int? = null,
     @SerializedName("usuario_reporto_id") val usuarioReportoId: Int? = null,
     @SerializedName("created_at") val createdAt: String? = null,
-    @SerializedName("foto_principal") val fotoPrincipal: String? = null,
+    
+    // Mapeo flexible para la foto
+    @SerializedName(value = "foto_principal", alternate = ["foto", "url_foto", "imagen_principal", "fotoPrincipal"]) 
+    val fotoPrincipal: String? = null,
+
     @SerializedName("galeria_fotos") val galeriaFotos: JsonElement? = null,
     @SerializedName("usuario_reporto") val usuarioReporto: UsuarioReporto? = null,
     @SerializedName("mascota") val mascota: Mascota? = null

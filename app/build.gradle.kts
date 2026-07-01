@@ -65,10 +65,14 @@ dependencies {
 
     // Otras librerías
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     
+    // Google Play Services
+    implementation(libs.google.play.services.location)
+
     // Google Sign-In (Versiones Estables)
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")

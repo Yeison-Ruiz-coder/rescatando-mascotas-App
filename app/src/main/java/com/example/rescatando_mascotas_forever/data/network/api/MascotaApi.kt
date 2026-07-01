@@ -30,7 +30,8 @@ interface MascotaApi {
     @POST("api/admin/mascotas")
     suspend fun adminStoreMascota(
         @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>,
-        @Part fotoPrincipal: MultipartBody.Part? = null
+        @Part fotoPrincipal: MultipartBody.Part? = null,
+        @Part galeria: List<MultipartBody.Part>? = null
     ): MascotaResponse
 
     @Multipart
@@ -38,7 +39,8 @@ interface MascotaApi {
     suspend fun adminUpdateMascota(
         @Path("id") id: Int,
         @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>,
-        @Part fotoPrincipal: MultipartBody.Part? = null
+        @Part fotoPrincipal: MultipartBody.Part? = null,
+        @Part galeria: List<MultipartBody.Part>? = null
     ): MascotaResponse
 
     @DELETE("api/admin/mascotas/{id}")

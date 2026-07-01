@@ -279,7 +279,6 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         Spacer(Modifier.height(16.dp))
 
         DrawerMenuItem(stringResource(R.string.nav_home), Icons.Default.Home, currentRoute == "home") { navigateAndClose("home") }
-        DrawerMenuItem(stringResource(R.string.nav_profile), Icons.Default.Person, currentRoute == "perfil") { navigateAndClose("perfil") }
 
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("COMUNIDAD Y APOYO")
@@ -297,7 +296,6 @@ fun DrawerContent(navController: NavHostController, drawerState: DrawerState, sc
         HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         DrawerSectionHeader("INFORMACIÓN")
         DrawerMenuItem("Nosotros", Icons.Default.Info, currentRoute == "nosotros") { navigateAndClose("nosotros") }
-        DrawerMenuItem("Configuración", Icons.Default.Settings, currentRoute == "configuracion") { navigateAndClose("configuracion") }
 
         Spacer(modifier = Modifier.height(24.dp))
         if (user == null) {
@@ -341,7 +339,6 @@ fun FoundationDrawerContent(navController: NavHostController, drawerState: Drawe
     }
 
     Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState).background(MaterialTheme.colorScheme.surface)) {
-        // Header estilo Imagen Enviada (Cambiado a Gradiente Púrpura/Azul)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -365,7 +362,7 @@ fun FoundationDrawerContent(navController: NavHostController, drawerState: Drawe
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(userName, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text("fundacion", color = Color.White.copy(0.7f), fontSize = 13.sp)
+                    Text("fundación", color = Color.White.copy(0.7f), fontSize = 13.sp)
                 }
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { scope.launch { drawerState.close() } }) {
@@ -376,10 +373,8 @@ fun FoundationDrawerContent(navController: NavHostController, drawerState: Drawe
 
         Spacer(Modifier.height(12.dp))
 
-        // Dashboard Directo
         DrawerMenuItem("Dashboard", Icons.Default.Speed, currentRoute == "foundation_home") { navigateAndClose("foundation_home") }
 
-        // Grupos Expandibles usando WebPrimary
         ExpandableDrawerGroup(
             title = "Rescates",
             icon = Icons.Default.MedicalServices,
@@ -398,42 +393,6 @@ fun FoundationDrawerContent(navController: NavHostController, drawerState: Drawe
             items = listOf(
                 "Mis mascotas" to "foundation_pets",
                 "Registrar mascota" to "foundation_mascota_form"
-            ),
-            currentRoute = currentRoute ?: "",
-            accentColor = WebPrimary,
-            onItemClick = navigateAndClose
-        )
-
-        ExpandableDrawerGroup(
-            title = "Adopciones",
-            icon = Icons.Default.Favorite,
-            items = listOf(
-                "Solicitudes recibidas" to "foundation_adoptions",
-                "Adopciones aprobadas" to "foundation_adoptions_approved",
-                "Seguimiento post-adopción" to "foundation_adoptions_followup"
-            ),
-            currentRoute = currentRoute ?: "",
-            accentColor = WebPrimary,
-            onItemClick = navigateAndClose
-        )
-
-        ExpandableDrawerGroup(
-            title = "Eventos",
-            icon = Icons.Default.Event,
-            items = listOf(
-                "Mis eventos" to "foundation_events",
-                "Crear evento" to "foundation_event_form"
-            ),
-            currentRoute = currentRoute ?: "",
-            accentColor = WebPrimary,
-            onItemClick = navigateAndClose
-        )
-
-        ExpandableDrawerGroup(
-            title = "Suscripciones",
-            icon = Icons.Default.VolunteerActivism,
-            items = listOf(
-                "Mis Suscripciones" to "foundation_subscriptions"
             ),
             currentRoute = currentRoute ?: "",
             accentColor = WebPrimary,
