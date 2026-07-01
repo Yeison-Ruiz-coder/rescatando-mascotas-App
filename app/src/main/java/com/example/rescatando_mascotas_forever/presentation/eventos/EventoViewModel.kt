@@ -32,8 +32,12 @@ class EventoViewModel(
     private val _state = MutableStateFlow<EventoState>(EventoState.Loading)
     val state: StateFlow<EventoState> = _state.asStateFlow()
 
-    private var currentPage = 1
-    private var lastPage = 1
+    private val _currentPage = MutableStateFlow(1)
+    val currentPage: StateFlow<Int> = _currentPage.asStateFlow()
+
+    private val _lastPage = MutableStateFlow(1)
+    val lastPage: StateFlow<Int> = _lastPage.asStateFlow()
+
     private var allEventosList = mutableListOf<Evento>()
 
     private val _searchText = MutableStateFlow("")
@@ -79,17 +83,19 @@ class EventoViewModel(
         _selectedCategory.value = category
     }
 
-    fun getEventos() {
-        currentPage = 1
-        allEventosList.clear()
-        fetchPage(currentPage)
+    fun getEventos(page: Int = 1) {
+        if (page == 1) {
+            allEventosList.clear()
+        }
+        _currentPage.value = page
+        fetchPage(_currentPage.value)
     }
 
     fun loadNextPage() {
         val currentState = _state.value
-        if (currentState is EventoState.Success && !currentState.isNextPageLoading && currentPage < lastPage) {
+        if (currentState is EventoState.Success && !currentState.isNextPageLoading && _currentPage.value < _lastPage.value) {
             _state.value = currentState.copy(isNextPageLoading = true)
-            fetchPage(currentPage + 1)
+            fetchPage(_currentPage.value + 1)
         }
     }
 
@@ -99,8 +105,8 @@ class EventoViewModel(
             
             repository.getEventos(page).collect { result ->
                 result.onSuccess { pagination ->
-                    currentPage = pagination.currentPage
-                    lastPage = pagination.lastPage
+                    _currentPage.value = pagination.currentPage
+                    _lastPage.value = pagination.lastPage
                     
                     if (page == 1) {
                         allEventosList = pagination.data.toMutableList()
@@ -110,7 +116,7 @@ class EventoViewModel(
 
                     _state.value = EventoState.Success(
                         eventos = allEventosList.toList(),
-                        hasMore = currentPage < lastPage,
+                        hasMore = _currentPage.value < _lastPage.value,
                         isNextPageLoading = false
                     )
                 }.onFailure { error ->

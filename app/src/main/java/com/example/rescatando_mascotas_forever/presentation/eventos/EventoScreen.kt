@@ -14,6 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -209,7 +211,6 @@ fun EventoScreen(
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
 
-                            // Botón para cargar más si hay más páginas
                             if (currentState.hasMore) {
                                 item {
                                     Box(
@@ -296,7 +297,7 @@ fun EventCard(
                         }
                     }
                 )
-                
+
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -325,7 +326,7 @@ fun EventCard(
                         letterSpacing = 1.sp
                     )
                 }
-                
+
                 IconButton(
                     onClick = { isFavorite = !isFavorite },
                     modifier = Modifier
@@ -378,7 +379,7 @@ fun EventCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
+
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                         Icon(
                             Icons.Default.LocationOn,

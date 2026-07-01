@@ -2,6 +2,7 @@ package com.example.rescatando_mascotas_forever.data.network.api
 
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.network.models.MascotaResponse
+import com.example.rescatando_mascotas_forever.data.network.models.MascotaDetailResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.*
@@ -19,7 +20,7 @@ interface MascotaApi {
     @GET("api/mascotas/{id}")
     suspend fun getMascotaById(
         @Path("id") id: Int
-    ): MascotaResponse
+    ): MascotaDetailResponse
 
     // --- RUTAS ADMINISTRATIVAS ---
     @GET("api/admin/mascotas")
@@ -59,7 +60,7 @@ interface MascotaApi {
     suspend fun getMascotaDetalleEntity(@Path("id") id: Int): Mascota
 
     @Multipart
-    @POST("api/entity/mascotas/{id}") // Usamos POST con _method=PUT para compatibilidad con Multipart en Laravel
+    @POST("api/entity/mascotas/{id}")
     suspend fun updateMascota(
         @Path("id") id: Int,
         @PartMap partMap: Map<String, @JvmSuppressWildcards RequestBody>,
