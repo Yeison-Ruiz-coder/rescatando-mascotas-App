@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.network.models.Evento
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
@@ -190,6 +193,76 @@ fun AdminEventosScreen(
 }
 
 @Composable
+fun EventoAdminCard(
+    evento: Evento,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                modifier = Modifier.size(70.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(evento.imagenUrl)
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = evento.nombre,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = evento.fecha,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = evento.lugar,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Row {
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (Evento, Uri?) -> Unit) {
     val context = LocalContext.current
     var currentStep by remember { mutableIntStateOf(1) }
@@ -200,7 +273,7 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
     var ubicacion by remember { mutableStateOf(evento?.lugar ?: "") }
     var tipo by remember { mutableStateOf(evento?.tipo ?: "NORMAL") }
     var descripcion by remember { mutableStateOf(evento?.descripcion ?: "") }
-    
+
     // Estado para la imagen
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val imageLauncher = rememberLauncherForActivityResult(
@@ -302,7 +375,7 @@ fun EventoDialogStepByStep(evento: Evento?, onDismiss: () -> Unit, onConfirm: (E
                         colors = textFieldColors,
                         shape = RoundedCornerShape(12.dp)
                     )
-                    
+
                     OutlinedTextField(
                         value = descripcion,
                         onValueChange = { descripcion = it },

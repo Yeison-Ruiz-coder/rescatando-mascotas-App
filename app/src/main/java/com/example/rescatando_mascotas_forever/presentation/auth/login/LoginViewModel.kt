@@ -1,5 +1,11 @@
 package com.example.rescatando_mascotas_forever.presentation.auth.login
 
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
@@ -11,11 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import retrofit2.HttpException
 import kotlinx.coroutines.launch
-import androidx.credentials.CredentialManager
-import androidx.credentials.GetCredentialRequest
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import android.content.Context
 
 sealed class LoginState {
     object Idle : LoginState()
@@ -37,13 +38,13 @@ class LoginViewModel(
             try {
                 val credentialManager = CredentialManager.create(context)
                 
-                // ID de Cliente real generado en la consola de Google
+                // IMPORTANTE: Este debe ser un ID de cliente de tipo "WEB" en Google Cloud Console
                 val serverClientId = "486049342985-r2r8kslmctovk296k1pslki02imlthed.apps.googleusercontent.com"
                 
                 val googleIdOption = GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(false) // Permite mostrar todas las cuentas, no solo las ya registradas
+                    .setFilterByAuthorizedAccounts(false)
                     .setServerClientId(serverClientId)
-                    .setAutoSelectEnabled(false) // Desactivamos el auto-selector para forzar a que aparezca la lista
+                    .setAutoSelectEnabled(false)
                     .build()
 
                 val request = GetCredentialRequest.Builder()
@@ -53,11 +54,9 @@ class LoginViewModel(
                 val result = credentialManager.getCredential(context, request)
                 val credential = result.credential
 
-                // Verificamos si es una credencial de Google
                 if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     
-                    // Extraemos los datos (o usamos valores por defecto si vienen vacíos)
                     val userEmail = googleIdTokenCredential.id
                     val displayName = googleIdTokenCredential.displayName ?: "Usuario Google"
                     val photoUrl = googleIdTokenCredential.profilePictureUri?.toString()
@@ -80,16 +79,19 @@ class LoginViewModel(
                     _state.value = LoginState.Error("Tipo de cuenta no soportado")
                 }
             } catch (e: Exception) {
+                Log.e("LoginViewModel", "Error en Google Sign-In: ${e.message}", e)
                 val errorMessage = when (e) {
                     is androidx.credentials.exceptions.GetCredentialException -> {
-                        if (e.message?.contains("cancel", ignoreCase = true) == true) "Inicio de sesión cancelado"
-                        else "No se pudo conectar con Google. Verifica tu conexión."
+                        if (e.message?.contains("cancel", ignoreCase = true) == true) {
+                            "Inicio de sesión cancelado"
+                        } else {
+                            "No se pudo conectar con Google. Verifica tu conexión."
+                        }
                     }
-                    else -> "Error de Google: ${e.message}"
+                    else -> "Error al iniciar sesión con Google"
                 }
                 _state.value = LoginState.Error(errorMessage)
             } finally {
-                // Aseguramos que el estado de carga termine
                 if (_state.value is LoginState.Loading) {
                     _state.value = LoginState.Idle
                 }
@@ -99,7 +101,7 @@ class LoginViewModel(
 
     fun login(email: String, password: String, sessionManager: SessionManager) {
         val cleanEmail = email.trim()
-        val cleanPassword = password // No trim en contraseña
+        val cleanPassword = password
 
         if (cleanEmail.isBlank() || cleanPassword.isBlank()) {
             _state.value = LoginState.Error("Por favor completa todos los campos")

@@ -17,7 +17,7 @@ data class Mascota(
     val edadAprox: Double? = null,
 
     @SerializedName("peso_aprox")
-    val pesoAprox: JsonElement? = null, // Puede ser String o Double en el JSON
+    val pesoAprox: JsonElement? = null,
 
     @SerializedName("tamano")
     val tamano: String? = null,
@@ -143,7 +143,6 @@ data class Fundacion(
     val ciudad: String? = null
 )
 
-// Extensión para manejar campos que pueden ser String o Array de Strings
 fun JsonElement?.toSafeString(): String {
     if (this == null || this.isJsonNull) return ""
     return try {
@@ -161,7 +160,6 @@ fun JsonElement?.toSafeString(): String {
     }
 }
 
-// Extensión para manejar campos que pueden ser Int o Array de Objetos (padrinos, etc)
 fun JsonElement?.toSafeInt(): Int {
     if (this == null || this.isJsonNull) return 0
     return try {
@@ -188,10 +186,24 @@ data class MascotaResponse(
     val data: MascotaDataWrapper?
 )
 
+data class MascotaDetailResponse(
+    @SerializedName("success")
+    val success: Boolean,
+
+    @SerializedName("message")
+    val message: String?,
+
+    @SerializedName("data")
+    val data: Mascota?
+)
+
 data class MascotaDataWrapper(
     @SerializedName("current_page")
     val currentPage: Int?,
 
+    @SerializedName("last_page")
+    val lastPage: Int?,
+
     @SerializedName("data")
-    val data: List<Mascota>
+    val data: List<Mascota>? = null
 )

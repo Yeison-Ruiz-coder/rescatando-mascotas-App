@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,15 +24,13 @@ class MascotaDetalleViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.mascotaApi.getMascotaById(id)
                 if (response.success && response.data != null) {
-                    val gson = Gson()
-                    val json = gson.toJson(response.data)
-                    val mascota = gson.fromJson(json, Mascota::class.java)
-                    _state.value = MascotaDetalleState.Success(mascota)
+                    // Ahora usamos el objeto mascota directamente desde response.data
+                    _state.value = MascotaDetalleState.Success(response.data)
                 } else {
-                    _state.value = MascotaDetalleState.Error(response.message ?: "No se encontró la mascota")
+                    _state.value = MascotaDetalleState.Error(response.message ?: "No se pudo cargar la mascota")
                 }
             } catch (e: Exception) {
-                _state.value = MascotaDetalleState.Error(e.message ?: "Error al cargar los detalles")
+                _state.value = MascotaDetalleState.Error("Error: ${e.message}")
             }
         }
     }

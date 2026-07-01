@@ -3,6 +3,7 @@ package com.example.rescatando_mascotas_forever.data.repository
 import com.example.rescatando_mascotas_forever.data.network.services.RetrofitClient
 import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.data.network.models.MascotaResponse
+import com.example.rescatando_mascotas_forever.data.network.models.MascotaDetailResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import okhttp3.MultipartBody
@@ -24,7 +25,7 @@ class MascotaRepository {
         }
     }
 
-    fun getMascotaById(id: Int): Flow<Result<MascotaResponse>> = flow {
+    fun getMascotaById(id: Int): Flow<Result<MascotaDetailResponse>> = flow {
         try {
             val response = api.getMascotaById(id)
             emit(Result.success(response))

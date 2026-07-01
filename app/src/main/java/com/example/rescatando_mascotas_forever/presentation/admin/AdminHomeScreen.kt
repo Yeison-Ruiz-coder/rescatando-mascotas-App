@@ -92,7 +92,6 @@ fun AdminHomeScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = 32.dp)
                         ) {
-                            // --- 1. HEADER PÚRPURA PREMIUM ---
                             item {
                                 Box(
                                     modifier = Modifier
@@ -101,7 +100,8 @@ fun AdminHomeScreen(
                                         .padding(horizontal = 24.dp, vertical = 32.dp)
                                 ) {
                                     Column {
-                                        StatusLiveBadge()
+                                        val currentTime = remember { SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date()) }
+                                        StatusLiveBadge(currentTime)
                                         Spacer(Modifier.height(12.dp))
                                         Text(
                                             text = stringResource(R.string.admin_home_title),
@@ -118,7 +118,6 @@ fun AdminHomeScreen(
                                 }
                             }
 
-                            // --- 2. KPI GRID (MÉTRICAS) ---
                             item {
                                 Row(
                                     modifier = Modifier.padding(20.dp).fillMaxWidth(),
@@ -153,7 +152,7 @@ fun AdminHomeScreen(
 
                             item {
                                 AnalyticsSectionCard(title = "Tendencia de Adopciones", icon = Icons.AutoMirrored.Filled.ShowChart) {
-                                    SeniorAreaChart(graficos?.adoptionsHistory ?: emptyList())
+                                    SeniorAreaChart(state.stats.adoptionsHistory)
                                 }
                             }
 
@@ -171,7 +170,7 @@ fun AdminHomeScreen(
                                         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                                             Text("Distribución Especies", fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.Start))
                                             Spacer(Modifier.weight(1f))
-                                            SeniorDonutChart(emptyList())
+                                            SeniorDonutChart(state.stats.speciesDistribution)
                                             Spacer(Modifier.weight(1f))
                                         }
                                     }
@@ -179,16 +178,15 @@ fun AdminHomeScreen(
                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         ActionCardPro("Mascotas", Icons.Default.Edit, Color(0xFF673AB7)) { navController.navigate("admin_mascotas") }
                                         ActionCardPro("Usuarios", Icons.Default.Group, Color(0xFF3B82F6)) { navController.navigate("admin_usuarios") }
-                                        ActionCardPro("Reporte PDF", Icons.Default.PictureAsPdf, Color(0xFF10B981)) { 
-                                            ReportGenerator.generateStatsPdf(context, state.stats.totalMascotas, state.stats.totalRescates, state.stats.totalAdopciones) 
+                                        ActionCardPro("Reporte PDF", Icons.Default.PictureAsPdf, Color(0xFF10B981)) {
+                                            ReportGenerator.generateStatsPdf(context, state.stats.totalMascotas, state.stats.totalRescates, state.stats.totalAdopciones)
                                         }
                                     }
                                 }
                             }
-                            
+
                             item {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                // Botón de Modo Usuario para Vista Previa
                                 OutlinedButton(
                                     onClick = { navController.navigate("home") },
                                     modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth().height(50.dp),
@@ -251,29 +249,6 @@ fun MetricCardSenior(title: String, value: String, trend: String?, icon: ImageVe
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ActionCardPro(title: String, icon: ImageVector, color: Color, onClick: () -> Unit) {
-    Card(
-        modifier = modifier.height(130.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Box(Modifier.size(36.dp).background(color.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
-            }
-            Spacer(Modifier.weight(1f))
-            Text(value, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(title, fontSize = 11.sp, color = Color(0xFF64748B), modifier = Modifier.weight(1f))
-                Text(trend, fontSize = 10.sp, color = if(trend.startsWith("+")) Color(0xFF10B981) else Color.Red, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
 @Composable
 fun AnalyticsSectionCard(title: String, icon: ImageVector, action: @Composable () -> Unit = {}, content: @Composable () -> Unit) {
     Card(
@@ -296,14 +271,14 @@ fun AnalyticsSectionCard(title: String, icon: ImageVector, action: @Composable (
 }
 
 @Composable
-fun SeniorAreaChart(data: List<MonthlyData>) {
-    val points = if(data.isEmpty()) listOf(MonthlyData("L", 10f), MonthlyData("M", 25f), MonthlyData("X", 15f), MonthlyData("J", 35f), MonthlyData("V", 28f)) else data
+fun SeniorAreaChart(data: List<MonthlyData>?) {
+    val points = if(data.isNullOrEmpty()) listOf(MonthlyData("L", 10f), MonthlyData("M", 25f), MonthlyData("X", 15f), MonthlyData("J", 35f), MonthlyData("V", 28f)) else data
     val maxValue = points.maxByOrNull { it.value }?.value ?: 1f
-    
+
     Canvas(modifier = Modifier.fillMaxWidth().height(140.dp)) {
         val path = Path()
         val space = size.width / (points.size - 1).coerceAtLeast(1)
-        
+
         points.forEachIndexed { i, item ->
             val x = i * space
             val y = size.height - (item.value / maxValue) * size.height
@@ -311,8 +286,7 @@ fun SeniorAreaChart(data: List<MonthlyData>) {
         }
 
         drawPath(path, color = Color(0xFF673AB7), style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round))
-        
-        // Fill Area
+
         val fillPath = Path().apply {
             addPath(path)
             lineTo(size.width, size.height)
@@ -324,8 +298,8 @@ fun SeniorAreaChart(data: List<MonthlyData>) {
 }
 
 @Composable
-fun SeniorDonutChart(data: List<SpeciesDistribution>) {
-    if (data.isEmpty()) {
+fun SeniorDonutChart(data: List<SpeciesDistribution>?) {
+    if (data.isNullOrEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Sin datos", fontSize = 10.sp, color = Color.Gray)
         }

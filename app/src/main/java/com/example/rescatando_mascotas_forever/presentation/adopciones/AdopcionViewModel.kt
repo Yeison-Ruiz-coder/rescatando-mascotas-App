@@ -39,16 +39,15 @@ class AdopcionViewModel : ViewModel() {
             _currentPage.value = page
             
             try {
-                // Quitamos el filtro de estado explícito por si el backend usa otro término
-                val response = RetrofitClient.mascotaApi.getMascotas(especie = especie)
+                // Ahora pasamos el parámetro 'page' correctamente a la API
+                val response = RetrofitClient.mascotaApi.getMascotas(especie = especie, page = page)
                 if (response.success) {
-                    // Ahora que el modelo está tipado, el acceso es directo
                     _mascotas.value = response.data?.data ?: emptyList()
+                    // Actualizamos lastPage para habilitar los botones de paginación
+                    _lastPage.value = response.data?.lastPage ?: 1
                 } else {
                     _mascotas.value = emptyList()
-                    if (!response.success) {
-                        _error.value = response.message ?: "Error al obtener mascotas"
-                    }
+                    _error.value = response.message ?: "Error al obtener mascotas"
                 }
             } catch (e: Exception) {
                 _error.value = "Error: ${e.localizedMessage}"
