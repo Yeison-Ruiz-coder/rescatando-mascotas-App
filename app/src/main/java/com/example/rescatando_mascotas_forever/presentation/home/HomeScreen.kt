@@ -19,8 +19,6 @@ import androidx.compose.material3.pulltorefresh.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -37,7 +35,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.rescatando_mascotas_forever.R
 import com.example.rescatando_mascotas_forever.data.local.SessionManager
-import com.example.rescatando_mascotas_forever.data.network.models.Mascota
 import com.example.rescatando_mascotas_forever.presentation.common.components.*
 import com.example.rescatando_mascotas_forever.ui.theme.*
 import kotlinx.coroutines.launch
@@ -53,7 +50,6 @@ fun HomeScreen(
     val eventos by viewModel.eventos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val selectedCategoria by viewModel.selectedCategoria.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
     
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
@@ -135,21 +131,14 @@ fun HomeScreen(
                             userName = firstName
                         ) 
                     }
-                    
-                    item {
-                        QuickActionsRow(navController)
-                    }
+
+                    item { Spacer(modifier = Modifier.height(40.dp)) }
 
                     item {
                         BannerPromocional()
                     }
 
-                    item {
-                        HomeSearchBar(
-                            searchQuery = searchQuery,
-                            onSearchChange = { viewModel.onSearchQueryChange(it) }
-                        )
-                    }
+                    item { Spacer(modifier = Modifier.height(40.dp)) }
 
                     item {
                         Column(modifier = Modifier.padding(bottom = 8.dp)) {
@@ -160,6 +149,8 @@ fun HomeScreen(
                             )
                         }
                     }
+
+                    item { Spacer(modifier = Modifier.height(56.dp)) }
 
                     item {
                         SectionTitle("Cerca de ti")
@@ -186,12 +177,17 @@ fun HomeScreen(
                             }
                         }
                     }
+
+                    item { Spacer(modifier = Modifier.height(56.dp)) }
+
                     item {
                         SectionTitle("Próximos eventos", "Ver todos") {
                             navController.navigate("eventos")
                         }
                         EventList(eventos, navController)
                     }
+
+                    item { Spacer(modifier = Modifier.height(56.dp)) }
 
                     item {
                         SectionTitle("Consejos para tu peludito")
@@ -200,7 +196,12 @@ fun HomeScreen(
                         }
                     }
 
-                    item { Spacer(modifier = Modifier.height(30.dp)) }
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
+                        QuickActionsRow(navController)
+                    }
+
+                    item { Spacer(modifier = Modifier.height(80.dp)) }
                 }
 
                 if (selectedConsejo != null) {
@@ -449,57 +450,11 @@ fun HeaderSection(
 }
 
 @Composable
-fun HomeSearchBar(
-    searchQuery: String,
-    onSearchChange: (String) -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = onSearchChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            placeholder = { 
-                Text(
-                    "Buscar por raza, nombre, ciudad...", 
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), 
-                    fontSize = 14.sp 
-                ) 
-            },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-            trailingIcon = {
-                if (searchQuery.isNotEmpty()) {
-                    IconButton(onClick = { onSearchChange("") }) {
-                        Icon(Icons.Default.Close, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            },
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-            ),
-            singleLine = true
-        )
-    }
-}
-
-@Composable
 fun QuickActionsRow(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .offset(y = (-30).dp),
+            .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         QuickActionCard("Donar", Icons.Default.Favorite, WebHeart, Modifier.weight(1f)) {
@@ -673,123 +628,16 @@ fun EventList(
     }
 
     LazyRow(
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         items(eventos) { evento ->
-            val imagePath = when {
-                !evento.imagenUrl.isNullOrEmpty() && evento.imagenUrl != "null" -> evento.imagenUrl
-                !evento.imagenPublicId.isNullOrEmpty() && evento.imagenPublicId != "null" -> evento.imagenPublicId
-                else -> null
-            }
-            val fullImageUrl = com.example.rescatando_mascotas_forever.utils.Constants.getImageUrl(imagePath)
-
-            Card(
-                modifier = Modifier
-                    .width(180.dp)
-                    .clickable { navController.navigate("eventos/${evento.id}") },
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column {
-                    Box {
-                        Image(
-                            painter = rememberAsyncImagePainter(model = fullImageUrl),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(160.dp),
-                            contentScale = ContentScale.Crop
-                        )
-                        Surface(
-                            modifier = Modifier.padding(10.dp).align(Alignment.TopStart),
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = (evento.tipo ?: "Evento").lowercase(),
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text(
-                            text = evento.nombre, 
-                            fontWeight = FontWeight.ExtraBold, 
-                            fontSize = 14.sp, 
-                            color = MaterialTheme.colorScheme.primary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        val (displayFecha, displayHora) = remember(evento.fecha) {
-                            try {
-                                if (evento.fecha.contains("T")) {
-                                    val parts = evento.fecha.split("T")
-                                    val datePart = parts[0]
-                                    val timePart = if (parts.size > 1) {
-                                        val timeStr = parts[1].substring(0, 5)
-                                        val timeParts = timeStr.split(":")
-                                        val horaRaw = timeParts[0].toInt()
-                                        val amPm = if (horaRaw >= 12) "PM" else "AM"
-                                        val hora12 = if (horaRaw % 12 == 0) 12 else horaRaw % 12
-                                        String.format("%02d:%s %s", hora12, timeParts[1], amPm)
-                                    } else ""
-                                    Pair(datePart, timePart)
-                                } else {
-                                    val parts = evento.fecha.split(" ")
-                                    Pair(parts[0], if (parts.size > 1) parts[1] else "")
-                                }
-                            } catch (e: Exception) {
-                                Pair(evento.fecha, "")
-                            }
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Event, null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = displayFecha,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Schedule, null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = displayHora,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 10.sp
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(12.dp), tint = WebDanger.copy(alpha = 0.6f))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = evento.lugar, 
-                                fontSize = 10.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                }
-            }
+            EventCard(
+                evento = evento,
+                onClick = { navController.navigate("evento_detalle/${evento.id}") },
+                modifier = Modifier.width(320.dp)
+            )
         }
     }
 }

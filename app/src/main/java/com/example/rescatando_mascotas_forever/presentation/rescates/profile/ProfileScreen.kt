@@ -229,7 +229,7 @@ fun ProfileMenuSection(navController: NavHostController, context: Context) {
             icon = Icons.Default.Settings,
             title = stringResource(R.string.profile_settings),
             subtitle = stringResource(R.string.profile_settings_desc),
-            onClick = { navController.navigate("configuracion") }
+            onClick = { navController.navigate("settings") }
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
         ProfileMenuItem(

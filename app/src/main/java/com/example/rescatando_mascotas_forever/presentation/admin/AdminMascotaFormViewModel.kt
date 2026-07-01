@@ -78,6 +78,7 @@ class AdminMascotaFormViewModel : ViewModel() {
         hogarRecomendado: String,
         videoUrl: String,
         fotoPrincipalUri: Uri?,
+        galeriaUris: List<Uri>,
         fundacionId: String
     ) {
         viewModelScope.launch {
@@ -133,11 +134,22 @@ class AdminMascotaFormViewModel : ViewModel() {
                     }
                 }
 
+                val galeriaParts = galeriaUris.mapIndexedNotNull { index, uri ->
+                    try {
+                        val file = uriToFile(context, uri)
+                        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                        MultipartBody.Part.createFormData("galeria[$index]", file.name, requestFile)
+                    } catch (e: Exception) {
+                        Log.e("AdminMascotaFormVM", "Error procesando imagen galeria: ${e.message}")
+                        null
+                    }
+                }
+
                 val response = if (id == null) {
-                    RetrofitClient.mascotaApi.adminStoreMascota(partMap, imagePart)
+                    RetrofitClient.mascotaApi.adminStoreMascota(partMap, imagePart, galeriaParts)
                 } else {
                     partMap["_method"] = "PUT".toRequestBody("text/plain".toMediaTypeOrNull())
-                    RetrofitClient.mascotaApi.adminUpdateMascota(id, partMap, imagePart)
+                    RetrofitClient.mascotaApi.adminUpdateMascota(id, partMap, imagePart, galeriaParts)
                 }
 
                 if (response.success) {

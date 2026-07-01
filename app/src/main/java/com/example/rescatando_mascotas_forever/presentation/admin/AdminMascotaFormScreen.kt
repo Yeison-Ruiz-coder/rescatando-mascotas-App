@@ -28,7 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.rescatando_mascotas_forever.data.network.models.toSafeString
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AdminMascotaFormScreen(
     navController: NavHostController,
@@ -70,9 +70,14 @@ fun AdminMascotaFormScreen(
     var destacada by remember { mutableStateOf(false) }
 
     var fotoPrincipalUri by remember { mutableStateOf<Uri?>(null) }
+    var galeriaUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
     val fotoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         fotoPrincipalUri = uri
+    }
+
+    val galeriaLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        galeriaUris = uris
     }
 
     LaunchedEffect(mascotaId) {
@@ -100,7 +105,6 @@ fun AdminMascotaFormScreen(
             hogarRecomendado = it.hogarRecomendado.toSafeString()
             videoUrl = it.videoUrl ?: ""
             
-            // CORRECCIÓN: Usar métodos helper para asignar Booleanos reales
             esterilizado = it.isEsterilizado()
             desparasitado = it.isDesparasitado()
             vacunado = it.isVacunado()
@@ -154,7 +158,6 @@ fun AdminMascotaFormScreen(
             OutlinedTextField(value = nombre, onValueChange = { nombre = it }, label = { Text("Nombre de la Mascota") }, modifier = Modifier.fillMaxWidth())
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Especie Dropdown
                 var expEsp by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.weight(1f)) {
                     OutlinedTextField(
@@ -172,7 +175,6 @@ fun AdminMascotaFormScreen(
                     }
                 }
 
-                // Género Dropdown
                 var expGen by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.weight(1f)) {
                     OutlinedTextField(
@@ -197,7 +199,6 @@ fun AdminMascotaFormScreen(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Tamaño Dropdown
                 var expTam by remember { mutableStateOf(false) }
                 Box(modifier = Modifier.weight(1f)) {
                     OutlinedTextField(
@@ -219,21 +220,33 @@ fun AdminMascotaFormScreen(
 
             OutlinedTextField(value = ubicacion, onValueChange = { ubicacion = it }, label = { Text("Ubicación") }, modifier = Modifier.fillMaxWidth())
 
-            // Estado Dropdown
-            var expEst by remember { mutableStateOf(false) }
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = estado,
-                    onValueChange = {},
-                    label = { Text("Estado") },
-                    readOnly = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, Modifier.clickable { expEst = true }) }
+            SectionTitle("Clasificación (Estado)")
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                val estadosConfig = listOf(
+                    "En adopcion" to Color(0xFF9C27B0), // Morado
+                    "Adoptado" to Color(0xFF2196F3),   // Azul
+                    "Rescatada" to Color(0xFFE91E63),  // Rosa
+                    "En acogida" to Color(0xFF00BCD4),  // Cyan
+                    "Urgente" to Color(0xFFF44336),     // Rojo
+                    "Otro" to Color(0xFF4CAF50),        // Verde
+                    "Abandonado" to Color(0xFFFFC107)    // Amarillo
                 )
-                DropdownMenu(expanded = expEst, onDismissRequest = { expEst = false }) {
-                    listOf("En adopcion", "Adoptado", "Rescatada", "En acogida", "Urgente").forEach { s ->
-                        DropdownMenuItem(text = { Text(s) }, onClick = { estado = s; expEst = false })
-                    }
+                estadosConfig.forEach { (text, color) ->
+                    FilterChip(
+                        selected = estado == text,
+                        onClick = { estado = text },
+                        label = { Text(text) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = color,
+                            selectedLabelColor = Color.White,
+                            containerColor = color.copy(alpha = 0.1f),
+                            labelColor = color
+                        )
+                    )
                 }
             }
 
@@ -271,14 +284,26 @@ fun AdminMascotaFormScreen(
             SectionTitle("Multimedia")
             OutlinedTextField(value = videoUrl, onValueChange = { videoUrl = it }, label = { Text("URL de Video (YouTube/Vimeo)") }, modifier = Modifier.fillMaxWidth())
 
-            Button(
-                onClick = { fotoLauncher.launch("image/*") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.Black)
-            ) {
-                Icon(Icons.Default.PhotoCamera, null)
-                Spacer(Modifier.width(8.dp))
-                Text(if (fotoPrincipalUri != null) "Foto Seleccionada" else "Cambiar Foto Principal")
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = { fotoLauncher.launch("image/*") },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.Black)
+                ) {
+                    Icon(Icons.Default.PhotoCamera, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(if (fotoPrincipalUri != null) "Foto OK" else "Principal", fontSize = 12.sp)
+                }
+
+                Button(
+                    onClick = { galeriaLauncher.launch("image/*") },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.Black)
+                ) {
+                    Icon(Icons.Default.Collections, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(if (galeriaUris.isNotEmpty()) "${galeriaUris.size} Fotos" else "Galería", fontSize = 12.sp)
+                }
             }
 
             Spacer(Modifier.height(24.dp))
@@ -313,6 +338,7 @@ fun AdminMascotaFormScreen(
                         hogarRecomendado = hogarRecomendado,
                         videoUrl = videoUrl,
                         fotoPrincipalUri = fotoPrincipalUri,
+                        galeriaUris = galeriaUris,
                         fundacionId = fundacionIdState
                     )
                 },

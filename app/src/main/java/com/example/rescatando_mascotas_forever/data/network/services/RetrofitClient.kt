@@ -50,7 +50,7 @@ object RetrofitClient {
     val authApi: AuthApi by lazy { retrofit.create(AuthApi::class.java) }
     val mascotaApi: MascotaApi by lazy { retrofit.create(MascotaApi::class.java) }
     val eventoApi: EventoApi by lazy { retrofit.create(EventoApi::class.java) }
-    val rescueApi: RescateApi by lazy { retrofit.create(RescateApi::class.java) }
+    val rescateApi: RescateApi by lazy { retrofit.create(RescateApi::class.java) }
     val adopcionApi: AdopcionApi by lazy { retrofit.create(AdopcionApi::class.java) }
     val veterinariaApi: VeterinariaApi by lazy { retrofit.create(VeterinariaApi::class.java) }
     val suscripcionApi: SuscripcionApi by lazy { retrofit.create(SuscripcionApi::class.java) }

@@ -62,8 +62,9 @@ fun FoundationMascotaFormScreen(
     val tamanos = listOf("pequeño", "mediano", "grande", "muy_grande")
     var tamano by remember { mutableStateOf(tamanos[1]) }
 
-    val estados = listOf("En adopcion", "Adoptado", "Rescatada", "En acogida")
-    var estado by remember { mutableStateOf(estados[0]) }
+    // Lista de estados ampliada
+    val estadosList = listOf("En adopcion", "Adoptado", "Rescatada", "En acogida", "Urgente", "Otro", "Abandonado")
+    var estado by remember { mutableStateOf(estadosList[0]) }
 
     var condicionesEspeciales by remember { mutableStateOf("") }
     var saludGeneral by remember { mutableStateOf("") }
@@ -95,7 +96,7 @@ fun FoundationMascotaFormScreen(
             peso = it.pesoAprox.toSafeString()
             genero = if (it.genero in generos) it.genero!! else generos[0]
             tamano = if (it.tamano in tamanos) it.tamano!! else tamanos[1]
-            estado = if (it.estado in estados) it.estado!! else estados[0]
+            estado = if (it.estado in estadosList) it.estado!! else estadosList[0]
             color = it.color ?: ""
             ubicacion = it.ubicacion ?: ""
             descripcion = it.descripcion ?: ""
@@ -199,7 +200,7 @@ fun FoundationMascotaFormScreen(
                             aptoNinos, { aptoNinos = it }, aptoAnimales, { aptoAnimales = it },
                             hogarTemporal, { hogarTemporal = it }, descripcion, { descripcion = it },
                             ubicacion, { ubicacion = it }, hogarRecomendado, { hogarRecomendado = it },
-                            requisitosAdopcion, { requisitosAdopcion = it }, estado, { estado = it }, estados
+                            requisitosAdopcion, { requisitosAdopcion = it }, estado, { estado = it }
                         )
                     }
                 }
@@ -392,6 +393,7 @@ fun StepHealth(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun StepAdoption(
     aptoNinos: Boolean, onNinos: (Boolean) -> Unit,
@@ -401,7 +403,7 @@ fun StepAdoption(
     ubicacion: String, onUbi: (String) -> Unit,
     hogarRec: String, onHogar: (String) -> Unit,
     requisitos: String, onReq: (String) -> Unit,
-    estado: String, onEstado: (String) -> Unit, estados: List<String>
+    estado: String, onEstado: (String) -> Unit
 ) {
     FormCard("Comportamiento y Adopción") {
         Row(Modifier.fillMaxWidth()) {
@@ -409,7 +411,37 @@ fun StepAdoption(
             CheckboxLabel("Apto Animales", aptoAnimales, onAnimales)
         }
         CheckboxLabel("Necesita Hogar Temporal", hogarTemporal, onTemp)
-        AppDropdown(label = "Estado Actual", options = estados, selected = estado, onSelect = onEstado)
+        
+        Text("Estado Actual (Clasificar):", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            val estadosConfig = listOf(
+                "En adopcion" to Color(0xFF9C27B0), // Morado
+                "Adoptado" to Color(0xFF2196F3),   // Azul
+                "Rescatada" to Color(0xFFE91E63),  // Rosa
+                "En acogida" to Color(0xFF00BCD4),  // Cyan
+                "Urgente" to Color(0xFFF44336),     // Rojo
+                "Otro" to Color(0xFF4CAF50),        // Verde (Solicitado)
+                "Abandonado" to Color(0xFFFFC107)    // Amarillo (Solicitado)
+            )
+            estadosConfig.forEach { (text, color) ->
+                FilterChip(
+                    selected = estado == text,
+                    onClick = { onEstado(text) },
+                    label = { Text(text, fontSize = 12.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = color,
+                        selectedLabelColor = Color.White,
+                        containerColor = color.copy(alpha = 0.1f),
+                        labelColor = color
+                    )
+                )
+            }
+        }
+
         AppTextField(value = ubicacion, onValueChange = onUbi, label = "Ubicación / Lugar de Rescate")
         AppTextField(value = descripcion, onValueChange = onDesc, label = "Historia de la mascota", minLines = 3)
         AppTextField(value = hogarRec, onValueChange = onHogar, label = "Tipo de hogar recomendado")
