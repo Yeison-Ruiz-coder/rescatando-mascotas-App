@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +38,7 @@ fun FoundationListScreen(
     var showCityDropdown by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     AppDrawer(
         navController = navController,
@@ -44,7 +46,8 @@ fun FoundationListScreen(
         scope = scope
     ) {
         Scaffold(
-            topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            topBar = { MainTopBar(drawerState = drawerState, scope = scope, scrollBehavior = scrollBehavior) },
             bottomBar = { AppBottomBar(navController) }
         ) { padding ->
             LazyColumn(

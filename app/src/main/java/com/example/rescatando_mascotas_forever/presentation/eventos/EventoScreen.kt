@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +46,7 @@ fun EventoScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val state by viewModel.state.collectAsState()
     val filteredEventos by viewModel.filteredEventos.collectAsState()
@@ -65,8 +67,15 @@ fun EventoScreen(
         scope = scope
     ) {
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             snackbarHost = { SnackbarHost(snackbarHostState) },
-            topBar = { MainTopBar(drawerState = drawerState, scope = scope) },
+            topBar = { 
+                MainTopBar(
+                    drawerState = drawerState, 
+                    scope = scope,
+                    scrollBehavior = scrollBehavior
+                ) 
+            },
             bottomBar = { AppBottomBar(navController = navController) },
             containerColor = MaterialTheme.colorScheme.background
         ) { paddingValues ->
